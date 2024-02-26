@@ -12,6 +12,10 @@ int main(int argc, char* argv[]){
     }
     Matrix m;
     m.load_from_path(argv[1]);
-    std::cout << m.x_coord.size() << std::endl;
+    m.generate_dist_matrix();
+    // std::cout << m.x_coord.size() << std::endl;
+    for (int i = 0; i < 5; i++){
+        std::cout << m.dist_matrix[99][99-i] << " ";
+    }
     return 0;
 }
