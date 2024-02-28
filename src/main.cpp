@@ -20,11 +20,17 @@ int main(int argc, char* argv[]){
     TSP tsp(m, AlgType::nearest_neighbors);
 
     // Solve the TSP problem
-    std::vector<int> greedyPath = tsp.solve();
+    auto [cycle1, cycle2] = tsp.solve();
 
-    // Display the result
-    std::cout << "Greedy TSP cycle: ";
-    for (int vertex : greedyPath) {
+    // Display the result for each cycle
+    std::cout << "Greedy TSP Cycle 1: ";
+    for (int vertex : cycle1) {
+        std::cout << vertex << " ";
+    }
+    std::cout << std::endl;
+
+    std::cout << "Greedy TSP Cycle 2: ";
+    for (int vertex : cycle2) {
         std::cout << vertex << " ";
     }
     std::cout << std::endl;
