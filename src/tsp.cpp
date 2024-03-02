@@ -85,20 +85,36 @@ auto TSP::find_greedy_cycles() -> std::tuple<std::vector<int>, std::vector<int>>
         int nearest_neighbor2 = find_nearest_neighbor(current_vertex2, visited);
 
         // Choose the closer neighbor
-        if (dist_matrix.dist_matrix[current_vertex1][nearest_neighbor1] <
-            dist_matrix.dist_matrix[current_vertex2][nearest_neighbor2]) {
-            cycle1.push_back(nearest_neighbor1);
-            visited[nearest_neighbor1] = true;
-            current_vertex1 = nearest_neighbor1;
+        if ((cycle1.size() < dist_matrix.x_coord.size() / 2 && dist_matrix.x_coord.size() % 2 == 0) ||
+            (cycle2.size() < dist_matrix.x_coord.size() / 2)) {
+            // Choose the nearest neighbor to the cycle that is shorter
+            if (cycle1.size() <= cycle2.size()) {
+                cycle1.push_back(nearest_neighbor1);
+                visited[nearest_neighbor1] = true;
+                current_vertex1 = nearest_neighbor1;
+            } else {
+                cycle2.push_back(nearest_neighbor2);
+                visited[nearest_neighbor2] = true;
+                current_vertex2 = nearest_neighbor2;
+            }
         } else {
-            cycle2.push_back(nearest_neighbor2);
-            visited[nearest_neighbor2] = true;
-            current_vertex2 = nearest_neighbor2;
+            // Both cycles have at least half of the vertices, choose any
+            if (dist_matrix.dist_matrix[current_vertex1][nearest_neighbor1] <
+                dist_matrix.dist_matrix[current_vertex2][nearest_neighbor2]) {
+                cycle1.push_back(nearest_neighbor1);
+                visited[nearest_neighbor1] = true;
+                current_vertex1 = nearest_neighbor1;
+            } else {
+                cycle2.push_back(nearest_neighbor2);
+                visited[nearest_neighbor2] = true;
+                current_vertex2 = nearest_neighbor2;
+            }
         }
     }
 
     return {cycle1, cycle2};
 }
+
 
 /**
  * Finds the nearest neighbor of the current vertex that has not been visited yet.
