@@ -23,15 +23,15 @@ int main(int argc, char* argv[]){
     auto [cycle1, cycle2] = tsp.solve();
 
     // Display the result for each cycle
-    std::cout << "Greedy TSP Cycle 1: ";
+    // std::cout << "Greedy TSP Cycle 1: ";
     for (int vertex : cycle1) {
-        std::cout << vertex << " ";
+        std::cout << vertex + 1 << " ";
     }
     std::cout << std::endl;
 
-    std::cout << "Greedy TSP Cycle 2: ";
+    // std::cout << "Greedy TSP Cycle 2: ";
     for (int vertex : cycle2) {
-        std::cout << vertex << " ";
+        std::cout << vertex + 1 << " ";
     }
     std::cout << std::endl;
 
