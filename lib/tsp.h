@@ -37,7 +37,8 @@ private:
     int find_farthest(int);
     int calc_distance(int, int);
     std::pair<int, int> choose_starting_vertices();
-    void add_vertex(int);
+    void append_vertex(int, std::vector<int>&);
+    void insert_vertex(int, int, std::vector<int>&);
     void log_build_process();
     
     auto find_greedy_cycles() -> std::tuple<std::vector<int>, std::vector<int>>;
