@@ -32,15 +32,21 @@ private:
     std::vector<int> cycle1;
     std::vector<int> cycle2;
     AlgType alg_type;
+
     int find_random_start();
     int find_farthest(int);
-    int find_nearest(int);
     int calc_distance(int, int);
     std::pair<int, int> choose_starting_vertices();
+    void add_vertex(int);
+    void log_build_process();
+    
     auto find_greedy_cycles() -> std::tuple<std::vector<int>, std::vector<int>>;
+    auto find_greedy_cycles_expansion() -> std::tuple<std::vector<int>, std::vector<int>>;
+    
     // GreedyTSP specific functions
     std::vector<int> find_greedy_cycle();
-    int find_nearest_neighbor(int current_vertex, const std::vector<bool>& visited);
+    int find_nearest_neighbor(int, const std::vector<bool>&);
+    std::pair<int, double> find_nearest_expansion(int, int, const std::vector<bool>&);
 };
 
 #endif // TSP_H

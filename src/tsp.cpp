@@ -10,6 +10,9 @@ auto TSP::solve() -> std::tuple<std::vector<int>, std::vector<int>>{
             // return find_greedy_cycle();
             return find_greedy_cycles();
             break;
+        case AlgType::greedy_cycle:
+            return find_greedy_cycles_expansion();
+            break;
         // Add more algorithms as needed in the future
         default:
             // Handle unsupported algorithm type
@@ -47,6 +50,20 @@ int TSP::calc_distance(int node1, int node2) {
                      std::pow(dist_matrix.y_coord[node2] - dist_matrix.y_coord[node1], 2));
 }
 
+void TSP::log_build_process(){
+    std::cout << "TSP Cycle 1: ";
+    for (int vertex : cycle1) {
+        std::cout << vertex + 1 << " ";
+    }
+    std::cout << std::endl;
+
+    std::cout << "TSP Cycle 2: ";
+    for (int vertex : cycle2) {
+        std::cout << vertex + 1 << " ";
+    }
+    std::cout << std::endl;
+    std::cout << "-----------------" << std::endl;
+}
 
 /**
  * This function finds two starting vertices for the TSP algorithm. The first vertex is chosen randomly,
@@ -140,3 +157,135 @@ int TSP::find_nearest_neighbor(int current_vertex, const std::vector<bool>& visi
     return nearest_neighbor;
 }
 
+
+/**
+ * Finds the greedy cycles for the Traveling Salesman Problem (TSP).
+ * 
+ * This function uses a greedy algorithm to find two cycles that cover all vertices in the TSP graph.
+ * The cycles are constructed by iterative process of cycle expansion.
+ * 
+ * @return A tuple containing two vectors representing two independent loops.
+ */
+auto TSP::find_greedy_cycles_expansion() -> std::tuple<std::vector<int>, std::vector<int>> {
+    
+    // Initial cycle generation
+
+    auto startingVertices = choose_starting_vertices();
+    int v1 = startingVertices.first;
+    int v2 = startingVertices.second;
+
+    cycle1.push_back(v1);
+    cycle2.push_back(v2);
+
+    visited[v1] = true;
+    visited[v2] = true;
+
+    int candidate1 = find_nearest_expansion(v1, v1, visited).first;
+    int candidate2 = find_nearest_expansion(v2, v2, visited).first;
+
+    cycle1.push_back(candidate1);
+    cycle2.push_back(candidate2);
+
+    visited[candidate1] = true;
+    visited[candidate2] = true;
+
+    candidate1 = find_nearest_expansion(v1, candidate1, visited).first;
+    candidate2 = find_nearest_expansion(v2, candidate2, visited).first;
+
+    cycle1.push_back(candidate1);
+    cycle2.push_back(candidate2);
+
+    visited[candidate1] = true;
+    visited[candidate2] = true;
+
+    while (cycle1.size() + cycle2.size() < dist_matrix.x_coord.size()) {
+        std::vector<int> candidates1;
+        std::vector<int> candidates2;
+        std::vector<double> lengths1;
+        std::vector<double> lengths2;
+
+        // Iterate over each pair of neighbor nodes in cycles and find the nearest expansion candidate
+        for (size_t i = 0; i < cycle1.size(); ++i) {
+            int current1 = cycle1[i];
+            int next1 = cycle1[(i + 1) % cycle1.size()];
+            auto [nearest1, length1] = find_nearest_expansion(current1, next1, visited);
+            candidates1.push_back(nearest1);
+            lengths1.push_back(length1);
+        }
+        for (size_t i = 0; i < cycle2.size(); ++i) {
+            int current2 = cycle2[i];
+            int next2 = cycle2[(i + 1) % cycle2.size()];
+            auto [nearest2, length2] = find_nearest_expansion(current2, next2, visited);
+            candidates2.push_back(nearest2);
+            lengths2.push_back(length2);
+        }
+
+        // Find the best expansion candidate for each cycle
+        double min_length1 = std::numeric_limits<double>::max();
+        double min_length2 = std::numeric_limits<double>::max();
+        int best_candidate1 = -1;
+        int best_candidate2 = -1;
+        int best_idx1 = -1;
+        int best_idx2 = -1;
+
+        for (size_t i = 0; i < lengths1.size(); ++i) {
+            if (lengths1[i] < min_length1) {
+                min_length1 = lengths1[i];
+                best_candidate1 = candidates1[i];
+                best_idx1 = i;
+            }
+        }
+
+        for (size_t i = 0; i < lengths2.size(); ++i) {
+            if (lengths2[i] < min_length2) {
+                min_length2 = lengths2[i];
+                best_candidate2 = candidates2[i];
+                best_idx2 = i;
+            }
+        }
+
+        // Choose the cycle to expand based on the minimum length
+        if (cycle1.size() <= cycle2.size()) {
+            size_t insertion_index = (best_idx1 + 1) % cycle1.size();
+            cycle1.insert(cycle1.begin() + insertion_index, best_candidate1);
+            visited[best_candidate1] = true;
+        } else {
+            size_t insertion_index = (best_idx2 + 1) % cycle2.size();
+            cycle2.insert(cycle2.begin() + insertion_index, best_candidate2);
+            visited[best_candidate2] = true;
+        }
+        // log_build_process();
+    }
+
+    return {cycle1, cycle2};
+}
+
+
+/**
+ * Finds the best candidate vertex between two for cycle expansion - leveraging minimum cycle length.
+ * 
+ * @param first First vertex.
+ * @param last Last vertex.
+ * @param visited A vector indicating which vertices have been visited.
+ * @return Pait of: the index of the candidate vertex and the sum of distances between first and last.
+ */
+std::pair<int, double> TSP::find_nearest_expansion(int first, int last, const std::vector<bool>& visited){
+    if (first == last){
+        return std::make_pair(find_nearest_neighbor(first, visited), 0);
+    }
+
+    double min_distance = std::numeric_limits<double>::max();
+    int candidate = -1;
+
+    for (int i = 0; i < dist_matrix.x_coord.size(); ++i) {
+        if (!visited[i] && i != first && i != last) {
+            double distance = dist_matrix.dist_matrix[first][i] + dist_matrix.dist_matrix[last][i];
+            if (distance < min_distance) {
+                min_distance = distance;
+                candidate = i;
+            }
+        }
+    }
+
+    return std::make_pair(candidate, min_distance);
+}
