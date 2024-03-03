@@ -17,7 +17,7 @@ int main(int argc, char* argv[]){
     m.generate_dist_matrix();
 
     // Create TSP instance with the Greedy algorithm
-    TSP tsp(m, AlgType::greedy_cycle);
+    TSP tsp(m, AlgType::nearest_neighbors);
 
     // Solve the TSP problem
     auto [cycle1, cycle2] = tsp.solve();

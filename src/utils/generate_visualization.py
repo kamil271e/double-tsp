@@ -1,32 +1,14 @@
 import matplotlib.pyplot as plt
 import networkx as nx
 import sys
+from get_cycles import get_cycles
 
 
-def visualize_tsp_cycles(path, cycles):
+def visualize_tsp_cycles(path, cycles, filename='graph'):
     numbers_lists = cycles.split('\n')
     cycle1_nodes = list(map(int, numbers_lists[0].split()))
     cycle2_nodes = list(map(int, numbers_lists[1].split()))
-    x_coord = []
-    y_coord = []
-    with open(path, 'r') as file:
-        if file.closed:
-            print("Error opening file.")
-        else:
-            reading_coords = False
-            for line in file:
-                line = line.strip()
-                if line == "NODE_COORD_SECTION":
-                    reading_coords = True
-                    continue
-                if not reading_coords:
-                    continue
-                tokens = line.split()
-                if len(tokens) >= 3:
-                    x_coord.append(int(tokens[1]))
-                    y_coord.append(int(tokens[2]))
-
-    node_positions = {(i+1): (x, y) for i,(x, y) in enumerate(zip(x_coord, y_coord))}
+    node_positions = get_cycles(path)
 
     G1 = nx.Graph()
     G1.add_nodes_from(cycle1_nodes)
@@ -48,7 +30,7 @@ def visualize_tsp_cycles(path, cycles):
 
     plt.title('TSP Cycles')
     plt.legend()
-    plt.savefig('graph.png')
+    plt.savefig(f'{filename}.png')
     plt.show()
 
 

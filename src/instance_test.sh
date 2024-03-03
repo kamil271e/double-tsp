@@ -11,6 +11,8 @@ g++ -o main.out main.cpp matrix.cpp tsp.cpp
 
 cpp_output=$(./main.out "$file_path")
 
-python vis/generate_visualization.py "$file_path" "$cpp_output" 
+python utils/generate_visualization.py "$file_path" "$cpp_output" 
+
+python utils/cycle_lengths.py "$file_path" "$cpp_output" 
 
 rm main.out
