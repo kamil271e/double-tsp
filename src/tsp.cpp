@@ -60,8 +60,7 @@ std::pair<int, int> TSP::choose_starting_vertices() {
     return {start1, start2};
 }
 
-/**
- * Finds the greedy cycles for the Traveling Salesman Problem (TSP).
+/* Finds the greedy cycles for the Traveling Salesman Problem (TSP).
  * 
  * This function uses a greedy algorithm to find two cycles that cover all vertices in the TSP graph.
  * The cycles are constructed by iteratively choosing the nearest neighbor for each vertex.
@@ -71,72 +70,122 @@ std::pair<int, int> TSP::choose_starting_vertices() {
 auto TSP::find_greedy_cycles() -> std::tuple<std::vector<int>, std::vector<int>> {
     
     auto startingVertices = choose_starting_vertices();
-    int current_vertex1 = startingVertices.first;
-    int current_vertex2 = startingVertices.second;
+    int current_last_vertex1 = startingVertices.first;
+    int current_last_vertex2 = startingVertices.second;
+    int current_first_vertex1 = startingVertices.first;
+    int current_first_vertex2 = startingVertices.second;
 
-    cycle1.push_back(current_vertex1);
-    cycle2.push_back(current_vertex2);
+    cycle1.push_back(current_last_vertex1);
+    cycle2.push_back(current_last_vertex2);
 
-    visited[current_vertex1] = true;
-    visited[current_vertex2] = true;
+    visited[current_last_vertex1] = true;
+    visited[current_last_vertex2] = true;
+
 
     while (cycle1.size() + cycle2.size() < dist_matrix.x_coord.size()) {
-        int nearest_neighbor1 = find_nearest_neighbor(current_vertex1, visited);
-        int nearest_neighbor2 = find_nearest_neighbor(current_vertex2, visited);
+        // Find nearest neighbors for the last and first vertices in each cycle
+        auto nearest_neighbor_info1 = find_nearest_neighbor(current_last_vertex1, current_first_vertex1, visited);
+        auto nearest_neighbor_info2 = find_nearest_neighbor(current_last_vertex2, current_first_vertex2, visited);
+
+        int nearest_neighbor1 = nearest_neighbor_info1.first;
+        int nearest_neighbor2 = nearest_neighbor_info2.first;
+        int vertex_type1 = nearest_neighbor_info1.second;
+        int vertex_type2 = nearest_neighbor_info2.second;
 
         // Choose the closer neighbor
         if ((cycle1.size() < dist_matrix.x_coord.size() / 2 && dist_matrix.x_coord.size() % 2 == 0) ||
             (cycle2.size() < dist_matrix.x_coord.size() / 2)) {
             // Choose the nearest neighbor to the cycle that is shorter
             if (cycle1.size() <= cycle2.size()) {
-                cycle1.push_back(nearest_neighbor1);
-                visited[nearest_neighbor1] = true;
-                current_vertex1 = nearest_neighbor1;
+                if (vertex_type1 == 0) {
+                    cycle1.push_back(nearest_neighbor1);
+                    visited[nearest_neighbor1] = true;
+                    current_last_vertex1 = nearest_neighbor1;
+                } else {
+                    cycle1.insert(cycle1.begin(), nearest_neighbor1);
+                    visited[nearest_neighbor1] = true;
+                    current_first_vertex1 = nearest_neighbor1;
+                }
             } else {
-                cycle2.push_back(nearest_neighbor2);
-                visited[nearest_neighbor2] = true;
-                current_vertex2 = nearest_neighbor2;
+                if (vertex_type2 == 0) {
+                    cycle2.push_back(nearest_neighbor2);
+                    visited[nearest_neighbor2] = true;
+                    current_last_vertex2 = nearest_neighbor2;
+                } else {
+                    cycle2.insert(cycle2.begin(), nearest_neighbor2);
+                    visited[nearest_neighbor2] = true;
+                    current_first_vertex2 = nearest_neighbor2;
+                }
             }
         } else {
             // Both cycles have at least half of the vertices, choose any
-            if (dist_matrix.dist_matrix[current_vertex1][nearest_neighbor1] <
-                dist_matrix.dist_matrix[current_vertex2][nearest_neighbor2]) {
-                cycle1.push_back(nearest_neighbor1);
-                visited[nearest_neighbor1] = true;
-                current_vertex1 = nearest_neighbor1;
+            if (dist_matrix.dist_matrix[current_last_vertex1][nearest_neighbor1] <
+                dist_matrix.dist_matrix[current_last_vertex2][nearest_neighbor2]) {
+                if (vertex_type1 == 0) {
+                    cycle1.push_back(nearest_neighbor1);
+                    visited[nearest_neighbor1] = true;
+                    current_last_vertex1 = nearest_neighbor1;
+                } else {
+                    cycle1.insert(cycle1.begin(), nearest_neighbor1);
+                    visited[nearest_neighbor1] = true;
+                    current_first_vertex1 = nearest_neighbor1;
+                }
             } else {
-                cycle2.push_back(nearest_neighbor2);
-                visited[nearest_neighbor2] = true;
-                current_vertex2 = nearest_neighbor2;
+                if (vertex_type2 == 0) {
+                    cycle2.push_back(nearest_neighbor2);
+                    visited[nearest_neighbor2] = true;
+                    current_last_vertex2 = nearest_neighbor2;
+                } else {
+                    cycle2.insert(cycle2.begin(), nearest_neighbor2);
+                    visited[nearest_neighbor2] = true;
+                    current_first_vertex2 = nearest_neighbor2;
+                }
             }
         }
-    }
 
+    }
+  
     return {cycle1, cycle2};
 }
 
 
-/**
- * Finds the nearest neighbor of the current vertex that has not been visited yet.
+/* Finds the nearest neighbor of the current vertex that has not been visited yet.
  * 
  * @param current_vertex The index of the current vertex.
  * @param visited A vector indicating which vertices have been visited.
  * @return The index of the nearest neighbor.
  */
-int TSP::find_nearest_neighbor(int current_vertex, const std::vector<bool>& visited) {
-    double min_distance = std::numeric_limits<double>::max();
-    int nearest_neighbor = -1;
+std::pair<int, int> TSP::find_nearest_neighbor(int current_last_vertex, int current_first_vertex, const std::vector<bool>& visited) {
+    double min_distance_last = std::numeric_limits<double>::max();
+    double min_distance_first = std::numeric_limits<double>::max();
+    int nearest_neighbor_last = -1;
+    int nearest_neighbor_first = -1;
 
     for (int i = 0; i < dist_matrix.x_coord.size(); ++i) {
-        if (!visited[i] && i != current_vertex) {
-            double distance = dist_matrix.dist_matrix[current_vertex][i];
-            if (distance < min_distance) {
-                min_distance = distance;
-                nearest_neighbor = i;
+        if (!visited[i] && i != current_last_vertex) {
+            double distance = dist_matrix.dist_matrix[current_last_vertex][i];
+            if (distance < min_distance_last) {
+                min_distance_last = distance;
+                nearest_neighbor_last = i;
+            }
+        }
+
+        if (!visited[i] && i != current_first_vertex) {
+            double distance = dist_matrix.dist_matrix[current_first_vertex][i];
+            if (distance < min_distance_first) {
+                min_distance_first = distance;
+                nearest_neighbor_first = i;
             }
         }
     }
 
-    return nearest_neighbor;
+    // Zwraca parę, gdzie pierwszy element to indeks najbliższego sąsiada,
+    // a drugi element to informacja o tym, dla którego wierzchołka został znaleziony najbliższy sąsiad
+    if (min_distance_last < min_distance_first) {
+        return {nearest_neighbor_last, 0}; // 0 oznacza, że sąsiad znaleziono dla ostatniego wierzchołka
+    } else {
+        return {nearest_neighbor_first, 1}; // 1 oznacza, że sąsiad znaleziono dla pierwszego wierzchołka
+    }
 }
+
 
