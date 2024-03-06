@@ -4,7 +4,7 @@ import sys
 def get_cycles(path):
     x_coord = []
     y_coord = []
-    with open(path, 'r') as file:
+    with open(path, "r") as file:
         if file.closed:
             print("Error opening file.")
         else:
@@ -21,5 +21,5 @@ def get_cycles(path):
                     x_coord.append(int(tokens[1]))
                     y_coord.append(int(tokens[2]))
 
-    node_positions = {(i+1): (x, y) for i,(x, y) in enumerate(zip(x_coord, y_coord))}
+    node_positions = {(i + 1): (x, y) for i, (x, y) in enumerate(zip(x_coord, y_coord))}
     return node_positions

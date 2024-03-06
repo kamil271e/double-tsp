@@ -9,6 +9,7 @@
 #include <cmath>
 #include <limits>
 #include <algorithm>
+#include <random>
 #include "matrix.h"
 
 enum class AlgType {
