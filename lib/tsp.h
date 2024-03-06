@@ -46,8 +46,8 @@ private:
     
     // GreedyTSP specific functions
     std::vector<int> find_greedy_cycle();
-    int find_nearest_neighbor(int, const std::vector<bool>&);
     std::pair<int, double> find_nearest_expansion(int, int, const std::vector<bool>&);
+    std::pair<int, int> find_nearest_neighbor(int, int, const std::vector<bool>&);
 };
 
 #endif // TSP_H
