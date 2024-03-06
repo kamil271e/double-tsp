@@ -7,13 +7,11 @@ TSP::TSP(const Matrix& dist_matrix, AlgType alg_type)
 auto TSP::solve() -> std::tuple<std::vector<int>, std::vector<int>>{
     switch (alg_type) {
         case AlgType::nearest_neighbors:
-            // return find_greedy_cycle();
             return find_greedy_cycles();
             break;
         case AlgType::greedy_cycle:
             return find_greedy_cycles_expansion();
             break;
-        // Add more algorithms as needed in the future
         default:
             // Handle unsupported algorithm type
             break; 
@@ -153,6 +151,7 @@ std::pair<int, int> TSP::find_nearest_neighbor(int current_last_vertex, int curr
     int nearest_neighbor_last = -1;
     int nearest_neighbor_first = -1;
 
+
     for (int i = 0; i < dist_matrix.x_coord.size(); ++i) {
         if (!visited[i] && i != current_last_vertex) {
             double distance = dist_matrix.dist_matrix[current_last_vertex][i];
@@ -190,65 +189,46 @@ std::pair<int, int> TSP::find_nearest_neighbor(int current_last_vertex, int curr
  * @return A tuple containing two vectors representing two independent loops.
  */
 auto TSP::find_greedy_cycles_expansion() -> std::tuple<std::vector<int>, std::vector<int>> {
-    
     auto startingVertices = choose_starting_vertices();
     append_vertex(startingVertices.first, cycle1);
     append_vertex(startingVertices.second, cycle2);
 
+    std::vector<int> candidates1, candidates2;
+    std::vector<double> lengths1, lengths2;
+
     while (cycle1.size() + cycle2.size() < dist_matrix.x_coord.size()) {
-        std::vector<int> candidates1;
-        std::vector<int> candidates2;
-        std::vector<double> lengths1;
-        std::vector<double> lengths2;
+        std::vector<int>& candidates = (cycle1.size() <= cycle2.size()) ? candidates1 : candidates2;
+        std::vector<double>& lengths = (cycle1.size() <= cycle2.size()) ? lengths1 : lengths2;
+        std::vector<int>& cycle = (cycle1.size() <= cycle2.size()) ? cycle1 : cycle2;
 
-        // Iterate over each pair of neighbor nodes in cycles and find the nearest expansion candidate
-        for (size_t i = 0; i < cycle1.size(); ++i) {
-            int current1 = cycle1[i];
-            int next1 = cycle1[(i + 1) % cycle1.size()];
-            auto [nearest1, length1] = find_nearest_expansion(current1, next1, visited);
-            candidates1.push_back(nearest1);
-            lengths1.push_back(length1);
-        }
-        for (size_t i = 0; i < cycle2.size(); ++i) {
-            int current2 = cycle2[i];
-            int next2 = cycle2[(i + 1) % cycle2.size()];
-            auto [nearest2, length2] = find_nearest_expansion(current2, next2, visited);
-            candidates2.push_back(nearest2);
-            lengths2.push_back(length2);
+        candidates.clear();
+        lengths.clear();
+
+        for (size_t i = 0; i < cycle.size(); ++i) {
+            int current = cycle[i];
+            int next = cycle[(i + 1) % cycle.size()];
+            auto [nearest, length] = find_nearest_expansion(current, next, visited);
+            candidates.push_back(nearest);
+            lengths.push_back(length);
         }
 
-        // Find the best expansion candidate for each cycle
-        double min_length1 = std::numeric_limits<double>::max();
-        double min_length2 = std::numeric_limits<double>::max();
-        int best_candidate1, best_candidate2 = -1;
-        int best_idx1, best_idx2 = -1;
+        double min_length = std::numeric_limits<double>::max();
+        int best_candidate, best_idx = -1;
 
-        for (size_t i = 0; i < lengths1.size(); ++i) {
-            if (lengths1[i] < min_length1) {
-                min_length1 = lengths1[i];
-                best_candidate1 = candidates1[i];
-                best_idx1 = i;
+        for (size_t i = 0; i < lengths.size(); ++i) {
+            if (lengths[i] < min_length) {
+                min_length = lengths[i];
+                best_candidate = candidates[i];
+                best_idx = i;
             }
         }
 
-        for (size_t i = 0; i < lengths2.size(); ++i) {
-            if (lengths2[i] < min_length2) {
-                min_length2 = lengths2[i];
-                best_candidate2 = candidates2[i];
-                best_idx2 = i;
-            }
-        }
-
-        if (cycle1.size() <= cycle2.size()) {
-            insert_vertex(best_candidate1, (best_idx1 + 1) % cycle1.size(), cycle1);
-        } else {
-            insert_vertex(best_candidate2, (best_idx2 + 1) % cycle2.size(), cycle2);
-        }
-        // log_build_process();
+        insert_vertex(best_candidate, (best_idx + 1) % cycle.size(), cycle);
     }
 
     return {cycle1, cycle2};
 }
+
 
 
 /**
