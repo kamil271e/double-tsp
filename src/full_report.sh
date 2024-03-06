@@ -8,3 +8,5 @@ for instance in "${instances[@]}"; do
         ./report.sh "$instance" "$algo"
     done
 done
+
+python utils/aggregate_results.py
