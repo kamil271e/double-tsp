@@ -1,3 +1,6 @@
+#ifndef MATRIX_H
+#define MATRIX_H
+
 #pragma once
 #include <iostream>
 #include <fstream>
@@ -15,3 +18,5 @@ public:
     std::vector<int> y_coord;
     std::vector<std::vector<int>> dist_matrix;
 };
+
+#endif // MATRIX_H
