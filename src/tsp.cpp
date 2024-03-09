@@ -254,7 +254,7 @@ auto TSP::find_nearest_expansion(int first, int last, const std::vector<bool>& v
 
     for (int i = 0; i < dist_matrix.x_coord.size(); ++i) {
         if (!visited[i] && i != first && i != last) {
-            double distance = dist_matrix.dist_matrix[first][i] + dist_matrix.dist_matrix[last][i];
+            double distance = dist_matrix.dist_matrix[first][i] + dist_matrix.dist_matrix[last][i] - dist_matrix.dist_matrix[first][last];
             if (distance < min_distance) {
                 min_distance = distance;
                 candidate = i;
