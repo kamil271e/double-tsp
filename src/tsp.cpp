@@ -89,56 +89,49 @@ std::pair<int, int> TSP::choose_starting_vertices() {
     return {start1, start2};
 }
 
-/* Finds the greedy cycles for the Traveling Salesman Problem (TSP).
- * 
- * This function uses a greedy algorithm to find two cycles that cover all vertices in the TSP graph.
- * The cycles are constructed by iteratively choosing the nearest neighbor for each vertex.
- * 
- * @return A tuple containing two vectors representing two independent loops.
- */
 auto TSP::find_greedy_cycles() -> std::tuple<std::vector<int>, std::vector<int>> {
     
     auto startingVertices = choose_starting_vertices();
-    int current_vertex1 = startingVertices.first;
-    int current_vertex2 = startingVertices.second;
-    append_vertex(current_vertex1, cycle1);
-    append_vertex(current_vertex2, cycle2);
+    int current_last_vertex1 = startingVertices.first;
+    int current_last_vertex2 = startingVertices.second;
+    int current_first_vertex1 = startingVertices.first;
+    int current_first_vertex2 = startingVertices.second;
+
+    append_vertex(current_last_vertex1, cycle1);
+    append_vertex(current_last_vertex2, cycle2); 
 
     while (cycle1.size() + cycle2.size() < dist_matrix.x_coord.size()) {
         // Find nearest neighbors for the last and first vertices in each cycle
-        auto nearest_neighbor_info1 = find_nearest_neighbor(current_vertex1, current_vertex1, visited);
-        auto nearest_neighbor_info2 = find_nearest_neighbor(current_vertex2, current_vertex2, visited);
+        auto nearest_neighbor_info1 = find_nearest_neighbor(current_last_vertex1, current_first_vertex1, visited);
+        auto nearest_neighbor_info2 = find_nearest_neighbor(current_last_vertex2, current_first_vertex2, visited);
 
         int nearest_neighbor1 = nearest_neighbor_info1.first;
         int nearest_neighbor2 = nearest_neighbor_info2.first;
         int vertex_type1 = nearest_neighbor_info1.second;
         int vertex_type2 = nearest_neighbor_info2.second;
 
-        // Choose the closer neighbor
-        if ((cycle1.size() < dist_matrix.x_coord.size() / 2 && dist_matrix.x_coord.size() % 2 == 0) ||
-            (cycle2.size() < dist_matrix.x_coord.size() / 2)) {
-            // Choose the nearest neighbor to the cycle that is shorter
-            if (cycle1.size() <= cycle2.size()) {
-                append_vertex(nearest_neighbor1, cycle1);
-                current_vertex1 = nearest_neighbor1;
+        std::vector<int>& cycle = (cycle1.size() <= cycle2.size()) ? cycle1 : cycle2;
+
+        // Choose the nearest neighbor to the cycle that is shorter
+        if (cycle1.size() <= cycle2.size()) {
+            if (vertex_type1 == 0) {
+                append_vertex(nearest_neighbor1, cycle);
+                current_last_vertex1 = nearest_neighbor1;
             } else {
-                append_vertex(nearest_neighbor2, cycle2);
-                current_vertex2 = nearest_neighbor2;
+                insert_vertex(nearest_neighbor1, 0, cycle);
+                current_first_vertex1 = nearest_neighbor1;
             }
         } else {
-            // Both cycles have at least half of the vertices, choose any
-            if (dist_matrix.dist_matrix[current_vertex1][nearest_neighbor1] <
-                dist_matrix.dist_matrix[current_vertex2][nearest_neighbor2]) {
-                append_vertex(nearest_neighbor1, cycle1);
-                current_vertex1 = nearest_neighbor1;
+            if (vertex_type2 == 0) {
+                append_vertex(nearest_neighbor2, cycle);
+                current_last_vertex2 = nearest_neighbor2;
             } else {
-                append_vertex(nearest_neighbor2, cycle2);
-                current_vertex2 = nearest_neighbor2;
+                insert_vertex(nearest_neighbor2, 0, cycle);
+                current_first_vertex2 = nearest_neighbor2;
             }
         }
-
     }
-  
+
     return {cycle1, cycle2};
 }
 
@@ -155,10 +148,10 @@ std::pair<int, int> TSP::find_nearest_neighbor(int current_last_vertex, int curr
     int nearest_neighbor_last = -1;
     int nearest_neighbor_first = -1;
 
-
     for (int i = 0; i < dist_matrix.x_coord.size(); ++i) {
         if (!visited[i] && i != current_last_vertex) {
             double distance = dist_matrix.dist_matrix[current_last_vertex][i];
+            
             if (distance < min_distance_last) {
                 min_distance_last = distance;
                 nearest_neighbor_last = i;
@@ -182,6 +175,8 @@ std::pair<int, int> TSP::find_nearest_neighbor(int current_last_vertex, int curr
         return {nearest_neighbor_first, 1}; // 1 oznacza, że sąsiad znaleziono dla pierwszego wierzchołka
     }
 }
+
+
 
 
 /**
