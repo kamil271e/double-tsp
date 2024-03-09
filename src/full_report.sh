@@ -1,7 +1,7 @@
 #!/bin/bash
 
 instances=("kroA100.tsp" "kroB100.tsp")
-algos=("nearest" "expansion")
+algos=("nearest" "expansion" "regret")
 
 for instance in "${instances[@]}"; do
     for algo in "${algos[@]}"; do
@@ -10,3 +10,4 @@ for instance in "${instances[@]}"; do
 done
 
 python utils/aggregate_results.py
+python utils/get_best_visualization.py
