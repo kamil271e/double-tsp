@@ -11,7 +11,7 @@ def get_result_table():
         algo_results = []
         for instance in INSTANCES:
             data = np.loadtxt(f'{CYCLES_DIR}/{algo}_{instance}.txt')
-            algo_results.append((np.min(data), np.max(data), round(np.mean(data),1)))
+            algo_results.append((int(np.min(data)), int(np.max(data)), int(np.mean(data))))
         results.append(algo_results)
 
     print("Algo\t\tInstance\tMin\tMax\tMean")

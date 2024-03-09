@@ -23,10 +23,11 @@ enum class AlgType {
 
 class TSP{
 public:
-    TSP(const Matrix& dist_matrix, AlgType);
+    TSP(const Matrix& dist_matrix, AlgType, int);
     auto solve() -> std::tuple<std::vector<int>, std::vector<int>>;
-    
+
     const Matrix& dist_matrix;
+    int start_idx;
    
     
 private:
@@ -44,18 +45,17 @@ private:
     void insert_vertex(int, int, std::vector<int>&);
     void log_build_process();
     
-    // Greedy
-    auto find_greedy_cycles() -> std::tuple<std::vector<int>, std::vector<int>>;
+    // Greedy algorithms
+    auto find_greedy_cycles_nearest() -> std::tuple<std::vector<int>, std::vector<int>>;
     auto find_greedy_cycles_expansion() -> std::tuple<std::vector<int>, std::vector<int>>;
-    auto find_greedy_regret_cycles() -> std::tuple<std::vector<int>, std::vector<int>>;
+    auto find_greedy_cycles_regret() -> std::tuple<std::vector<int>, std::vector<int>>;
 
     // GreedyTSP specific functions
     std::vector<int> find_greedy_cycle();
     std::pair<int, double> find_nearest_expansion(int, int, const std::vector<bool>&);
+    double get_expansion_cost(int, int, int);
     std::pair<int, int> find_nearest_neighbor(int, int, const std::vector<bool>&);
-    std::pair<int, double> find_best_2regret(int, int, const std::vector<bool>&);
-
-
+    std::pair<int, double> get_2regret(int, std::vector<int>);
 };
 
 #endif // TSP_H

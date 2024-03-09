@@ -9,7 +9,7 @@
 
 int main(int argc, char* argv[]){
     if (argc < 3) {
-        std::cerr << "Usage: " << argv[0] << " <filename> <algotype> [nearest, expansion, regret]" << std::endl;
+        std::cerr << "Usage: " << argv[0] << " <filename> <algotype> {nearest, expansion, regret} [start_idx]" << std::endl;
         return 1;
     }
     Matrix m;
@@ -24,11 +24,16 @@ int main(int argc, char* argv[]){
     } else if (std::string(argv[2]) == "regret") {
         alg_type = AlgType::regret;
     } else {
-        std::cerr << "Invalid algorithm type. Please choose from [nearest, expansion, regret]" << std::endl;
+        std::cerr << "Invalid algorithm type. Please choose from {nearest, expansion, regret}" << std::endl;
         return 1;
     }
 
-    TSP tsp(m, alg_type);
+    int start_idx = -1; // random
+    if (argc > 3){
+        start_idx = std::stoi(argv[3]) - 1;
+    }
+
+    TSP tsp(m, alg_type, start_idx);
 
     // Solve the TSP problem
     auto [cycle1, cycle2] = tsp.solve();
