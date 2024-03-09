@@ -249,52 +249,6 @@ auto TSP::find_nearest_expansion(int first, int last, const std::vector<bool>& v
     return {candidate, min_distance};
 }
 
-/**
- * Finds the greedy regret cycles for the Traveling Salesman Problem (TSP).
- * @return A tuple containing two vectors representing two independent loops.
- */
-// auto TSP::find_greedy_regret_cycles() -> std::tuple<std::vector<int>, std::vector<int>> {
-//     auto startingVertices = choose_starting_vertices();
-//     append_vertex(startingVertices.first, cycle1);
-//     append_vertex(startingVertices.second, cycle2);
-
-//     while (cycle1.size() + cycle2.size() < dist_matrix.x_coord.size()) {
-//         std::vector<int>& cycle = (cycle1.size() <= cycle2.size()) ? cycle1 : cycle2;
-
-//         double max_regret = 0.0;
-//         int best_candidate, best_idx = -1;
-
-//         for (size_t i = 0; i < cycle.size(); ++i) {
-//             int current = cycle[i];
-//             int next = cycle[(i + 1) % cycle.size()];
-//             auto [nearest, regret] = find_best_2regret(current, next, visited);
-//             if (regret > max_regret){
-//                 max_regret = regret;
-//                 best_candidate = nearest;
-//                 best_idx = i;
-//             }
-//         }
-//         // log_build_process();
-//         insert_vertex(best_candidate, (best_idx + 1) % cycle.size(), cycle);
-//     }
-
-//     return {cycle1, cycle2};
-
-//     // regrets = {}
-//     // for (size_t i =0; i < visited.len - visited.sum; i++){
-//     //     cost_i = []
-//     //     for (size_t j = 0; j < cycle.size(); ++i) {
-//     //         cost_i.append([j,dist(j, (j+1)%cycle.size, i)])
-//     //     }
-//     //     best2 = 2 pairs (j, dist) where dist is the smallest
-//     //     regret = best2[1].dist - best2[0].dist
-//     //     regrets[i] = {best2[0].j, regret}
-//     // }
-//     // choose the max regret and insert vertex i_best, after vertex j_best
-
-// }
-
-
 auto TSP::find_greedy_regret_cycles() -> std::tuple<std::vector<int>, std::vector<int>> {
     auto startingVertices = choose_starting_vertices();
     append_vertex(startingVertices.first, cycle1);
