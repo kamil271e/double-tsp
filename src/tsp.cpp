@@ -321,7 +321,7 @@ auto TSP::find_greedy_regret_cycles() -> std::tuple<std::vector<int>, std::vecto
                 int second_min_idx = 1;
                 if (cost_i[1].second < cost_i[min_idx].second) {
                     min_idx = 1;
-                    second_min_idx = 0;
+                    second_min_idx = min_idx;
                 }
 
                 for (size_t k = 2; k < cost_i.size(); ++k) {
@@ -335,7 +335,7 @@ auto TSP::find_greedy_regret_cycles() -> std::tuple<std::vector<int>, std::vecto
 
 
                 double regret = cost_i[second_min_idx].second - cost_i[min_idx].second;
-                double weight = regret - 0.37 * cost_i[min_idx].second;
+                double weight = regret - 0.42 * cost_i[min_idx].second;
 
                 // Store the best candidate and its regret in the regrets map
                 regrets[i] = {cost_i[min_idx].first, weight};
