@@ -22,7 +22,7 @@ int main(int argc, char* argv[]){
     } else if (std::string(argv[2]) == "expansion") {
         alg_type = AlgType::greedy_cycle;
     } else if (std::string(argv[2]) == "regret") {
-        alg_type = AlgType::regret_heuristic;
+        alg_type = AlgType::regret;
     } else {
         std::cerr << "Invalid algorithm type. Please choose from [nearest, expansion, regret]" << std::endl;
         return 1;

@@ -1,7 +1,7 @@
 import numpy as np
 
 INSTANCES = ["kroA100", "kroB100"]
-ALGOS = ["nearest", "expansion"]
+ALGOS = ["nearest", "expansion", "regret"]
 CYCLES_DIR = "../cycles"
 
 

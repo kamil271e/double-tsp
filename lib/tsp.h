@@ -10,12 +10,13 @@
 #include <limits>
 #include <algorithm>
 #include <random>
+#include <map>
 #include "matrix.h"
 
 enum class AlgType {
     nearest_neighbors,
     greedy_cycle,
-    regret_heuristic
+    regret
 };
 
 
@@ -34,6 +35,7 @@ private:
     std::vector<int> cycle2;
     AlgType alg_type;
 
+    // Utils
     int find_random_start();
     int find_farthest(int);
     int calc_distance(int, int);
@@ -42,13 +44,18 @@ private:
     void insert_vertex(int, int, std::vector<int>&);
     void log_build_process();
     
+    // Greedy
     auto find_greedy_cycles() -> std::tuple<std::vector<int>, std::vector<int>>;
     auto find_greedy_cycles_expansion() -> std::tuple<std::vector<int>, std::vector<int>>;
-    
+    auto find_greedy_regret_cycles() -> std::tuple<std::vector<int>, std::vector<int>>;
+
     // GreedyTSP specific functions
     std::vector<int> find_greedy_cycle();
     std::pair<int, double> find_nearest_expansion(int, int, const std::vector<bool>&);
     std::pair<int, int> find_nearest_neighbor(int, int, const std::vector<bool>&);
+    std::pair<int, double> find_best_2regret(int, int, const std::vector<bool>&);
+
+
 };
 
 #endif // TSP_H

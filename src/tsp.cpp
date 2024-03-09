@@ -12,6 +12,9 @@ auto TSP::solve() -> std::tuple<std::vector<int>, std::vector<int>>{
         case AlgType::greedy_cycle:
             return find_greedy_cycles_expansion();
             break;
+        case AlgType::regret:
+            return find_greedy_regret_cycles();
+            break;
         default:
             // Handle unsupported algorithm type
             break; 
@@ -223,7 +226,7 @@ auto TSP::find_greedy_cycles_expansion() -> std::tuple<std::vector<int>, std::ve
  * @param first First vertex.
  * @param last Last vertex.
  * @param visited A vector indicating which vertices have been visited.
- * @return Pait of: the index of the candidate vertex and the sum of distances between first and last.
+ * @return Pair of: the index of the candidate vertex and the sum of distances between first and last.
  */
 auto TSP::find_nearest_expansion(int first, int last, const std::vector<bool>& visited) -> std::pair<int, double>{
     if (first == last){
@@ -244,4 +247,148 @@ auto TSP::find_nearest_expansion(int first, int last, const std::vector<bool>& v
     }
 
     return {candidate, min_distance};
+}
+
+/**
+ * Finds the greedy regret cycles for the Traveling Salesman Problem (TSP).
+ * @return A tuple containing two vectors representing two independent loops.
+ */
+// auto TSP::find_greedy_regret_cycles() -> std::tuple<std::vector<int>, std::vector<int>> {
+//     auto startingVertices = choose_starting_vertices();
+//     append_vertex(startingVertices.first, cycle1);
+//     append_vertex(startingVertices.second, cycle2);
+
+//     while (cycle1.size() + cycle2.size() < dist_matrix.x_coord.size()) {
+//         std::vector<int>& cycle = (cycle1.size() <= cycle2.size()) ? cycle1 : cycle2;
+
+//         double max_regret = 0.0;
+//         int best_candidate, best_idx = -1;
+
+//         for (size_t i = 0; i < cycle.size(); ++i) {
+//             int current = cycle[i];
+//             int next = cycle[(i + 1) % cycle.size()];
+//             auto [nearest, regret] = find_best_2regret(current, next, visited);
+//             if (regret > max_regret){
+//                 max_regret = regret;
+//                 best_candidate = nearest;
+//                 best_idx = i;
+//             }
+//         }
+//         // log_build_process();
+//         insert_vertex(best_candidate, (best_idx + 1) % cycle.size(), cycle);
+//     }
+
+//     return {cycle1, cycle2};
+
+//     // regrets = {}
+//     // for (size_t i =0; i < visited.len - visited.sum; i++){
+//     //     cost_i = []
+//     //     for (size_t j = 0; j < cycle.size(); ++i) {
+//     //         cost_i.append([j,dist(j, (j+1)%cycle.size, i)])
+//     //     }
+//     //     best2 = 2 pairs (j, dist) where dist is the smallest
+//     //     regret = best2[1].dist - best2[0].dist
+//     //     regrets[i] = {best2[0].j, regret}
+//     // }
+//     // choose the max regret and insert vertex i_best, after vertex j_best
+
+// }
+
+
+auto TSP::find_greedy_regret_cycles() -> std::tuple<std::vector<int>, std::vector<int>> {
+    auto startingVertices = choose_starting_vertices();
+    append_vertex(startingVertices.first, cycle1);
+    append_vertex(startingVertices.second, cycle2);
+
+    while (cycle1.size() + cycle2.size() < dist_matrix.x_coord.size()) {
+        std::vector<int>& cycle = (cycle1.size() <= cycle2.size()) ? cycle1 : cycle2;
+        std::map<int, std::pair<int, double>> regrets; // indx, regret
+
+        for (size_t i = 0; i < dist_matrix.x_coord.size(); ++i) {
+            if (!visited[i]) {
+                std::vector<std::pair<int, double>> cost_i; // idx, distance
+                for (size_t j = 0; j < cycle.size(); ++j) {
+                    double distance = dist_matrix.dist_matrix[cycle[j]][i] + dist_matrix.dist_matrix[i][cycle[(j + 1) % cycle.size()]] - dist_matrix.dist_matrix[cycle[j]][cycle[(j + 1) % cycle.size()]];
+                    cost_i.push_back({j, distance});
+                }
+                // Find the indices of the two lowest values
+                int min_idx = 0;
+                int second_min_idx = 1;
+                if (cost_i[1].second < cost_i[min_idx].second) {
+                    min_idx = 1;
+                    second_min_idx = min_idx;
+                }
+
+                for (size_t k = 2; k < cost_i.size(); ++k) {
+                    if (cost_i[k].second < cost_i[min_idx].second) {
+                        second_min_idx = min_idx;
+                        min_idx = k;
+                    } else if (cost_i[k].second < cost_i[second_min_idx].second) {
+                        second_min_idx = k;
+                    }
+                }
+
+
+                double regret = cost_i[second_min_idx].second - cost_i[min_idx].second;
+                double weight = regret - 0.42 * cost_i[min_idx].second;
+
+                // Store the best candidate and its regret in the regrets map
+                regrets[i] = {cost_i[min_idx].first, weight};
+            }
+        }
+
+        // Find the vertex with the maximum regret among unvisited vertices
+        int candidate = -1;
+        double max_regret = -std::numeric_limits<double>::infinity();
+
+        for (const auto& r : regrets) {
+            if (r.second.second > max_regret) {
+                max_regret = r.second.second;
+                candidate = r.first;
+            }
+        }
+
+        // Insert the vertex with the maximum regret after the vertex with the best insertion position
+        insert_vertex(candidate, (regrets[candidate].first + 1) % cycle.size(), cycle);
+
+    }
+
+    return {cycle1, cycle2};
+}
+
+
+
+// iterowanie sie po elementach nie odwiedzonych
+// sprawdzanie kosztow dla kazdego z dwoch par w cyklu
+// wybranie tego wierzcholka dla ktorego regret jest najwiekszy
+// wstawienie go w odpowiednie miejsce
+
+/**
+ * Finds the k-best candidates vertices between two for cycle expansion - leveraging minimum cycle length.
+ * 
+ * @param first First vertex.
+ * @param last Last vertex.
+ * @param visited A vector indicating which vertices have been visited.
+ * @return Pair of: the index of the candidate vertex and the 2-regret value.
+ */
+auto TSP::find_best_2regret(int first, int last, const std::vector<bool>& visited) -> std::pair<int, double>{
+    double k_best_distances[2] = {std::numeric_limits<double>::max(), std::numeric_limits<double>::max()};
+    int candidate = -1;
+
+    for (int i = 0; i < dist_matrix.x_coord.size(); ++i) {
+        if (!visited[i] && i != first && i != last) {
+            double distance = dist_matrix.dist_matrix[first][i] + dist_matrix.dist_matrix[last][i] - dist_matrix.dist_matrix[first][last];
+            if (distance < k_best_distances[1]) {
+                if (distance < k_best_distances[0]) {
+                    candidate = i;
+                    k_best_distances[1] = k_best_distances[0];
+                    k_best_distances[0] = distance;
+                } else {
+                    k_best_distances[1] = distance;
+                }
+            }
+        }
+    }
+    double regret = k_best_distances[1] - k_best_distances[0];
+    return {candidate, regret};
 }
