@@ -15,7 +15,7 @@
 enum class AlgType {
     nearest_neighbors,
     greedy_cycle,
-    regret_heuristic
+    regret
 };
 
 
@@ -44,11 +44,15 @@ private:
     
     auto find_greedy_cycles() -> std::tuple<std::vector<int>, std::vector<int>>;
     auto find_greedy_cycles_expansion() -> std::tuple<std::vector<int>, std::vector<int>>;
-    
+    auto find_greedy_regret_cycles() -> std::tuple<std::vector<int>, std::vector<int>>;
+
     // GreedyTSP specific functions
     std::vector<int> find_greedy_cycle();
     std::pair<int, double> find_nearest_expansion(int, int, const std::vector<bool>&);
     std::pair<int, int> find_nearest_neighbor(int, int, const std::vector<bool>&);
+    std::pair<int, double> find_best_2regret(int, int, const std::vector<bool>&);
+
+
 };
 
 #endif // TSP_H
