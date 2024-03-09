@@ -296,9 +296,19 @@ auto TSP::get_2regret(int candidate, std::vector<int> cycle) -> std::pair<int, d
         cost.push_back({i, distance});
     }
     // Find the indices of the two lowest values
+
+
+    //min_idxs[0] = cost[0].second < cost[1].second ? 0 : 1;
+    //min_idxs[1] = 1 - min_idxs[0];
+
+    // Find the indices of the two lowest values
     int min_idxs[2];
-    min_idxs[0] = cost[0].second < cost[1].second ? 0 : 1;
-    min_idxs[1] = 1 - min_idxs[0];
+    min_idxs[0] = 0;
+    min_idxs[1]  = 1;
+    if (cost[1].second < cost[min_idxs[0]].second) {
+        min_idxs[0]  = 1;
+        min_idxs[1] =  min_idxs[0];
+    }
 
     for (size_t i = 2; i < cost.size(); ++i) {
         if (cost[i].second < cost[min_idxs[0]].second) {
