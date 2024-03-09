@@ -22,8 +22,12 @@ auto TSP::solve() -> std::tuple<std::vector<int>, std::vector<int>>{
 }
 
 int TSP::find_random_start() {
-    return rand() % dist_matrix.x_coord.size();
-}
+    // return rand() % dist_matrix.x_coord.size();
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<int> dist(0, dist_matrix.x_coord.size() - 1);
+    return dist(gen);
+}   
 
 int TSP::find_farthest(int node) {
     int farthest_node = -1;

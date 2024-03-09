@@ -3,6 +3,11 @@
 *.gz
 *.not
 *.ipynb
+*.txt
 .ipynb_checkpoints
 *.png
 .vscode
+__pycache__
+cycles
+plots
+**/__pycache__/
