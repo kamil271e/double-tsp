@@ -10,6 +10,7 @@
 #include <limits>
 #include <algorithm>
 #include <random>
+#include <map>
 #include "matrix.h"
 
 enum class AlgType {
@@ -34,6 +35,7 @@ private:
     std::vector<int> cycle2;
     AlgType alg_type;
 
+    // Utils
     int find_random_start();
     int find_farthest(int);
     int calc_distance(int, int);
@@ -42,6 +44,7 @@ private:
     void insert_vertex(int, int, std::vector<int>&);
     void log_build_process();
     
+    // Greedy
     auto find_greedy_cycles() -> std::tuple<std::vector<int>, std::vector<int>>;
     auto find_greedy_cycles_expansion() -> std::tuple<std::vector<int>, std::vector<int>>;
     auto find_greedy_regret_cycles() -> std::tuple<std::vector<int>, std::vector<int>>;
