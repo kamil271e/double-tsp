@@ -43,4 +43,4 @@ if __name__ == "__main__":
         path = sys.argv[1]
         cycles = sys.argv[2]
         c1, c2 = get_cycle_lengths(path, cycles)
-        print(c1, c2)
+        print(c1 + c2)
