@@ -17,7 +17,7 @@ fi
 
 g++ -o main.out main.cpp matrix.cpp tsp.cpp
 
-N=100
+N=15
 output_file="../cycles/${algotype}_${file_path::-4}.txt"
 
 for ((i=1; i<=$N; i++)); do
