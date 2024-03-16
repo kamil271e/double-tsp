@@ -15,7 +15,7 @@ if [[ ! " ${ALGO_TYPES[@]} " =~ " $algotype " ]]; then
     exit 1
 fi
 
-# no. of iterations
+# N: no. of iterations
 N=100
 cycles_len_file="../cycles/L_${algotype}_${instance_path::-4}.txt"
 cycles_file="../cycles/${algotype}_${instance_path::-4}.txt"
@@ -26,9 +26,6 @@ for ((i=1; i<=$N; i++)); do
     cpp_output=$(./main.out "$instance_path" "$algotype")
     echo "$cpp_output" >> "$cycles_file"
     python utils/cycle_lengths.py "$instance_path" "$cpp_output" >> "$cycles_len_file"
-    # python utils/generate_visualization.py "$instance_path" "$algotype"_"${instance_path::-4}"_"$i" "$cpp_output" 
 done
-
-# script that 
 
 rm main.out
