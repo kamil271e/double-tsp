@@ -1,14 +1,14 @@
 import sys
 import os
-from get_cycles import get_cycles
+from get_coords_per_instance import get_coords
 
 RESULTS_DIR = '../cycles'
 
-def get_cycle_lengths(path, cycles):
+def get_cycle_lengths(instance_path, cycles):
     numbers_lists = cycles.split("\n")
     cycle1_nodes = list(map(int, numbers_lists[0].split()))
     cycle2_nodes = list(map(int, numbers_lists[1].split()))
-    node_positions = get_cycles(path)
+    node_positions = get_coords(instance_path)
 
     len_cycle1 = 0
     for i in range(len(cycle1_nodes)):
@@ -34,13 +34,12 @@ def get_length(node1, node2):
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
-        print("Usage: python cycle_lengths.py <file_path> <cycles>")
+        print("Usage: python cycle_lengths.py <instance_path> <cycles>")
         if not os.path.exists(RESULTS_DIR):
             os.makedirs(RESULTS_DIR)
     else:
         if not os.path.exists(RESULTS_DIR):
             os.makedirs(RESULTS_DIR)
-        path = sys.argv[1]
-        cycles = sys.argv[2]
-        c1, c2 = get_cycle_lengths(path, cycles)
+        instance_path, cycles = sys.argv[1], sys.argv[2]
+        c1, c2 = get_cycle_lengths(instance_path, cycles)
         print(c1 + c2)

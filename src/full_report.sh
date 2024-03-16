@@ -10,4 +10,4 @@ for instance in "${instances[@]}"; do
 done
 
 python utils/aggregate_results.py
-python utils/get_best_visualization.py
+python utils/generate_visualizations.py

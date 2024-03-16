@@ -3,11 +3,11 @@
 declare -a ALGO_TYPES=("nearest" "expansion" "regret")
 
 if [ "$#" -ne 2 ]; then
-    echo "Usage: $0 <file_path> <algotype>"
+    echo "Usage: $0 <instance_path> <algotype>"
     exit 1
 fi
 
-file_path="$1"
+instance_path="$1"
 algotype="$2"
 
 if [[ ! " ${ALGO_TYPES[@]} " =~ " $algotype " ]]; then
@@ -15,17 +15,17 @@ if [[ ! " ${ALGO_TYPES[@]} " =~ " $algotype " ]]; then
     exit 1
 fi
 
+# N: no. of iterations
+N=100
+cycles_len_file="../cycles/L_${algotype}_${instance_path::-4}.txt"
+cycles_file="../cycles/${algotype}_${instance_path::-4}.txt"
+
 g++ -o main.out main.cpp matrix.cpp tsp.cpp
 
-N=5
-output_file="../cycles/${algotype}_${file_path::-4}.txt"
-
 for ((i=1; i<=$N; i++)); do
-    cpp_output=$(./main.out "$file_path" "$algotype")
-    python utils/cycle_lengths.py "$file_path" "$cpp_output" >> "$output_file"
-    python utils/generate_visualization.py "$file_path" "$algotype"_"${file_path::-4}"_"$i" "$cpp_output" 
+    cpp_output=$(./main.out "$instance_path" "$algotype")
+    echo "$cpp_output" >> "$cycles_file"
+    python utils/cycle_lengths.py "$instance_path" "$cpp_output" >> "$cycles_len_file"
 done
-
-# script that 
 
 rm main.out
