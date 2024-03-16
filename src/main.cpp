@@ -6,6 +6,19 @@
 #include "../lib/tsp.h"
 #include "../lib/matrix.h"
 
+void generate_cycles(TSP tsp){
+    auto [cycle1, cycle2] = tsp.solve();
+
+    for (int vertex : cycle1) {
+        std::cout << vertex + 1 << " ";
+    }
+    std::cout << std::endl;
+
+    for (int vertex : cycle2) {
+        std::cout << vertex + 1 << " ";
+    }
+    std::cout << std::endl;
+}
 
 int main(int argc, char* argv[]){
     if (argc < 3) {
@@ -29,19 +42,7 @@ int main(int argc, char* argv[]){
     }
 
     TSP tsp(m, alg_type);
-
-    // Solve the TSP problem
-    auto [cycle1, cycle2] = tsp.solve();
-
-    for (int vertex : cycle1) {
-        std::cout << vertex + 1 << " ";
-    }
-    std::cout << std::endl;
-
-    for (int vertex : cycle2) {
-        std::cout << vertex + 1 << " ";
-    }
-    std::cout << std::endl;
+    generate_cycles(tsp);
 
     return 0;
 }

@@ -1,10 +1,10 @@
 import sys
 
 
-def get_cycles(path):
+def get_coords(instance_path):
     x_coord = []
     y_coord = []
-    with open(path, "r") as file:
+    with open(instance_path, "r") as file:
         if file.closed:
             print("Error opening file.")
         else:
