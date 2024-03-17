@@ -20,7 +20,7 @@ N=100
 cycles_len_file="../cycles/L_${algotype}_${instance_path::-4}.txt"
 cycles_file="../cycles/${algotype}_${instance_path::-4}.txt"
 
-g++ -o main.out main.cpp matrix.cpp tsp.cpp
+g++ -o main.out main.cpp matrix.cpp tsp.cpp greedy.cpp local_search.cpp
 
 for ((i=1; i<=$N; i++)); do
     cpp_output=$(./main.out "$instance_path" "$algotype")

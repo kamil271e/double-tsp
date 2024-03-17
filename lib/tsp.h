@@ -47,7 +47,7 @@ private:
     // Greedy
     auto find_greedy_cycles() -> std::tuple<std::vector<int>, std::vector<int>>;
     auto find_greedy_cycles_expansion() -> std::tuple<std::vector<int>, std::vector<int>>;
-    auto find_greedy_regret_cycles() -> std::tuple<std::vector<int>, std::vector<int>>;
+    auto find_greedy_regret_cycles(float=0.42) -> std::tuple<std::vector<int>, std::vector<int>>;
 
     // GreedyTSP specific functions
     std::vector<int> find_greedy_cycle();
