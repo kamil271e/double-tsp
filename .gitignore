@@ -10,4 +10,6 @@
 __pycache__
 cycles
 plots
+mychange.diff
+venv
 **/__pycache__/

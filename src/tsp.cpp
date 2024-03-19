@@ -15,6 +15,9 @@ auto TSP::solve() -> std::tuple<std::vector<int>, std::vector<int>>{
         case AlgType::regret:
             return find_greedy_regret_cycles();
             break;
+        case AlgType::local:
+            return local_search();
+            break;
         default:
             // Handle unsupported algorithm type
             break; 
@@ -345,4 +348,45 @@ auto TSP::find_best_2regret(int first, int last, const std::vector<bool>& visite
     }
     double regret = k_best_distances[1] - k_best_distances[0];
     return {candidate, regret};
+}
+
+//-----------------LOCAL SEARCH-----------------//
+// Implement read cycle function
+auto TSP::read_cycle(const std::string& file) -> std::vector<std::vector<int>>
+{
+    std::ifstream inputFile(file);
+    if (!inputFile.is_open()) {
+        std::cerr << "Failed to open the file." << std::endl;
+        return {};
+    }
+
+    std::vector<std::vector<int>> cycles;
+
+    std::string line;
+    while (std::getline(inputFile, line)) {
+        std::vector<int> cycle;
+        std::stringstream ss(line);
+        int num;
+        while (ss >> num) {
+            cycle.push_back(num);
+        }
+        cycles.push_back(cycle);
+    }
+
+    inputFile.close();
+
+    return cycles;
+}
+
+auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
+{
+
+    std::string file = "/home/wladyka/Study/IMO/double-tsp/cycles/regret_kroA100.txt";    
+
+    //Use read_cycle function to read the cycles from the file
+    std::vector<std::vector<int>> cycles = read_cycle(file);
+    std::vector<int> cycle1 = cycles[0];
+    std::vector<int> cycle2 = cycles[1];
+    
+    return std::make_tuple(cycle1, cycle2);
 }
