@@ -417,8 +417,8 @@ auto TSP::generate_all_edge_movements(const std::vector<int>& x, int n) -> std::
     std::vector<std::vector<int>> neighbors;
 
     // Generate all possible neighbors by swapping each pair of vertices
-    for (int i = 0; i < n; ++i) {
-        for (int j = i + 1; j < n; ++j) {
+    for (int i = 0; i < n-3; ++i) {
+        for (int j = i + 2; j < n; ++j) {
             std::vector<int> neighbor = x;
 
             std::reverse(neighbor.begin() + i, neighbor.begin() + j);
@@ -513,7 +513,6 @@ auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
     std::vector<std::vector<int>> cycles = read_cycle(file);
     std::vector<int> cycle1 = cycles[0];
     std::vector<int> cycle2 = cycles[1];
-
 
     std::vector<int> hill_cycle1; 
     std::vector<int> hill_cycle2;

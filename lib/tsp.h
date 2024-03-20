@@ -13,6 +13,12 @@
 #include <map>
 #include "matrix.h"
 #include <sstream> 
+#include <unordered_set>
+#include <set>
+#include <cstdlib> // for rand and srand
+#include <ctime>   // for time
+#include <algorithm> // for std::shuffle
+#include <iomanip>
 
 
 enum class AlgType {
@@ -67,6 +73,8 @@ private:
                                 bool steepest) -> std::vector<int>;
     auto read_cycle(const std::string& file) -> std::vector<std::vector<int>>;
     auto generate_neighbors(const std::vector<int>& x, int n) -> std::vector<std::vector<int>>;
+    auto generate_all_edge_movements(const std::vector<int>& x, int n) -> std::vector<std::vector<int>>;
+    auto generate_all_vertex_movements(const std::vector<int>& x, int n) -> std::vector<std::vector<int>>;
     auto find_random_neighbor(const std::vector<int>& x, int n) -> std::vector<int>;
 };
 
