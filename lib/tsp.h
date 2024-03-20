@@ -67,15 +67,14 @@ private:
     // Local Search
     auto local_search() -> std::tuple<std::vector<int>, std::vector<int>>;
     auto hill_climbing(const std::vector<int>& x_init,
-                                int n_iters,
                                 const std::vector<std::vector<int>>& paths,
                                 double epsilon,
                                 bool steepest) -> std::vector<int>;
     auto read_cycle(const std::string& file) -> std::vector<std::vector<int>>;
     auto generate_neighbors(const std::vector<int>& x, int n) -> std::vector<std::vector<int>>;
-    auto generate_all_edge_movements(const std::vector<int>& x, int n) -> std::vector<std::vector<int>>;
-    auto generate_all_vertex_movements(const std::vector<int>& x, int n) -> std::vector<std::vector<int>>;
-    auto find_random_neighbor(const std::vector<int>& x, int n) -> std::vector<int>;
+    auto generate_all_edge_movements(const std::vector<int>& x) -> std::vector<std::vector<int>>;
+    auto generate_all_vertex_movements(const std::vector<int>& x) -> std::vector<std::vector<int>>;
+    auto find_random_neighbor(std::vector<std::vector<int>> neighbors) -> std::vector<int>;
 };
 
 #endif // TSP_H
