@@ -527,12 +527,15 @@ auto TSP::hill_climbing(const std::vector<int>& x_init,
 // Function to perform local search
 auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
 {
-    std::string file = "/home/wladyka/Study/IMO/double-tsp/cycles/regret_kroA100.txt";    
+    // TODO: do it better
+    // std::string file = "/home/kamil/Desktop/git/double-tsp/cycles/regret_kroA100.txt";    
 
-    //Use read_cycle function to read the cycles from the file
-    std::vector<std::vector<int>> cycles = read_cycle(file);
-    std::vector<int> cycle1 = cycles[0];
-    std::vector<int> cycle2 = cycles[1];
+    // //Use read_cycle function to read the cycles from the file
+    // std::vector<std::vector<int>> cycles = read_cycle(file);
+    // std::vector<int> cycle1 = cycles[0];
+    // std::vector<int> cycle2 = cycles[1];
+
+    auto [cycle1, cycle2] = generate_random_cycles(100);
 
     std::vector<int> hill_cycle1; 
     std::vector<int> hill_cycle2;
@@ -557,4 +560,19 @@ auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
 
     return std::make_tuple(hill_cycle1, hill_cycle2);
 
+};
+
+auto TSP::generate_random_cycles(int n) -> std::tuple<std::vector<int>, std::vector<int>>
+{
+    std::vector<int> values(n);
+    for (int i = 0; i < n; ++i) values[i] = i;
+
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(values.begin(), values.end(), g);
+
+    std::vector<int> cycle1(values.begin(), values.begin() + (int)(n/2));
+    std::vector<int> cycle2(values.begin() + n - (int)(n/2), values.end());
+
+    return {cycle1, cycle2};
 };
