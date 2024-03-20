@@ -1,6 +1,10 @@
 #include "../lib/tsp.h"
 #include <unordered_set>
 #include <set>
+#include <cstdlib> // for rand and srand
+#include <ctime>   // for time
+#include <algorithm> // for std::shuffle
+#include <iomanip>
 
 TSP::TSP(const Matrix& dist_matrix, AlgType alg_type)
     : dist_matrix(dist_matrix), alg_type(alg_type) {
@@ -363,14 +367,14 @@ auto TSP::read_cycle(const std::string& file) -> std::vector<std::vector<int>>
     }
 
     std::vector<std::vector<int>> cycles;
-
+    
     std::string line;
     while (std::getline(inputFile, line)) {
         std::vector<int> cycle;
-        std::stringstream ss(line);
+        std::istringstream ss(line);
         int num;
-        while (ss >> num) {
-            cycle.push_back(num);
+        while (ss >> std::setbase(10) >> num) {
+            cycle.push_back(num-1);
         }
         cycles.push_back(cycle);
     }
@@ -381,7 +385,7 @@ auto TSP::read_cycle(const std::string& file) -> std::vector<std::vector<int>>
 }
 
 // Function to replacement of two vertices included in the path
-auto TSP::generate_neighbors(std::vector<int>& x, int n) -> std::vector<std::vector<int>>{
+auto TSP::generate_neighbors(const std::vector<int>& x, int n) -> std::vector<std::vector<int>>{
     
     std::vector<std::vector<int>> neighbors;
     std::set<std::vector<int>> unique_neighbors;
@@ -421,9 +425,47 @@ double fitness(const std::vector<int>& x, const std::vector<std::vector<int>>& p
     return fitness;
 }
 
-auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
+
+auto TSP::find_random_neighbor(const std::vector<int>& x, int n) -> std::vector<int> {
+    
+    // Generate neighbors
+    std::vector<std::vector<int>> neighbors;
+    neighbors = generate_neighbors(x, n); // Pass the missing argument 'n'
+
+    // Choose a random neighbor
+    return neighbors[std::rand() % neighbors.size()];
+}
+
+auto TSP::hill_climbing(const std::vector<int>& x_init,
+                                int n_iters,
+                                const std::vector<std::vector<int>>& paths,
+                                double epsilon = 0.001,
+                                bool steepest = false) -> std::vector<int>
 {
 
+    // Choose initial x randomly as x_best
+    std::vector<int> x = x_init;
+    std::vector<int> x_best = x;
+
+    for (int iter = 0; iter < n_iters; ++iter) {
+        std::vector<int> y = find_random_neighbor(x, n_iters);
+        if (fitness(x, paths) > fitness(y, paths)) {
+            x = y;
+            if (fitness(x, paths) < fitness(x_best, paths)) {
+                x_best = x;
+            } else {
+                if (steepest) {
+                    x = x_best;
+                }
+            }
+        }
+    }
+    
+    return x_best;
+}
+
+auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
+{
     std::string file = "/home/wladyka/Study/IMO/double-tsp/cycles/regret_kroA100.txt";    
 
     //Use read_cycle function to read the cycles from the file
@@ -431,19 +473,16 @@ auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
     std::vector<int> cycle1 = cycles[0];
     std::vector<int> cycle2 = cycles[1];
 
-    //Generate neighbors for the first cycle
-    std::vector<std::vector<int>> neighbors1 = generate_neighbors(cycle1, 10);
 
-    for (const auto& neighbor : neighbors1) {
-        for (int vertex : neighbor) {
-            std::cout << vertex << " ";
-        }
-        std::cout << std::endl;
-    }
+    std::vector<int> hill_cycle1; 
+    std::vector<int> hill_cycle2;
 
-    // Use fitness function
-    double f = fitness(cycle1, dist_matrix.dist_matrix); // fitness of the cycle
-    //print the fitness
-    std::cout << "Fitness: " << f << std::endl;
+
+    //Use hill_climbing function to find the best solution for both cycles
+    hill_cycle1 = hill_climbing(cycle1, 10, dist_matrix.dist_matrix);
+    hill_cycle2 = hill_climbing(cycle2, 10, dist_matrix.dist_matrix);
+
     return std::make_tuple(cycle1, cycle2);
+
 }
+
