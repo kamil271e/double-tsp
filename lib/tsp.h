@@ -12,11 +12,14 @@
 #include <random>
 #include <map>
 #include "matrix.h"
+#include <sstream> 
+
 
 enum class AlgType {
     nearest_neighbors,
     greedy_cycle,
-    regret
+    regret,
+    local,
 };
 
 
@@ -55,6 +58,9 @@ private:
     std::pair<int, int> find_nearest_neighbor(int, int, const std::vector<bool>&);
     std::pair<int, double> find_best_2regret(int, int, const std::vector<bool>&);
 
+    // Local Search
+    auto local_search() -> std::tuple<std::vector<int>, std::vector<int>>;
+    auto read_cycle(const std::string& file) -> std::vector<std::vector<int>>;
 
 };
 
