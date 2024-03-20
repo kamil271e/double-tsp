@@ -76,6 +76,7 @@ private:
     auto generate_all_vertex_movements(const std::vector<int>& x) -> std::vector<std::vector<int>>;
     auto find_random_neighbor(std::vector<std::vector<int>> neighbors) -> std::vector<int>;
     auto generate_random_cycles(int) -> std::tuple<std::vector<int>, std::vector<int>>;
+    float fitness(const std::vector<int>& x, std::vector<int> neighbor);
 };
 
 #endif // TSP_H

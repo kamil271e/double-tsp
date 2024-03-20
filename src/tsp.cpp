@@ -423,9 +423,8 @@ auto TSP::generate_all_edge_movements(const std::vector<int>& x) -> std::vector<
         for (int j = i + 2; j < n; ++j) {
             if (i==0 && j==n-1) continue;
             std::vector<int> neighbor = {i, j, 0};
+            std::reverse(neighbor.begin() + i, neighbor.begin() + j);
             neighbors.push_back(neighbor);
-            // std::reverse(neighbor.begin() + i, neighbor.begin() + j);
-            // neighbors.push_back(neighbor);
 
         }
     } 
@@ -456,7 +455,7 @@ auto TSP::generate_all_vertex_movements(const std::vector<int>& x) -> std::vecto
 }            
 
 // Function to calculate the fitness of the path, where the fitness is the sum of the distances between the vertices
-double fitness(const std::vector<int>& x, std::vector<int,int,int> neighbor) {
+float TSP::fitness(const std::vector<int>& x, std::vector<int> neighbor) {
     int i = neighbor[0];
     int j = neighbor[1];
     int n = x.size();
@@ -472,20 +471,12 @@ double fitness(const std::vector<int>& x, std::vector<int,int,int> neighbor) {
         float deleted = dist_matrix.dist_matrix[i][(i-1)%n] + dist_matrix.dist_matrix[j][(j-1)%n];
         float added = dist_matrix.dist_matrix[i][j] + dist_matrix.dist_matrix[(i-1)%n][(j-1)%n];
         float fitness = deleted - added;
-    } else{ // vertex
         
+        return fitness;
+    } else{ // vertex
+                
     }
-
-    // dist_matrix.dist_matrix
-    std::reverse(neighbor.begin() + i, neighbor.begin() + j);
-    neighbors.push_back(neighbor);
-
-    double fitness = 0.0;
-    for (size_t i = 0; i < x.size() - 1; ++i) {
-        fitness += paths[x[i]][x[i + 1]];
-    }
-    fitness += paths[x.back()][x[0]]; // add the distance from the last city back to the starting city
-    return fitness;
+    return 0;
 }
 
 auto TSP::find_random_neighbor(std::vector<std::vector<int>> neighbors) -> std::vector<int> {
@@ -504,15 +495,15 @@ auto TSP::hill_climbing(const std::vector<int>& x_init,
     std::vector<std::vector<int>> egde_movements;
     std::vector<std::vector<int>> vertex_movements;
     egde_movements = generate_all_edge_movements(x_init); 
+    //vertex_movements = generate_all_vertex_movements(x_init);
 
-    exit(1);
-    vertex_movements = generate_all_vertex_movements(x_init);
-
+    //Print size egde_movements
+    std::cout << "Size of egde_movements: " << egde_movements.size() << std::endl;
 
     std::vector<std::vector<int>> neighbors;
     // Merge the two vectors egde_movements and vertex_movements
     neighbors.insert(neighbors.end(), egde_movements.begin(), egde_movements.end());
-    neighbors.insert(neighbors.end(), vertex_movements.begin(), vertex_movements.end());
+    //neighbors.insert(neighbors.end(), vertex_movements.begin(), vertex_movements.end());
 
     // Choose initial x randomly as x_best
     std::vector<int> x = x_init;
@@ -520,16 +511,14 @@ auto TSP::hill_climbing(const std::vector<int>& x_init,
 
     for (int iter = 0; iter < neighbors.size(); ++iter) {
         // std::vector<int> y = find_random_neighbor(neighbors);
-        if (fitness(neighbors[iter]) > 0) { // lepiej niz mamy aktualnie
+        if (fitness(x, neighbors[iter]) > 0) { // lepiej niz mamy aktualnie
             if (steepest) {
-                x_best = y;
+                x = neighbors[iter];
+                x_best = neighbors[iter];
+
             } else {
-                std::cout << "x_best: ";
-                for (const auto& element : y) {
-                    std::cout << element + 1 << " ";
-                }
-                std::cout << std::endl;
-               return y;
+                x_best = neighbors[iter];
+                break;
             }
         }
     }
