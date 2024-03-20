@@ -61,7 +61,7 @@ private:
     // Local Search
     auto local_search() -> std::tuple<std::vector<int>, std::vector<int>>;
     auto read_cycle(const std::string& file) -> std::vector<std::vector<int>>;
-
+    auto generate_neighbors(std::vector<int>& x, int n) -> std::vector<std::vector<int>>;
 };
 
 #endif // TSP_H

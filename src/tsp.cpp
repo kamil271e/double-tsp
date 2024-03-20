@@ -1,4 +1,6 @@
 #include "../lib/tsp.h"
+#include <unordered_set>
+#include <set>
 
 TSP::TSP(const Matrix& dist_matrix, AlgType alg_type)
     : dist_matrix(dist_matrix), alg_type(alg_type) {
@@ -378,6 +380,47 @@ auto TSP::read_cycle(const std::string& file) -> std::vector<std::vector<int>>
     return cycles;
 }
 
+// Function to replacement of two vertices included in the path
+auto TSP::generate_neighbors(std::vector<int>& x, int n) -> std::vector<std::vector<int>>{
+    
+    std::vector<std::vector<int>> neighbors;
+    std::set<std::vector<int>> unique_neighbors;
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    
+    while (neighbors.size() < n) {
+        std::uniform_int_distribution<> dis_i(0, x.size() - 2);
+        std::uniform_int_distribution<> dis_j(1, x.size() - 1);
+        
+        int i = dis_i(gen);
+        int j = dis_j(gen);
+        
+        if (i > j)
+            std::swap(i, j);
+        
+        std::vector<int> neighbor = x;
+        std::reverse(neighbor.begin() + i, neighbor.begin() + j);
+        
+        if (unique_neighbors.find(neighbor) == unique_neighbors.end()) {
+            neighbors.push_back(neighbor);
+            unique_neighbors.insert(neighbor);
+        }
+    }
+    
+    // Return the vector of neighbors
+    return neighbors;
+}
+
+// Function to calculate the fitness of the path, where the fitness is the sum of the distances between the vertices
+double fitness(const std::vector<int>& x, const std::vector<std::vector<int>>& paths) {
+    double fitness = 0.0;
+    for (size_t i = 0; i < x.size() - 1; ++i) {
+        fitness += paths[x[i]][x[i + 1]];
+    }
+    fitness += paths[x.back()][x[0]]; // add the distance from the last city back to the starting city
+    return fitness;
+}
+
 auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
 {
 
@@ -387,6 +430,20 @@ auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
     std::vector<std::vector<int>> cycles = read_cycle(file);
     std::vector<int> cycle1 = cycles[0];
     std::vector<int> cycle2 = cycles[1];
-    
+
+    //Generate neighbors for the first cycle
+    std::vector<std::vector<int>> neighbors1 = generate_neighbors(cycle1, 10);
+
+    for (const auto& neighbor : neighbors1) {
+        for (int vertex : neighbor) {
+            std::cout << vertex << " ";
+        }
+        std::cout << std::endl;
+    }
+
+    // Use fitness function
+    double f = fitness(cycle1, dist_matrix.dist_matrix); // fitness of the cycle
+    //print the fitness
+    std::cout << "Fitness: " << f << std::endl;
     return std::make_tuple(cycle1, cycle2);
 }
