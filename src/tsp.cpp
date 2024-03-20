@@ -469,9 +469,16 @@ double fitness(const std::vector<int>& x, const std::vector<std::vector<int>>& p
 auto TSP::find_random_neighbor(const std::vector<int>& x, int n) -> std::vector<int> {
     
     // Generate neighbors
+    std::vector<std::vector<int>> egde_movements;
+    std::vector<std::vector<int>> vertex_movements;
+    egde_movements = generate_all_edge_movements(x, n); 
+    vertex_movements = generate_all_vertex_movements(x, n);
+
+
     std::vector<std::vector<int>> neighbors;
-    neighbors = generate_neighbors(x, n); // Pass the missing argument 'n'
-    //neighbors = generate_all_edge_movements(x,n);
+    // Merge the two vectors egde_movements and vertex_movements
+    neighbors.insert(neighbors.end(), egde_movements.begin(), egde_movements.end());
+    neighbors.insert(neighbors.end(), vertex_movements.begin(), vertex_movements.end());
 
     // Choose a random neighbor
     return neighbors[std::rand() % neighbors.size()];
@@ -494,6 +501,7 @@ auto TSP::hill_climbing(const std::vector<int>& x_init,
             x = y;
             if (fitness(x, paths) < fitness(x_best, paths)) {
                 x_best = x;
+                return x_best;
             } else {
                 if (steepest) {
                     x = x_best;
@@ -519,19 +527,11 @@ auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
 
     std::vector<std::vector<int>> cycles_vertex = generate_all_vertex_movements(cycle1, cycle1.size());
     std::vector<std::vector<int>> cycles_edge = generate_all_edge_movements(cycle1, cycle1.size());
-
-    //Print the cycle1.size())
-    std::cout << "Size of cycle1: " << cycle1.size() << std::endl;
-
-    //Print the size of the cycles_vertex and cycles_edge
-    std::cout << "Size of cycles_vertex: " << cycles_vertex.size() << std::endl;
-    std::cout << "Size of cycles_edge: " << cycles_edge.size() << std::endl;
-
     
 
     //Use hill_climbing function to find the best solution for both cycles
-    hill_cycle1 = hill_climbing(cycle1, 10, dist_matrix.dist_matrix);
-    hill_cycle2 = hill_climbing(cycle2, 10, dist_matrix.dist_matrix);
+    hill_cycle1 = hill_climbing(cycle1,  cycle1.size(), dist_matrix.dist_matrix);
+    hill_cycle2 = hill_climbing(cycle2,  cycle2.size(), dist_matrix.dist_matrix);
 
     return std::make_tuple(cycle1, cycle2);
 

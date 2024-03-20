@@ -53,17 +53,17 @@ int main(int argc, char* argv[]){
     TSP tsp(m, alg_type);
     auto [cycle1, cycle2] = tsp.solve();
 
-    // std::cout << "Cycle 1: ";
-    // for (int vertex : cycle1) {
-    //     std::cout << vertex + 1 << " ";
-    // }
-    // std::cout << std::endl;
+    std::cout << "Cycle 1: ";
+    for (int vertex : cycle1) {
+        std::cout << vertex + 1 << " ";
+    }
+    std::cout << std::endl;
 
-    // std::cout << "Cycle 2: ";
-    // for (int vertex : cycle2) {
-    //     std::cout << vertex + 1 << " ";
-    // }
-    // std::cout << std::endl;
+    std::cout << "Cycle 2: ";
+    for (int vertex : cycle2) {
+        std::cout << vertex + 1 << " ";
+    }
+    std::cout << std::endl;
     
     return 0;
 }
