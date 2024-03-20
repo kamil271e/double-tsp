@@ -527,15 +527,9 @@ auto TSP::hill_climbing(const std::vector<int>& x_init,
 // Function to perform local search
 auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
 {
-    // TODO: do it better
-    // std::string file = "/home/kamil/Desktop/git/double-tsp/cycles/regret_kroA100.txt";    
-
-    // //Use read_cycle function to read the cycles from the file
-    // std::vector<std::vector<int>> cycles = read_cycle(file);
-    // std::vector<int> cycle1 = cycles[0];
-    // std::vector<int> cycle2 = cycles[1];
-
-    auto [cycle1, cycle2] = generate_random_cycles(100);
+    // TODO: we should be able to choose starting cycles
+    // auto [cycle1, cycle2] = find_greedy_cycles();
+    auto [cycle1, cycle2] = generate_random_cycles();
 
     std::vector<int> hill_cycle1; 
     std::vector<int> hill_cycle2;
