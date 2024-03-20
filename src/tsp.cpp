@@ -1,10 +1,5 @@
 #include "../lib/tsp.h"
-#include <unordered_set>
-#include <set>
-#include <cstdlib> // for rand and srand
-#include <ctime>   // for time
-#include <algorithm> // for std::shuffle
-#include <iomanip>
+
 
 TSP::TSP(const Matrix& dist_matrix, AlgType alg_type)
     : dist_matrix(dist_matrix), alg_type(alg_type) {
@@ -415,6 +410,51 @@ auto TSP::generate_neighbors(const std::vector<int>& x, int n) -> std::vector<st
     return neighbors;
 }
 
+
+// Function to generate all possible neighbors by swapping each edge replacement
+auto TSP::generate_all_edge_movements(const std::vector<int>& x, int n) -> std::vector<std::vector<int>> {
+    std::set<std::vector<int>> unique_neighbors;
+    std::vector<std::vector<int>> neighbors;
+
+    // Generate all possible neighbors by swapping each pair of vertices
+    for (int i = 0; i < n; ++i) {
+        for (int j = i + 1; j < n; ++j) {
+            std::vector<int> neighbor = x;
+
+            std::reverse(neighbor.begin() + i, neighbor.begin() + j);
+            
+
+            if (unique_neighbors.find(neighbor) == unique_neighbors.end()) {
+                    neighbors.push_back(neighbor);
+                    unique_neighbors.insert(neighbor);
+                }
+
+        }
+    }
+
+    return neighbors;
+}
+
+auto TSP::generate_all_vertex_movements(const std::vector<int>& x, int n) -> std::vector<std::vector<int>> {
+    std::set<std::vector<int>> unique_neighbors;
+    std::vector<std::vector<int>> neighbors;
+
+    // Generate all possible neighbors by swapping each pair of vertices
+    for (int i = 0; i < n - 1; ++i) {
+        for (int j = i + 1; j < n; ++j) {
+            std::vector<int> neighbor = x;
+            std::swap(neighbor[i], neighbor[j]);
+            if (unique_neighbors.find(neighbor) == unique_neighbors.end()) {
+                    neighbors.push_back(neighbor);
+                    unique_neighbors.insert(neighbor);
+                }
+
+        }
+    }
+
+    return neighbors;
+}            
+
 // Function to calculate the fitness of the path, where the fitness is the sum of the distances between the vertices
 double fitness(const std::vector<int>& x, const std::vector<std::vector<int>>& paths) {
     double fitness = 0.0;
@@ -431,6 +471,7 @@ auto TSP::find_random_neighbor(const std::vector<int>& x, int n) -> std::vector<
     // Generate neighbors
     std::vector<std::vector<int>> neighbors;
     neighbors = generate_neighbors(x, n); // Pass the missing argument 'n'
+    //neighbors = generate_all_edge_movements(x,n);
 
     // Choose a random neighbor
     return neighbors[std::rand() % neighbors.size()];
@@ -477,6 +518,17 @@ auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
     std::vector<int> hill_cycle1; 
     std::vector<int> hill_cycle2;
 
+    std::vector<std::vector<int>> cycles_vertex = generate_all_vertex_movements(cycle1, cycle1.size());
+    std::vector<std::vector<int>> cycles_edge = generate_all_edge_movements(cycle1, cycle1.size());
+
+    //Print the cycle1.size())
+    std::cout << "Size of cycle1: " << cycle1.size() << std::endl;
+
+    //Print the size of the cycles_vertex and cycles_edge
+    std::cout << "Size of cycles_vertex: " << cycles_vertex.size() << std::endl;
+    std::cout << "Size of cycles_edge: " << cycles_edge.size() << std::endl;
+
+    
 
     //Use hill_climbing function to find the best solution for both cycles
     hill_cycle1 = hill_climbing(cycle1, 10, dist_matrix.dist_matrix);
@@ -484,5 +536,4 @@ auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
 
     return std::make_tuple(cycle1, cycle2);
 
-}
-
+};
