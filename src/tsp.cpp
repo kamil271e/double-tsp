@@ -21,7 +21,7 @@ auto TSP::solve() -> std::tuple<std::vector<int>, std::vector<int>>{
             break;
         default:
             // Handle unsupported algorithm type
-            break; 
+            break;
     }
 
     // Return empty cycles if no algorithm was found
@@ -34,7 +34,7 @@ int TSP::find_random_start() {
     std::mt19937 gen(rd());
     std::uniform_int_distribution<int> dist(0, dist_matrix.x_coord.size() - 1);
     return dist(gen);
-}   
+}
 
 int TSP::find_farthest(int node) {
     int farthest_node = -1;
@@ -87,7 +87,7 @@ void TSP::log_build_process(){
 /**
  * This function finds two starting vertices for the TSP algorithm. The first vertex is chosen randomly,
  * while the second vertex is chosen as the farthest vertex from the first vertex.
- * 
+ *
  * @return A pair of integers representing the chosen starting vertices.
  */
 std::pair<int, int> TSP::choose_starting_vertices() {
@@ -96,8 +96,17 @@ std::pair<int, int> TSP::choose_starting_vertices() {
     return {start1, start2};
 }
 
+double TSP::calc_cycle_len(const std::vector<int>& cycle){
+    int len = 0;
+    for (int i =0 ; i< cycle.size(); ++i){
+        len+= calc_distance(cycle[i],cycle[(i+1)%cycle.size()]);
+    }
+    return len;
+}
+
+
 auto TSP::find_greedy_cycles() -> std::tuple<std::vector<int>, std::vector<int>> {
-    
+
     auto startingVertices = choose_starting_vertices();
     int current_last_vertex1 = startingVertices.first;
     int current_last_vertex2 = startingVertices.second;
@@ -105,7 +114,7 @@ auto TSP::find_greedy_cycles() -> std::tuple<std::vector<int>, std::vector<int>>
     int current_first_vertex2 = startingVertices.second;
 
     append_vertex(current_last_vertex1, cycle1);
-    append_vertex(current_last_vertex2, cycle2); 
+    append_vertex(current_last_vertex2, cycle2);
 
     while (cycle1.size() + cycle2.size() < dist_matrix.x_coord.size()) {
         // Find nearest neighbors for the last and first vertices in each cycle
@@ -144,7 +153,7 @@ auto TSP::find_greedy_cycles() -> std::tuple<std::vector<int>, std::vector<int>>
 
 
 /* Finds the nearest neighbor of the current vertex that has not been visited yet.
- * 
+ *
  * @param current_vertex The index of the current vertex.
  * @param visited A vector indicating which vertices have been visited.
  * @return The index of the nearest neighbor.
@@ -158,7 +167,7 @@ std::pair<int, int> TSP::find_nearest_neighbor(int current_last_vertex, int curr
     for (int i = 0; i < dist_matrix.x_coord.size(); ++i) {
         if (!visited[i] && i != current_last_vertex) {
             double distance = dist_matrix.dist_matrix[current_last_vertex][i];
-            
+
             if (distance < min_distance_last) {
                 min_distance_last = distance;
                 nearest_neighbor_last = i;
@@ -188,10 +197,10 @@ std::pair<int, int> TSP::find_nearest_neighbor(int current_last_vertex, int curr
 
 /**
  * Finds the greedy cycles for the Traveling Salesman Problem (TSP).
- * 
+ *
  * This function uses a greedy algorithm to find two cycles that cover all vertices in the TSP graph.
  * The cycles are constructed by iterative process of cycle expansion.
- * 
+ *
  * @return A tuple containing two vectors representing two independent loops.
  */
 auto TSP::find_greedy_cycles_expansion() -> std::tuple<std::vector<int>, std::vector<int>> {
@@ -226,7 +235,7 @@ auto TSP::find_greedy_cycles_expansion() -> std::tuple<std::vector<int>, std::ve
 
 /**
  * Finds the best candidate vertex between two for cycle expansion - leveraging minimum cycle length.
- * 
+ *
  * @param first First vertex.
  * @param last Last vertex.
  * @param visited A vector indicating which vertices have been visited.
@@ -323,7 +332,7 @@ auto TSP::find_greedy_regret_cycles() -> std::tuple<std::vector<int>, std::vecto
 
 /**
  * Finds the k-best candidates vertices between two for cycle expansion - leveraging minimum cycle length.
- * 
+ *
  * @param first First vertex.
  * @param last Last vertex.
  * @param visited A vector indicating which vertices have been visited.
@@ -362,7 +371,7 @@ auto TSP::read_cycle(const std::string& file) -> std::vector<std::vector<int>>
     }
 
     std::vector<std::vector<int>> cycles;
-    
+
     std::string line;
     while (std::getline(inputFile, line)) {
         std::vector<int> cycle;
@@ -381,31 +390,31 @@ auto TSP::read_cycle(const std::string& file) -> std::vector<std::vector<int>>
 
 // Function to replacement of two vertices included in the path
 auto TSP::generate_neighbors(const std::vector<int>& x, int n) -> std::vector<std::vector<int>>{
-    
+
     std::vector<std::vector<int>> neighbors;
     std::set<std::vector<int>> unique_neighbors;
     std::random_device rd;
     std::mt19937 gen(rd());
-    
+
     while (neighbors.size() < n) {
         std::uniform_int_distribution<> dis_i(0, x.size() - 2);
         std::uniform_int_distribution<> dis_j(1, x.size() - 1);
-        
+
         int i = dis_i(gen);
         int j = dis_j(gen);
-        
+
         if (i > j)
             std::swap(i, j);
-        
+
         std::vector<int> neighbor = x;
         std::reverse(neighbor.begin() + i, neighbor.begin() + j);
-        
+
         if (unique_neighbors.find(neighbor) == unique_neighbors.end()) {
             neighbors.push_back(neighbor);
             unique_neighbors.insert(neighbor);
         }
     }
-    
+
     // Return the vector of neighbors
     return neighbors;
 }
@@ -413,21 +422,18 @@ auto TSP::generate_neighbors(const std::vector<int>& x, int n) -> std::vector<st
 
 // Function to generate all possible neighbors by swapping each edge replacement
 auto TSP::generate_all_edge_movements(const std::vector<int>& x) -> std::vector<std::vector<int>> {
-    // edge movement : idx = 0
-    // vertx movement: idx = 1
-    std::vector<std::vector<int>> neighbors; // i,j,idx
+    // edge movement : type = 0
+    // vertx movement: type = 1
+    std::vector<std::vector<int>> neighbors; // i, j, type
     int n = x.size();
 
     // Generate all possible neighbors by swapping each pair of vertices
     for (int i = 0; i < n; ++i) {
         for (int j = i + 2; j < n; ++j) {
             if (i==0 && j==n-1) continue;
-            std::vector<int> neighbor = {i, j, 0};
-            std::reverse(neighbor.begin() + i, neighbor.begin() + j);
-            neighbors.push_back(neighbor);
-
+            neighbors.push_back({i, j, 0});
         }
-    } 
+    }
 
     return neighbors;
 }
@@ -452,85 +458,83 @@ auto TSP::generate_all_vertex_movements(const std::vector<int>& x) -> std::vecto
     }
 
     return neighbors;
-}            
+}
 
-// Function to calculate the fitness of the path, where the fitness is the sum of the distances between the vertices
-float TSP::fitness(const std::vector<int>& x, std::vector<int> neighbor) {
-    int i = neighbor[0];
-    int j = neighbor[1];
-    int n = x.size();
+// Function to calculate the delta of the path / objective value
+float TSP::get_objective_value(const std::vector<int>& cycle, std::vector<int> neighbor) {
+    int i0 = neighbor[0];
+    int j0 = neighbor[1];
+    int n = cycle.size();
+//    int i1 = i0 - 1; // c++ not support negative indices! : -1
+//    int j1 = j0 + 1;
+//    if (i1 < 0) i1 = n - 1;
+//    if (j1 > n - 1) j1 = 0;
+    int i1 = (i0 - 1 + n) % n;
+    int j1 = (j0 + 1) % n;
+
     if (neighbor[2] == 0){ // edge
-        // odleglosc miedzy dodajemy  
-        // odleglosc miedzy usuwamy i,(i-1)%size + j,(j-1)%size
         // i = 2
         // j = 5
-        // 1 2 3 4 5 6 7
-        // 1 2 6 5 4 3 7
-        // nowe 3,7 i 2,6: i, j + (j-1)%size, (i-1)%size
-        // usuwamy 2,3 i 6,7: (i-1)%size, i + (j-1)%size, j
-        float deleted = dist_matrix.dist_matrix[i][(i-1)%n] + dist_matrix.dist_matrix[j][(j-1)%n];
-        float added = dist_matrix.dist_matrix[i][j] + dist_matrix.dist_matrix[(i-1)%n][(j-1)%n];
-        float fitness = deleted - added;
-        
-        return fitness;
+        // 1 2 [3] 4 5 [6] 7
+        // 1 2 [6] 5 4 [3] 7
+        // new 3,7 i 2,6:     i, (j+1)%size --- (i-1)%size, j
+        // delete 2,3 i 6,7: (i-1)%size, i  --- (j+1)%size, j
+        float deleted = dist_matrix.dist_matrix[cycle[i0]][cycle[i1]] + dist_matrix.dist_matrix[cycle[j0]][cycle[j1]];
+        float added = dist_matrix.dist_matrix[cycle[i0]][cycle[j1]] + dist_matrix.dist_matrix[cycle[i1]][cycle[j0]];
+        float delta = deleted - added;
+        std::cout << "delta: " << delta << std::endl;
+        return delta;
     } else{ // vertex
-                
+        // TODO
     }
     return 0;
 }
 
 auto TSP::find_random_neighbor(std::vector<std::vector<int>> neighbors) -> std::vector<int> {
-    
     // Choose a random neighbor
     return neighbors[std::rand() % neighbors.size()];
 }
 
-auto TSP::hill_climbing(const std::vector<int>& x_init,
-                                const std::vector<std::vector<int>>& paths,
-                                double epsilon = 0.001,
-                                bool steepest = false) -> std::vector<int>
+auto TSP::hill_climbing(const std::vector<int>& init_cycle, bool steepest = false) -> std::vector<int>
 {
-
-     // Generate neighbors
+    // Generate neighbors
     std::vector<std::vector<int>> egde_movements;
-    std::vector<std::vector<int>> vertex_movements;
-    egde_movements = generate_all_edge_movements(x_init); 
-    //vertex_movements = generate_all_vertex_movements(x_init);
-
-    //Print size egde_movements
-    std::cout << "Size of egde_movements: " << egde_movements.size() << std::endl;
+    egde_movements = generate_all_edge_movements(init_cycle);
 
     std::vector<std::vector<int>> neighbors;
-    // Merge the two vectors egde_movements and vertex_movements
     neighbors.insert(neighbors.end(), egde_movements.begin(), egde_movements.end());
+
+    //std::vector<std::vector<int>> vertex_movements;
+    //vertex_movements = generate_all_vertex_movements(init_cycle);
     //neighbors.insert(neighbors.end(), vertex_movements.begin(), vertex_movements.end());
 
-    // Choose initial x randomly as x_best
-    std::vector<int> x = x_init;
-    std::vector<int> x_best = x;
+    std::vector<int> cycle = init_cycle;
+    std::cout << "CYCLE LENGTH BEFORE: " << calc_cycle_len(cycle) << std::endl;
 
-    for (int iter = 0; iter < neighbors.size(); ++iter) {
-        // std::vector<int> y = find_random_neighbor(neighbors);
-        if (fitness(x, neighbors[iter]) > 0) { // lepiej niz mamy aktualnie
+    for (int iter = 0; iter < neighbors.size(); ++iter) { // for now typical iteration, later we need to chose them randomly
+        if (get_objective_value(cycle, neighbors[iter]) > 0) { // better than current
+            int i = neighbors[iter][0];
+            int j = neighbors[iter][1];
+            int type = neighbors[iter][2];
             if (steepest) {
-                x = neighbors[iter];
-                x_best = neighbors[iter];
-
+                // modify cycle and continue
             } else {
-                x_best = neighbors[iter];
+                if (type == 0){ // edge
+//                    std::cout << "REVERSE" << std::endl;
+                    std::reverse(cycle.begin() + i, cycle.begin() + j + 1);
+                    break;
+                }else{// vertex
+
+                }
                 break;
             }
         }
     }
 
-    std::cout << "x_best: ";
-    for (const auto& element : x_best) {
-        std::cout << element + 1 << " ";
-    }
     std::cout << std::endl;
-        
-    return x_best;
-    
+    std::cout << "CYCLE LENGTH AFTER: " << calc_cycle_len(cycle) << std::endl;
+    return cycle;
+
 };
 
 // Function to perform local search
@@ -540,26 +544,25 @@ auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
     // auto [cycle1, cycle2] = find_greedy_cycles();
     auto [cycle1, cycle2] = generate_random_cycles(100);
 
-    std::vector<int> hill_cycle1; 
+    std::vector<int> hill_cycle1;
     std::vector<int> hill_cycle2;
 
-    //Print the cycles
+    std::cout << "INITIAL CYCLES: " << std::endl;
     std::cout << "Cycle 1: ";
     for (int vertex : cycle1) {
         std::cout << vertex + 1 << " ";
     }
     std::cout << std::endl;
-    std::cout << "Cycle 2: ";
-    for (int vertex : cycle2) {
-        std::cout << vertex + 1 << " ";
-    }
-    std::cout << std::endl;
-    
+//    std::cout << "Cycle 2: ";
+//    for (int vertex : cycle2) {
+//        std::cout << vertex + 1 << " ";
+//    }
+//    std::cout << std::endl;
 
-    //Use hill_climbing function to find the best solution for both cycles
-    hill_cycle1 = hill_climbing(cycle1, dist_matrix.dist_matrix, 0.001, false);
-    hill_cycle2 = hill_climbing(cycle2, dist_matrix.dist_matrix, 0.001, false);
-    
+
+    std::cout << "START LOCAL SEARCH" << std::endl;
+    hill_cycle1 = hill_climbing(cycle1, false);
+//    hill_cycle2 = hill_climbing(cycle2, false);
 
     return std::make_tuple(hill_cycle1, hill_cycle2);
 

@@ -48,6 +48,7 @@ private:
     int find_random_start();
     int find_farthest(int);
     int calc_distance(int, int);
+    double calc_cycle_len(const std::vector<int>&);
     std::pair<int, int> choose_starting_vertices();
     void append_vertex(int, std::vector<int>&);
     void insert_vertex(int, int, std::vector<int>&);
@@ -66,17 +67,14 @@ private:
 
     // Local Search
     auto local_search() -> std::tuple<std::vector<int>, std::vector<int>>;
-    auto hill_climbing(const std::vector<int>& x_init,
-                                const std::vector<std::vector<int>>& paths,
-                                double epsilon,
-                                bool steepest) -> std::vector<int>;
-    auto read_cycle(const std::string& file) -> std::vector<std::vector<int>>;
-    auto generate_neighbors(const std::vector<int>& x, int n) -> std::vector<std::vector<int>>;
-    auto generate_all_edge_movements(const std::vector<int>& x) -> std::vector<std::vector<int>>;
-    auto generate_all_vertex_movements(const std::vector<int>& x) -> std::vector<std::vector<int>>;
-    auto find_random_neighbor(std::vector<std::vector<int>> neighbors) -> std::vector<int>;
+    auto hill_climbing(const std::vector<int>&, bool) -> std::vector<int>;
+    auto read_cycle(const std::string&) -> std::vector<std::vector<int>>;
+    auto generate_neighbors(const std::vector<int>&, int) -> std::vector<std::vector<int>>;
+    auto generate_all_edge_movements(const std::vector<int>& ) -> std::vector<std::vector<int>>;
+    auto generate_all_vertex_movements(const std::vector<int>& ) -> std::vector<std::vector<int>>;
+    auto find_random_neighbor(std::vector<std::vector<int>>) -> std::vector<int>;
     auto generate_random_cycles(int) -> std::tuple<std::vector<int>, std::vector<int>>;
-    float fitness(const std::vector<int>& x, std::vector<int> neighbor);
+    float get_objective_value(const std::vector<int>&, std::vector<int>);
 };
 
 #endif // TSP_H
