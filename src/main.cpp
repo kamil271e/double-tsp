@@ -31,9 +31,6 @@ int main(int argc, char* argv[]){
     m.load_from_path(argv[1]);
     m.generate_dist_matrix();
 
-    //Print argv[2])
-    std::cout << "Algorithm type: " << argv[2] << std::endl;
-
     AlgType alg_type;
     if (std::string(argv[2]) == "nearest") {
         alg_type = AlgType::nearest_neighbors;
