@@ -9,16 +9,12 @@ auto TSP::solve() -> std::tuple<std::vector<int>, std::vector<int>>{
     switch (alg_type) {
         case AlgType::nearest_neighbors:
             return find_greedy_cycles();
-            break;
         case AlgType::greedy_cycle:
             return find_greedy_cycles_expansion();
-            break;
         case AlgType::regret:
             return find_greedy_regret_cycles();
-            break;
         case AlgType::local:
             return local_search();
-            break;
         default:
             // Handle unsupported algorithm type
             break;
