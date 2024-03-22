@@ -1,133 +1,101 @@
 #include "../lib/tsp.h"
 
-// Function to replacement of two vertices included in the path
-auto TSP::generate_neighbors(const std::vector<int>& x, int n) -> std::vector<std::vector<int>>{
 
-    std::vector<std::vector<int>> neighbors;
-    std::set<std::vector<int>> unique_neighbors;
-    std::random_device rd;
-    std::mt19937 gen(rd());
-
-    while (neighbors.size() < n) {
-        std::uniform_int_distribution<> dis_i(0, x.size() - 2);
-        std::uniform_int_distribution<> dis_j(1, x.size() - 1);
-
-        int i = dis_i(gen);
-        int j = dis_j(gen);
-
-        if (i > j)
-            std::swap(i, j);
-
-        std::vector<int> neighbor = x;
-        std::reverse(neighbor.begin() + i, neighbor.begin() + j);
-
-        if (unique_neighbors.find(neighbor) == unique_neighbors.end()) {
-            neighbors.push_back(neighbor);
-            unique_neighbors.insert(neighbor);
-        }
-    }
-
-    // Return the vector of neighbors
-    return neighbors;
-}
-
-
-// Function to generate all possible neighbors by swapping each edge replacement
 auto TSP::generate_all_edge_movements(const std::vector<int>& cycle) -> std::vector<std::vector<int>> {
     // edge movement : type = 0
     // vertx movement: type = 1
-    std::vector<std::vector<int>> neighbors; // i, j, type
+    std::vector<std::vector<int>> movements; // i, j, type
     int n = cycle.size();
 
     for (int i = 0; i < n; ++i) {
         for (int j = i + 2; j < n; ++j) {
             if (i==0 && j==n-1) continue;
-            neighbors.push_back({i, j, 0});
+            movements.push_back({i, j, 0});
         }
     }
-
-    return neighbors;
+    return movements;
 }
 
 auto TSP::generate_all_vertex_movements(const std::vector<int>& cycle) -> std::vector<std::vector<int>> {
     // edge movement : type = 0
     // vertx movement: type = 1
-    std::vector<std::vector<int>> neighbors; // i, j, type
+    std::vector<std::vector<int>> movements; // i, j, type
     int n = cycle.size();
 
-    for (int i = 0; i < n; ++i) { // TODO: it should also consider situations for |i-j| = 1, we need to calculate the delta differently for those cases
-        for (int j = i + 2; j < n; ++j) {
-            neighbors.push_back({i, j, 1});
+    for (int i = 0; i < n; ++i) {
+        for (int j = i + 1; j < n; ++j) {
+            movements.push_back({i, j, 1});
         }
     }
-    return neighbors;
+    return movements;
 }
 
 // Function to calculate the delta of the path / objective value
-float TSP::get_objective_value(const std::vector<int>& cycle, std::vector<int> neighbor) {
-    int i = neighbor[0];
-    int j = neighbor[1];
+float TSP::get_objective_value(const std::vector<int>& cycle, std::vector<int> movement) {
+    int i = movement[0];
+    int j = movement[1];
     int n = cycle.size();
     int i_left = (i - 1 + n) % n;
     int i_right = (i + 1) % n;
     int j_left = (j - 1 + n) % n;
     int j_right = (j + 1) % n;
+    float deleted, added;
     
-    if (neighbor[2] == 0){ // edge
+    if (movement[2] == 0){ // edge
         /*
          * i = 2, j = 5
          * 1 2 [3] 4 5 [6] 7
          * 1 2 [6] 5 4 [3] 7
          * new 3,7 i 2,6:     (i, j+1), (i-1, j)
          * delete 2,3 i 6,7:  (i-1, i)  (j+1, j)
-         *
          * basic logic - delete this comment if understand
          * */
-        float deleted = dist_matrix.dist_matrix[cycle[i]][cycle[i_left]] + dist_matrix.dist_matrix[cycle[j]][cycle[j_right]];
-        float added = dist_matrix.dist_matrix[cycle[i]][cycle[j_right]] + dist_matrix.dist_matrix[cycle[i_left]][cycle[j]];
-        //  std::cout << deleted - added << std::endl;
-        return deleted - added;
+        deleted = dist_matrix.dist_matrix[cycle[i]][cycle[i_left]] + dist_matrix.dist_matrix[cycle[j]][cycle[j_right]];
+        added = dist_matrix.dist_matrix[cycle[i]][cycle[j_right]] + dist_matrix.dist_matrix[cycle[i_left]][cycle[j]];
+        // std::cout << "DELTA: " << deleted - added << std::endl;
     } else{ // vertex
         /*
          * delete: (i, i-1), (i,i+1), (j, j-1), (j, j+1)
          * add: (i, j-1), (i, j+1), (j, i-1), (j, i+1)
          * basic logic - delete this comment if understand
          * */
-        float deleted = dist_matrix.dist_matrix[cycle[i]][cycle[i_left]] + dist_matrix.dist_matrix[cycle[i]][cycle[i_right]]
-                + dist_matrix.dist_matrix[cycle[j]][cycle[j_left]] + dist_matrix.dist_matrix[cycle[j]][cycle[j_left]];
-        float added = dist_matrix.dist_matrix[cycle[i]][cycle[j_left]] + dist_matrix.dist_matrix[cycle[i]][cycle[j_right]]
-                + dist_matrix.dist_matrix[cycle[j]][cycle[i_left]] + dist_matrix.dist_matrix[cycle[j]][cycle[i_right]];
-        std::cout << deleted - added << std::endl;
-        return deleted - added;
+        if (i == j - 1 || j == i - 1 || (i == 0 && j == n-1) || (j == 0 && i == n-1) ){
+            deleted = dist_matrix.dist_matrix[cycle[i]][cycle[i_left]] + dist_matrix.dist_matrix[cycle[j]][cycle[j_right]];
+            added = dist_matrix.dist_matrix[cycle[i]][cycle[j_right]] + dist_matrix.dist_matrix[cycle[j]][cycle[i_left]];
+        }else{
+            deleted = dist_matrix.dist_matrix[cycle[i]][cycle[i_left]] + dist_matrix.dist_matrix[cycle[i]][cycle[i_right]]
+                      + dist_matrix.dist_matrix[cycle[j]][cycle[j_left]] + dist_matrix.dist_matrix[cycle[j]][cycle[j_right]];
+            added = dist_matrix.dist_matrix[cycle[i]][cycle[j_left]] + dist_matrix.dist_matrix[cycle[i]][cycle[j_right]]
+                    + dist_matrix.dist_matrix[cycle[j]][cycle[i_left]] + dist_matrix.dist_matrix[cycle[j]][cycle[i_right]];
+        }
     }
-    return 0;
+    std::cout << deleted - added << std::endl;
+    return deleted - added;
 }
 
-auto TSP::find_random_neighbor(std::vector<std::vector<int>> neighbors) -> std::vector<int> {
-    // Choose a random neighbor
-    return neighbors[std::rand() % neighbors.size()];
+auto TSP::get_random_move(std::vector<std::vector<int>> movements) -> std::vector<int> {
+    return movements[std::rand() % movements.size()];
 }
 
 auto TSP::hill_climbing(const std::vector<int>& init_cycle, bool steepest = false) -> std::vector<int>
 {
-    std::vector<std::vector<int>> neighbors;
+    std::vector<std::vector<int>> movements;
+//    std::vector<std::vector<int>> edge_movements = generate_all_edge_movements(init_cycle);
+//    movements.insert(movements.end(), edge_movements.begin(), edge_movements.end());
 
-//    std::vector<std::vector<int>> egde_movements;
-//    egde_movements = generate_all_edge_movements(init_cycle);
-//    neighbors.insert(neighbors.end(), egde_movements.begin(), egde_movements.end());
+    std::vector<std::vector<int>> vertex_movements = generate_all_vertex_movements(init_cycle);
+    movements.insert(movements.end(), vertex_movements.begin(), vertex_movements.end());
 
-    std::vector<std::vector<int>> vertex_movements;
-    vertex_movements = generate_all_vertex_movements(init_cycle);
-    neighbors.insert(neighbors.end(), vertex_movements.begin(), vertex_movements.end());
+//    std::shuffle(movements.begin(), movements.end(), std::mt19937(std::random_device()())
 
     std::vector<int> cycle = init_cycle;
-    std::cout << "CYCLE LENGTH BEFORE: " << calc_cycle_len(cycle) << std::endl;
+    float before = calc_cycle_len(cycle);
 
-    for (int iter = 0; iter < neighbors.size(); ++iter) { // for now regular iteration, later we need to chose them randomly
-        if (get_objective_value(cycle, neighbors[iter]) > 0) { // better than current
-            int i = neighbors[iter][0];
-            int j = neighbors[iter][1];
-            int type = neighbors[iter][2];
+    for (int iter = 0; iter < movements.size(); ++iter) { // for now regular iteration, later we need to chose them randomly
+        if (get_objective_value(cycle, movements[iter]) > 0) { // better than current
+            int i = movements[iter][0];
+            int j = movements[iter][1];
+            int type = movements[iter][2];
             if (steepest) {
                 // modify cycle and continue
             } else {
@@ -142,7 +110,8 @@ auto TSP::hill_climbing(const std::vector<int>& init_cycle, bool steepest = fals
     }
 
     std::cout << std::endl;
-    std::cout << "CYCLE LENGTH AFTER: " << calc_cycle_len(cycle) << std::endl;
+    float after = calc_cycle_len(cycle);
+    std::cout << "DELTA: " << after - before << std::endl;
     return cycle;
 
 };

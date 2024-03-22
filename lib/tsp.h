@@ -67,7 +67,7 @@ private:
     auto generate_neighbors(const std::vector<int>&, int) -> std::vector<std::vector<int>>;
     auto generate_all_edge_movements(const std::vector<int>& ) -> std::vector<std::vector<int>>;
     auto generate_all_vertex_movements(const std::vector<int>& ) -> std::vector<std::vector<int>>;
-    auto find_random_neighbor(std::vector<std::vector<int>>) -> std::vector<int>;
+    auto get_random_move(std::vector<std::vector<int>>) -> std::vector<int>;
     auto generate_random_cycles(int) -> std::tuple<std::vector<int>, std::vector<int>>;
     float get_objective_value(const std::vector<int>&, std::vector<int>);
 };
