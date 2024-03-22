@@ -1,6 +1,6 @@
 #!/bin/bash
 
-declare -a ALGO_TYPES=("nearest" "expansion" "regret")
+declare -a ALGO_TYPES=("nearest" "expansion" "regret" "local")
 
 if [ "$#" -ne 2 ]; then
     echo "Usage: $0 <instance_path> <algotype>"
@@ -15,17 +15,20 @@ if [[ ! " ${ALGO_TYPES[@]} " =~ " $algotype " ]]; then
     exit 1
 fi
 
+
 # N: no. of iterations
-N=100
+N=1
 cycles_len_file="../cycles/L_${algotype}_${instance_path::-4}.txt"
 cycles_file="../cycles/${algotype}_${instance_path::-4}.txt"
 
-g++ -o main.out main.cpp matrix.cpp tsp.cpp
+g++ -o main.out main.cpp matrix.cpp tsp.cpp greedy.cpp local_search.cpp
 
 for ((i=1; i<=$N; i++)); do
     cpp_output=$(./main.out "$instance_path" "$algotype")
-    echo "$cpp_output" >> "$cycles_file"
-    python utils/cycle_lengths.py "$instance_path" "$cpp_output" >> "$cycles_len_file"
+    echo "$cpp_output"
+#    echo "$cpp_output" >> "$cycles_file"
+#    python utils/cycle_lengths.py "$instance_path" "$cpp_output" >> "$cycles_len_file"
+
 done
 
 rm main.out
