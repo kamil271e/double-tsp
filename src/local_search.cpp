@@ -152,8 +152,40 @@ auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
 {
     // TODO: we should be able to choose starting cycles
     // auto [cycle1, cycle2] = find_greedy_cycles();
-    auto [cycle1, cycle2] = generate_random_cycles(100);
 
+    //TODO: Think about how to supply the parameters for measurement later
+    std::string input_data = "random";
+
+    // Types of input data for the cycles generation
+    if (input_data == "random") {
+        std::cout << "RANDOM CYCLES" << std::endl;
+        std::tie(cycle1, cycle2) = generate_random_cycles(100);
+    }
+    else if(input_data == "neighbour") {
+        std::cout << "NEIGHBOUR CYCLES" << std::endl;
+        std::tie(cycle1, cycle2) = find_greedy_cycles();
+    }
+    else if(input_data == "expansion") {
+        std::cout << "EXPANSION CYCLES" << std::endl;
+        std::tie(cycle1, cycle2) = find_greedy_cycles_expansion();
+    }
+    else if(input_data == "regret") {
+        std::cout << "REGRET CYCLES" << std::endl;
+        std::tie(cycle1, cycle2) = find_greedy_regret_cycles();
+    }
+
+    std::cout << "INITIAL CYCLES: " << std::endl;
+    std::cout << "Cycle 1: ";
+    for (int vertex : cycle1) {
+        std::cout << vertex + 1 << " ";
+    }
+    std::cout << std::endl;
+
+    std::cout << "START LOCAL SEARCH" << std::endl;
+
+
+    //auto [cycle1, cycle2] = generate_random_cycles(100);
+    
     std::vector<int> hill_cycle1;
     std::vector<int> hill_cycle2;
 
@@ -169,10 +201,46 @@ auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
     //    }
     //    std::cout << std::endl;
 
-
     std::cout << "START LOCAL SEARCH" << std::endl;
-    hill_cycle1 = hill_climbing(cycle1, false);
-    //    hill_cycle2 = hill_climbing(cycle2, false);
+
+    // TODO: think about how to supply the parameters for measurement later
+    bool steepest = false;
+
+    // Start the timer, measure micro seconds
+    auto start_time = std::chrono::high_resolution_clock::now();
+
+    hill_cycle1 = hill_climbing(cycle1, steepest);
+    hill_cycle2 = hill_climbing(cycle2, steepest);
+
+    // End the timer
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
+
+    // Write the execution time to the file, with the name of the file depending on the input data
+    std::string filename = "/home/wladyka/Study/IMO/double-tsp/cycles/";
+    if (steepest == false) {
+        filename += "T_local_greedy_";
+    } 
+    else if (steepest) {
+        filename += "steepest_";
+    }
+
+    if (input_data == "regret") {
+        filename += "regret";
+    } else if (input_data == "neighbour") {
+        filename += "neighbour";
+    } else if (input_data == "expansion") {
+        filename += "expansion";
+    } else {
+        filename += "random";
+    }
+
+    filename += ".txt";
+
+    std::ofstream outfile(filename, std::ios_base::app);
+    outfile << "Execution time: " << duration << " microseconds" << std::endl;
+    outfile.close();
+
 
     return {hill_cycle1, hill_cycle2};
 
