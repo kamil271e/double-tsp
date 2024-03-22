@@ -69,7 +69,6 @@ float TSP::get_objective_value(const std::vector<int>& cycle, std::vector<int> m
                     + dist_matrix.dist_matrix[cycle[j]][cycle[i_left]] + dist_matrix.dist_matrix[cycle[j]][cycle[i_right]];
         }
     }
-    std::cout << deleted - added << std::endl;
     return deleted - added;
 }
 
@@ -80,84 +79,65 @@ auto TSP::get_random_move(std::vector<std::vector<int>> movements) -> std::vecto
 auto TSP::hill_climbing(const std::vector<int>& init_cycle, bool steepest = false) -> std::vector<int>
 {
     std::vector<std::vector<int>> movements;
-//    std::vector<std::vector<int>> edge_movements = generate_all_edge_movements(init_cycle);
-//    movements.insert(movements.end(), edge_movements.begin(), edge_movements.end());
-
+    std::vector<std::vector<int>> edge_movements = generate_all_edge_movements(init_cycle);
+    movements.insert(movements.end(), edge_movements.begin(), edge_movements.end());
     std::vector<std::vector<int>> vertex_movements = generate_all_vertex_movements(init_cycle);
     movements.insert(movements.end(), vertex_movements.begin(), vertex_movements.end());
-
-//    std::shuffle(movements.begin(), movements.end(), std::mt19937(std::random_device()())
-
     std::vector<int> cycle = init_cycle;
-    float before = calc_cycle_len(cycle);
+    bool found_better;
+    std::vector<std::vector<int>> visited_movements;
 
-    for (int iter = 0; iter < movements.size(); ++iter) { // for now regular iteration, later we need to chose them randomly
-        if (get_objective_value(cycle, movements[iter]) > 0) { // better than current
-            int i = movements[iter][0];
-            int j = movements[iter][1];
-            int type = movements[iter][2];
-            if (steepest) {
-                // modify cycle and continue
-            } else {
-                if (type == 0){ // edge
-                    std::reverse(cycle.begin() + i, cycle.begin() + j + 1);
-                }else{ // vertex
-                    std::swap(cycle[i], cycle[j]);
+    do{
+        std::shuffle(movements.begin(), movements.end(), std::mt19937(std::random_device()())); // shuffle movements
+        for (int iter = 0; iter < movements.size(); ++iter) {
+            found_better = false;
+            float fitness =get_objective_value(cycle, movements[iter]);
+            if (fitness > 0 && std::find(visited_movements.begin(), visited_movements.end(), movements[iter]) == visited_movements.end()) { // better than current
+                found_better = true;
+                visited_movements.push_back(movements[iter]);
+                int i = movements[iter][0];
+                int j = movements[iter][1];
+                int type = movements[iter][2];
+                if (steepest) {
+                    // modify cycle and continue
+                } else {
+                    if (type == 0){ // edge
+                        std::reverse(cycle.begin() + i, cycle.begin() + j + 1);
+                    }else{ // vertex
+                        std::swap(cycle[i], cycle[j]);
+                    }
+                    break;
                 }
-                break;
             }
         }
-    }
-
-    std::cout << std::endl;
-    float after = calc_cycle_len(cycle);
-    std::cout << "DELTA: " << after - before << std::endl;
+    } while (found_better);
     return cycle;
-
-};
+}
 
 // Function to perform local search
 auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
 {
     // TODO: we should be able to choose starting cycles
-    // auto [cycle1, cycle2] = find_greedy_cycles();
-    auto [cycle1, cycle2] = generate_random_cycles(100);
-
+     auto [cycle1, cycle2] = find_greedy_cycles();
+//    auto [cycle1, cycle2] = generate_random_cycles(100);
     std::vector<int> hill_cycle1;
     std::vector<int> hill_cycle2;
 
     std::cout << "INITIAL CYCLES: " << std::endl;
-    std::cout << "Cycle 1: ";
     for (int vertex : cycle1) {
         std::cout << vertex + 1 << " ";
     }
     std::cout << std::endl;
-    //    std::cout << "Cycle 2: ";
-    //    for (int vertex : cycle2) {
-    //        std::cout << vertex + 1 << " ";
-    //    }
-    //    std::cout << std::endl;
+    for (int vertex : cycle2) {
+        std::cout << vertex + 1 << " ";
+    }
+    std::cout << std::endl;
 
 
     std::cout << "START LOCAL SEARCH" << std::endl;
     hill_cycle1 = hill_climbing(cycle1, false);
-    //    hill_cycle2 = hill_climbing(cycle2, false);
+    hill_cycle2 = hill_climbing(cycle2, false);
 
     return {hill_cycle1, hill_cycle2};
 
-};
-
-auto TSP::generate_random_cycles(int n) -> std::tuple<std::vector<int>, std::vector<int>>
-{
-    std::vector<int> values(n);
-    for (int i = 0; i < n; ++i) values[i] = i;
-
-    std::random_device rd;
-    std::mt19937 g(rd());
-    std::shuffle(values.begin(), values.end(), g);
-
-    std::vector<int> cycle1(values.begin(), values.begin() + (int)(n/2));
-    std::vector<int> cycle2(values.begin() + n - (int)(n/2), values.end());
-
-    return {cycle1, cycle2};
 };

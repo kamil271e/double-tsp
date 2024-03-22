@@ -79,12 +79,6 @@ void TSP::log_build_process(){
     std::cout << "-----------------" << std::endl;
 }
 
-/**
- * This function finds two starting vertices for the TSP algorithm. The first vertex is chosen randomly,
- * while the second vertex is chosen as the farthest vertex from the first vertex.
- *
- * @return A pair of integers representing the chosen starting vertices.
- */
 std::pair<int, int> TSP::choose_starting_vertices() {
     int start1 = find_random_start();
     int start2 = find_farthest(start1);
@@ -98,6 +92,21 @@ double TSP::calc_cycle_len(const std::vector<int>& cycle){
     }
     return len;
 }
+
+auto TSP::generate_random_cycles(int n) -> std::tuple<std::vector<int>, std::vector<int>>
+{
+    std::vector<int> values(n);
+    for (int i = 0; i < n; ++i) values[i] = i;
+
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(values.begin(), values.end(), g);
+
+    std::vector<int> cycle1(values.begin(), values.begin() + (int)(n/2));
+    std::vector<int> cycle2(values.begin() + n - (int)(n/2), values.end());
+
+    return {cycle1, cycle2};
+};
 
 
 

@@ -91,9 +91,18 @@ def choose_best():
 
 
 def generate_all():
-    # TODO
-    pass
+    for cycles_file in os.listdir(CYCLES_DIR):
+        parts = cycles_file.split("_")
+        algo, instance = parts[0],  parts[1].split(".")[0]
+        path = os.path.join(CYCLES_DIR, cycles_file)
+        data = np.loadtxt(path)
+        idx = np.argmin(data)
+
+        cycles = read_lines(cycles_file, 2*idx)
+        title = f'{cycles_file[:-4]}_{np.min(data)}'
+        plot_name = cycles_file[:-4]
+        visualize_tsp_cycles(f'{instance}.tsp', cycles, plot_name, title)
 
 if __name__ == "__main__":
-    # generate_all()
-    choose_best()
+    generate_all()
+    # choose_best()
