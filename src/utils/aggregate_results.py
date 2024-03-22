@@ -11,8 +11,8 @@ def get_result_table():
     for algo in ALGOS:
         algo_results = []
         for instance in INSTANCES:
-            data = np.loadtxt(f'{CYCLES_DIR}/L_{algo}_{instance}.txt')
-            algo_results.append((np.min(data), np.max(data), round(np.mean(data),1)))
+            data = np.loadtxt(f'{CYCLES_DIR}/{algo}_{instance}.txt')
+            algo_results.append((int(np.min(data)), int(np.max(data)), int(np.mean(data))))
         results.append(algo_results)
 
     data = []

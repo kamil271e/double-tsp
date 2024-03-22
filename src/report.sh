@@ -28,6 +28,7 @@ for ((i=1; i<=$N; i++)); do
     echo "$cpp_output"
 #    echo "$cpp_output" >> "$cycles_file"
 #    python utils/cycle_lengths.py "$instance_path" "$cpp_output" >> "$cycles_len_file"
+
 done
 
 rm main.out

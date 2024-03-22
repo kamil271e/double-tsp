@@ -34,11 +34,11 @@ public:
     TSP(const Matrix& dist_matrix, AlgType);
     auto solve() -> std::tuple<std::vector<int>, std::vector<int>>;
     const Matrix& dist_matrix;
-
+    int start_idx=0;
+   
 private:
     std::vector<bool> visited = std::vector<bool>(dist_matrix.x_coord.size(), false);
-    std::vector<int> cycle1;
-    std::vector<int> cycle2;
+    std::vector<int> cycle1, cycle2;
     AlgType alg_type;
 
     // UTILS
@@ -52,19 +52,17 @@ private:
     void log_build_process();
     
     // GREEDY
-    auto find_greedy_cycles() -> std::tuple<std::vector<int>, std::vector<int>>;
+    auto find_greedy_cycles_nearest() -> std::tuple<std::vector<int>, std::vector<int>>;
     auto find_greedy_cycles_expansion() -> std::tuple<std::vector<int>, std::vector<int>>;
-    auto find_greedy_regret_cycles(float=0.42) -> std::tuple<std::vector<int>, std::vector<int>>;
-    std::vector<int> find_greedy_cycle();
+    auto find_greedy_cycles_regret() -> std::tuple<std::vector<int>, std::vector<int>>;
     std::pair<int, double> find_nearest_expansion(int, int, const std::vector<bool>&);
+    double get_expansion_cost(int, int, int);
     std::pair<int, int> find_nearest_neighbor(int, int, const std::vector<bool>&);
-    std::pair<int, double> find_best_2regret(int, int, const std::vector<bool>&);
+    std::pair<int, double> get_2regret(int, std::vector<int>, float=0.42);
 
     // LOCAL SEARCH
     auto local_search() -> std::tuple<std::vector<int>, std::vector<int>>;
     auto hill_climbing(const std::vector<int>&, bool) -> std::vector<int>;
-    auto read_cycle(const std::string&) -> std::vector<std::vector<int>>;
-    auto generate_neighbors(const std::vector<int>&, int) -> std::vector<std::vector<int>>;
     auto generate_all_edge_movements(const std::vector<int>& ) -> std::vector<std::vector<int>>;
     auto generate_all_vertex_movements(const std::vector<int>& ) -> std::vector<std::vector<int>>;
     auto get_random_move(std::vector<std::vector<int>>) -> std::vector<int>;

@@ -16,6 +16,7 @@ auto TSP::generate_all_edge_movements(const std::vector<int>& cycle) -> std::vec
     return movements;
 }
 
+
 auto TSP::generate_all_vertex_movements(const std::vector<int>& cycle) -> std::vector<std::vector<int>> {
     // edge movement : type = 0
     // vertx movement: type = 1
@@ -29,6 +30,7 @@ auto TSP::generate_all_vertex_movements(const std::vector<int>& cycle) -> std::v
     }
     return movements;
 }
+
 
 // Function to calculate the delta of the path / objective value
 float TSP::get_objective_value(const std::vector<int>& cycle, std::vector<int> movement) {
@@ -72,9 +74,11 @@ float TSP::get_objective_value(const std::vector<int>& cycle, std::vector<int> m
     return deleted - added;
 }
 
+
 auto TSP::get_random_move(std::vector<std::vector<int>> movements) -> std::vector<int> {
     return movements[std::rand() % movements.size()];
 }
+
 
 auto TSP::hill_climbing(const std::vector<int>& init_cycle, bool steepest = false) -> std::vector<int>
 {
@@ -114,11 +118,12 @@ auto TSP::hill_climbing(const std::vector<int>& init_cycle, bool steepest = fals
     return cycle;
 }
 
+
 // Function to perform local search
 auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
 {
     // TODO: we should be able to choose starting cycles
-     auto [cycle1, cycle2] = find_greedy_cycles();
+     auto [cycle1, cycle2] = find_greedy_cycles_regret();
 //    auto [cycle1, cycle2] = generate_random_cycles(100);
     std::vector<int> hill_cycle1;
     std::vector<int> hill_cycle2;
@@ -140,4 +145,4 @@ auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
 
     return {hill_cycle1, hill_cycle2};
 
-};
+}

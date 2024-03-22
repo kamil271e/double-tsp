@@ -19,7 +19,7 @@ void generate_cycles(TSP tsp){
 
 int main(int argc, char* argv[]){
     if (argc < 3) {
-        std::cerr << "Usage: " << argv[0] << " <filename> <algotype> [nearest, expansion, regret, local]" << std::endl;
+        std::cerr << "Usage: " << argv[0] << " <filename> <algotype> {nearest, expansion, regret, local} [start_idx]" << std::endl;
         return 1;
     }
     Matrix m;
@@ -34,9 +34,7 @@ int main(int argc, char* argv[]){
     } else if (std::string(argv[2]) == "regret") {
         alg_type = AlgType::regret;
     } else if (std::string(argv[2]) == "local") {
-        //Run local search
         alg_type =  AlgType::local;
-    
     } else {
         std::cerr << "Invalid algorithm type. Please choose from [nearest, expansion, regret, local]" << std::endl;
         return 1;
@@ -44,6 +42,6 @@ int main(int argc, char* argv[]){
 
     TSP tsp(m, alg_type);
     generate_cycles(tsp);
-    
+
     return 0;
 }
