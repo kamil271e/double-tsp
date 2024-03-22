@@ -88,7 +88,7 @@ auto TSP::hill_climbing(const std::vector<int>& init_cycle, bool steepest = fals
     std::vector<std::vector<int>> vertex_movements = generate_all_vertex_movements(init_cycle);
     movements.insert(movements.end(), vertex_movements.begin(), vertex_movements.end());
     std::vector<int> cycle = init_cycle;
-    bool found_better;
+    bool found_better = false;
     std::vector<std::vector<int>> visited_movements;
 
     do{
