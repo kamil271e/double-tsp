@@ -153,7 +153,8 @@ auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
     // TODO: we should be able to choose starting cycles
     // auto [cycle1, cycle2] = find_greedy_cycles();
 
-    //TODO: Think about how to supply the parameters for measurement later
+    // TODO: think about how to supply the parameters for measurement later
+    bool steepest = false;
     std::string input_data = "random";
 
     // Types of input data for the cycles generation
@@ -203,8 +204,6 @@ auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
 
     std::cout << "START LOCAL SEARCH" << std::endl;
 
-    // TODO: think about how to supply the parameters for measurement later
-    bool steepest = false;
 
     // Start the timer, measure micro seconds
     auto start_time = std::chrono::high_resolution_clock::now();
@@ -217,7 +216,7 @@ auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
 
     // Write the execution time to the file, with the name of the file depending on the input data
-    std::string filename = "/home/wladyka/Study/IMO/double-tsp/cycles/";
+    std::string filename = "../cycles/";
     if (steepest == false) {
         filename += "T_local_greedy_";
     } 
