@@ -131,6 +131,35 @@ void TSP::update_cycle(const std::vector<int>& movement, std::vector<int>& cycle
     }
 }
 
+/**
+ * Performs a random walk on the given initial cycle for a specified number of iterations.
+ * 
+ * @param init_cycle The initial cycle to start the random walk from.
+ * @param iterations The number of iterations to perform the random walk.
+ * @return The best cycle found during the random walk.
+ */
+auto TSP::random_walk(const std::vector<int>& init_cycle, int iterations) -> std::vector<int>
+{
+    std::vector<std::vector<int>> movements;
+    std::vector<std::vector<int>> edge_movements = generate_all_edge_movements(init_cycle);
+    movements.insert(movements.end(), edge_movements.begin(), edge_movements.end());
+    std::vector<std::vector<int>> vertex_movements = generate_all_vertex_movements(init_cycle);
+    movements.insert(movements.end(), vertex_movements.begin(), vertex_movements.end());
+    std::vector<int> cycle = init_cycle;
+    std::vector<int> best_cycle = cycle;
+    int best_fitness = 0;
+
+    for (int iter = 0; iter < iterations; ++iter) {
+        std::vector<int> movement = get_random_move(movements);
+        update_cycle(movement, cycle);
+        float fitness = get_objective_value(cycle, movement);
+        if (fitness > best_fitness) {
+            best_fitness = fitness;
+            best_cycle = cycle;
+        }
+    }
+    return best_cycle;
+}
 
 // Function to perform local search
 auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
@@ -150,13 +179,28 @@ auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
         std::cout << vertex + 1 << " ";
     }
     std::cout << std::endl;
-    std::cout << "LENGTHS BEFORE: " << calc_cycle_len(cycle1) << " " << calc_cycle_len(cycle2) << std::endl; // "
+    std::cout << "LENGTHS BEFORE: " << calc_cycle_len(cycle1) << " " << calc_cycle_len(cycle2) << "\n" << std::endl; // "
 
 
     std::cout << "START LOCAL SEARCH" << std::endl;
     hill_cycle1 = hill_climbing(cycle1, false);
     hill_cycle2 = hill_climbing(cycle2, false);
-    std::cout << "LENGTHS AFTER: " << calc_cycle_len(hill_cycle1) << " " << calc_cycle_len(hill_cycle2) << std::endl;
+    std::cout << "LENGTHS AFTER LOCAL SEARCH: " << calc_cycle_len(hill_cycle1) << " " << calc_cycle_len(hill_cycle2) << "\n" <<std::endl;
+
+    std::vector<int> random_cycle1;
+    std::vector<int> random_cycle2;
+
+    std::cout << "START RANDOM WALK" << std::endl;
+    random_cycle1 = random_walk(cycle1, 10);
+    random_cycle2 = random_walk(cycle2, 10);
+    std::cout << "LENGTHS AFTER RANDOM WALK: " << calc_cycle_len(random_cycle1) << " " << calc_cycle_len(random_cycle2) << "\n" << std::endl;
+
+
+
+
+
     return {hill_cycle1, hill_cycle2};
 
 }
+
+

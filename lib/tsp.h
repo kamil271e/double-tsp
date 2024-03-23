@@ -69,6 +69,8 @@ private:
     auto generate_random_cycles(int) -> std::tuple<std::vector<int>, std::vector<int>>;
     float get_objective_value(const std::vector<int>&, std::vector<int>);
     void update_cycle(const std::vector<int>&, std::vector<int>&);
+    auto random_walk(const std::vector<int>&, int) -> std::vector<int>;
+
 };
 
 #endif // TSP_H
