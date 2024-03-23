@@ -80,13 +80,13 @@ void TSP::inner_class_search(std::vector<int>& cycle, bool steepest = false)
     bool found_better = false;
     int best_objective_value = 0;
 
-    // this logic is not ideal yet - need to work with this visited_movements (not sure if they are necessary)
+    // visited_movements should not be necessary
     do{
         std::shuffle(movements.begin(), movements.end(), std::mt19937(std::random_device()())); // shuffle movements
         for (int iter = 0; iter < movements.size(); ++iter) {
             found_better = false;
             float objective_value = get_objective_value(cycle, movements[iter]);
-            if (objective_value > 0 && std::find(visited_movements.begin(), visited_movements.end(), movements[iter]) == visited_movements.end()) { // better than current
+            if (objective_value > 0  && std::find(visited_movements.begin(), visited_movements.end(), movements[iter]) == visited_movements.end()) { // better than current
                 visited_movements.push_back(movements[iter]);
                 found_better = true;
                 if (steepest) {
@@ -123,19 +123,16 @@ void TSP::inter_class_search(bool steepest) {
     std::vector<std::vector<int>> movements = generate_all_vertex_movements_inter(cycle1.size()); // only vertex movements for inter class
     // interpretation of movements vector: pair <indx_of_el_in_cycle1, indx_of_el_in_cycle2>
 
-    std::vector<std::vector<int>> visited_movements;
     std::vector<int> best_movement;
     bool found_better = false;
     int best_objective_value = 0;
 
-    // this logic is not ideal yet - need to work with this visited_movements (not sure if they are necessary)
     do{
         std::shuffle(movements.begin(), movements.end(), std::mt19937(std::random_device()())); // shuffle movements
         for (int iter = 0; iter < movements.size(); ++iter) {
             found_better = false;
             float objective_value = get_objective_value(movements[iter]);
-            if (objective_value > 0 && std::find(visited_movements.begin(), visited_movements.end(), movements[iter]) == visited_movements.end()) { // better than current
-                visited_movements.push_back(movements[iter]);
+            if (objective_value > 0) { // better than current
                 found_better = true;
                 if (steepest) {
                     if (objective_value > best_objective_value) {
@@ -208,11 +205,11 @@ auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
 
     std::cout << "START LOCAL SEARCH" << std::endl;
     // INNER CLASS SEARCH
-    //    inner_class_search(cycle1, false);
-    //    inner_class_search(cycle2, false);
+    inner_class_search(cycle1, false);
+    inner_class_search(cycle2, false);
 
     // INTER CLASS SEARCH
-     inter_class_search(false);
+//     inter_class_search(false);
 
     std::cout << calc_cycles_len() << std::endl;
 
