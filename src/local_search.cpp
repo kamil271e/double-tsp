@@ -99,7 +99,7 @@ float TSP::get_objective_value(const std::vector<int>& cycle, std::vector<int> n
                 + dist_matrix.dist_matrix[cycle[j]][cycle[j_left]] + dist_matrix.dist_matrix[cycle[j]][cycle[j_left]];
         float added = dist_matrix.dist_matrix[cycle[i]][cycle[j_left]] + dist_matrix.dist_matrix[cycle[i]][cycle[j_right]]
                 + dist_matrix.dist_matrix[cycle[j]][cycle[i_left]] + dist_matrix.dist_matrix[cycle[j]][cycle[i_right]];
-        std::cout << deleted - added << std::endl;
+        //std::cout << deleted - added << std::endl;
         return deleted - added;
     }
     return 0;
@@ -153,8 +153,6 @@ auto TSP::hill_climbing(const std::vector<int>& init_cycle, std::string steepest
 auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
 {
 
-
-
     // Types of input data for the cycles generation
     if (params.input_data == "random") {
         std::cout << "RANDOM CYCLES" << std::endl;
@@ -195,10 +193,13 @@ auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
     // Write the execution time to the file, with the name of the file depending on the input data
     std::string cycles_time_file = "../cycles/T_local_" + params.input_data + "_" + params.movements_type + "_" + params.steepest + "_" + params.filename.substr(0, params.filename.size() - 4) + ".txt";
     
+    //Print file name
+    std::cout << "File name: " << cycles_time_file << std::endl;
     if (!std::filesystem::exists(cycles_time_file)) {
         std::ofstream outfile(cycles_time_file);
         outfile.close();
     }
+  
     std::ofstream outfile(cycles_time_file, std::ios_base::app);
     outfile << duration << std::endl;
     outfile.close();
