@@ -1,8 +1,8 @@
 #include "../lib/tsp.h"
 
 
-TSP::TSP(const Matrix& dist_matrix, AlgType alg_type)
-    : dist_matrix(dist_matrix), alg_type(alg_type) {
+TSP::TSP(const Matrix& dist_matrix, AlgType alg_type, std::string input_data, std::string movements_type, std::string steepest, std::string filename)
+    : dist_matrix(dist_matrix), alg_type(alg_type), params({input_data, movements_type, filename, steepest}){
 }
 
 auto TSP::solve() -> std::tuple<std::vector<int>, std::vector<int>>{

@@ -29,18 +29,27 @@ enum class AlgType {
     local,
 };
 
+struct LocalSearchParams {
+    std::string input_data; // random, regret
+    std::string movements_type; // inner, inter
+    std::string filename; // name of the file
+    std::string steepest; // greedy(false), steepest(true)
+};
 
 class TSP{
 public:
-    TSP(const Matrix& dist_matrix, AlgType);
+    TSP(const Matrix& dist_matrix, AlgType, std::string input_data, std::string movements_type, std::string steepest, std::string filename);
+
     auto solve() -> std::tuple<std::vector<int>, std::vector<int>>;
     const Matrix& dist_matrix;
+    
 
 private:
     std::vector<bool> visited = std::vector<bool>(dist_matrix.x_coord.size(), false);
     std::vector<int> cycle1;
     std::vector<int> cycle2;
     AlgType alg_type;
+    LocalSearchParams params;
 
     // UTILS
     int find_random_start();
@@ -63,7 +72,7 @@ private:
 
     // LOCAL SEARCH
     auto local_search() -> std::tuple<std::vector<int>, std::vector<int>>;
-    auto hill_climbing(const std::vector<int>&, bool) -> std::vector<int>;
+    auto hill_climbing(const std::vector<int>&, std::string) -> std::vector<int>;
     auto read_cycle(const std::string&) -> std::vector<std::vector<int>>;
     auto generate_neighbors(const std::vector<int>&, int) -> std::vector<std::vector<int>>;
     auto generate_all_edge_movements(const std::vector<int>& ) -> std::vector<std::vector<int>>;

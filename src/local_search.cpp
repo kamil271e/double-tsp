@@ -1,4 +1,6 @@
 #include "../lib/tsp.h"
+#include <filesystem>
+
 
 // Function to replacement of two vertices included in the path
 auto TSP::generate_neighbors(const std::vector<int>& x, int n) -> std::vector<std::vector<int>>{
@@ -108,7 +110,7 @@ auto TSP::find_random_neighbor(std::vector<std::vector<int>> neighbors) -> std::
     return neighbors[std::rand() % neighbors.size()];
 }
 
-auto TSP::hill_climbing(const std::vector<int>& init_cycle, bool steepest = false) -> std::vector<int>
+auto TSP::hill_climbing(const std::vector<int>& init_cycle, std::string steepest = "greedy") -> std::vector<int>
 {
     std::vector<std::vector<int>> neighbors;
 
@@ -128,7 +130,7 @@ auto TSP::hill_climbing(const std::vector<int>& init_cycle, bool steepest = fals
             int i = neighbors[iter][0];
             int j = neighbors[iter][1];
             int type = neighbors[iter][2];
-            if (steepest) {
+            if (steepest == "steepest") {
                 // modify cycle and continue
             } else {
                 if (type == 0){ // edge
@@ -150,94 +152,55 @@ auto TSP::hill_climbing(const std::vector<int>& init_cycle, bool steepest = fals
 // Function to perform local search
 auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
 {
-    // TODO: we should be able to choose starting cycles
-    // auto [cycle1, cycle2] = find_greedy_cycles();
 
-    // TODO: think about how to supply the parameters for measurement later
-    bool steepest = false;
-    std::string input_data = "random";
+
 
     // Types of input data for the cycles generation
-    if (input_data == "random") {
+    if (params.input_data == "random") {
         std::cout << "RANDOM CYCLES" << std::endl;
         std::tie(cycle1, cycle2) = generate_random_cycles(100);
     }
-    else if(input_data == "neighbour") {
-        std::cout << "NEIGHBOUR CYCLES" << std::endl;
-        std::tie(cycle1, cycle2) = find_greedy_cycles();
-    }
-    else if(input_data == "expansion") {
-        std::cout << "EXPANSION CYCLES" << std::endl;
-        std::tie(cycle1, cycle2) = find_greedy_cycles_expansion();
-    }
-    else if(input_data == "regret") {
+    else if(params.input_data == "regret") {
         std::cout << "REGRET CYCLES" << std::endl;
         std::tie(cycle1, cycle2) = find_greedy_regret_cycles();
     }
 
     std::cout << "INITIAL CYCLES: " << std::endl;
-    std::cout << "Cycle 1: ";
+       std::cout << "Cycle 1: ";
     for (int vertex : cycle1) {
         std::cout << vertex + 1 << " ";
     }
     std::cout << std::endl;
+       std::cout << "Cycle 2: ";
+       for (int vertex : cycle2) {
+           std::cout << vertex + 1 << " ";
+       }
+       std::cout << std::endl;
 
     std::cout << "START LOCAL SEARCH" << std::endl;
-
-
-    //auto [cycle1, cycle2] = generate_random_cycles(100);
     
     std::vector<int> hill_cycle1;
-    std::vector<int> hill_cycle2;
-
-    std::cout << "INITIAL CYCLES: " << std::endl;
-    std::cout << "Cycle 1: ";
-    for (int vertex : cycle1) {
-        std::cout << vertex + 1 << " ";
-    }
-    std::cout << std::endl;
-    //    std::cout << "Cycle 2: ";
-    //    for (int vertex : cycle2) {
-    //        std::cout << vertex + 1 << " ";
-    //    }
-    //    std::cout << std::endl;
-
-    std::cout << "START LOCAL SEARCH" << std::endl;
-
+    std::vector<int> hill_cycle2; 
 
     // Start the timer, measure micro seconds
     auto start_time = std::chrono::high_resolution_clock::now();
 
-    hill_cycle1 = hill_climbing(cycle1, steepest);
-    hill_cycle2 = hill_climbing(cycle2, steepest);
+    hill_cycle1 = hill_climbing(cycle1, params.steepest);
+    hill_cycle2 = hill_climbing(cycle2, params.steepest);
 
     // End the timer
     auto end_time = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
 
     // Write the execution time to the file, with the name of the file depending on the input data
-    std::string filename = "../cycles/";
-    if (steepest == false) {
-        filename += "T_local_greedy_";
-    } 
-    else if (steepest) {
-        filename += "steepest_";
+    std::string cycles_time_file = "../cycles/T_local_" + params.input_data + "_" + params.movements_type + "_" + params.steepest + "_" + params.filename.substr(0, params.filename.size() - 4) + ".txt";
+    
+    if (!std::filesystem::exists(cycles_time_file)) {
+        std::ofstream outfile(cycles_time_file);
+        outfile.close();
     }
-
-    if (input_data == "regret") {
-        filename += "regret";
-    } else if (input_data == "neighbour") {
-        filename += "neighbour";
-    } else if (input_data == "expansion") {
-        filename += "expansion";
-    } else {
-        filename += "random";
-    }
-
-    filename += ".txt";
-
-    std::ofstream outfile(filename, std::ios_base::app);
-    outfile << "Execution time: " << duration << " microseconds" << std::endl;
+    std::ofstream outfile(cycles_time_file, std::ios_base::app);
+    outfile << duration << std::endl;
     outfile.close();
 
 

@@ -18,13 +18,24 @@ void generate_cycles(TSP tsp){
 }
 
 int main(int argc, char* argv[]){
-    if (argc < 3) {
-        std::cerr << "Usage: " << argv[0] << " <filename> <algotype> [nearest, expansion, regret, local]" << std::endl;
+    if (argc < 6) {
+        std::cerr << "Usage: " << argv[0] << " <filename> <algotype> [nearest, expansion, regret, local]" 
+        << " <input_data> [random, regret] <movements_type> [inner, inter] <steepest> [0, 1]" << std::endl;
         return 1;
     }
     Matrix m;
     m.load_from_path(argv[1]);
     m.generate_dist_matrix();
+
+  
+
+    //Parse parameters from command line
+    LocalSearchParams params;
+    params.input_data = std::string(argv[3]);
+    params.movements_type = std::string(argv[4]);
+    params.steepest = std::string(argv[5]);
+    params.filename = argv[1];
+
 
     AlgType alg_type;
     if (std::string(argv[2]) == "nearest") {
@@ -42,7 +53,11 @@ int main(int argc, char* argv[]){
         return 1;
     }
 
-    TSP tsp(m, alg_type);
+    //std::cout << "I'm here" << std::endl;
+
+    TSP tsp(m, alg_type, params.input_data, params.movements_type, params.steepest, params.filename);
+    std::cout << "I'm here" << std::endl;
+
     generate_cycles(tsp);
     
     return 0;
