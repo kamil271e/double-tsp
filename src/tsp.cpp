@@ -94,7 +94,8 @@ std::pair<int, int> TSP::choose_starting_vertices() {
 
 
 double TSP::calc_cycles_len() {
-    int len1, len2 = 0;
+    int len1 = 0;
+    int len2 = 0;
     for (int i = 0; i < cycle1.size(); ++i) {
         len1 += calc_distance(cycle1[i], cycle1[(i + 1) % cycle1.size()]);
         len2 += calc_distance(cycle2[i], cycle2[(i + 1) % cycle2.size()]);
