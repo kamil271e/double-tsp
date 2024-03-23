@@ -56,7 +56,6 @@ int main(int argc, char* argv[]){
     //std::cout << "I'm here" << std::endl;
 
     TSP tsp(m, alg_type, params.input_data, params.movements_type, params.steepest, params.filename);
-    std::cout << "I'm here" << std::endl;
 
     generate_cycles(tsp);
     
