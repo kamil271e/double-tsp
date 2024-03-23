@@ -75,56 +75,65 @@ float TSP::get_objective_value(const std::vector<int>& cycle, std::vector<int> m
 }
 
 
-auto TSP::get_random_move(std::vector<std::vector<int>> movements) -> std::vector<int> {
-    return movements[std::rand() % movements.size()];
-}
-
-
 auto TSP::hill_climbing(const std::vector<int>& init_cycle, bool steepest = false) -> std::vector<int>
 {
     std::vector<std::vector<int>> movements;
     std::vector<std::vector<int>> edge_movements = generate_all_edge_movements(init_cycle);
-    movements.insert(movements.end(), edge_movements.begin(), edge_movements.end());
     std::vector<std::vector<int>> vertex_movements = generate_all_vertex_movements(init_cycle);
+    movements.insert(movements.end(), edge_movements.begin(), edge_movements.end());
     movements.insert(movements.end(), vertex_movements.begin(), vertex_movements.end());
     std::vector<int> cycle = init_cycle;
-    bool found_better = false;
     std::vector<std::vector<int>> visited_movements;
+    std::vector<int> best_movement;
+    bool found_better = false;
+    int best_objective_value = 0;
 
+    // this logic is not ideal yet - need to work with this visited_movements (not sure if they are necessary)
     do{
         std::shuffle(movements.begin(), movements.end(), std::mt19937(std::random_device()())); // shuffle movements
         for (int iter = 0; iter < movements.size(); ++iter) {
             found_better = false;
-            float fitness =get_objective_value(cycle, movements[iter]);
-            if (fitness > 0 && std::find(visited_movements.begin(), visited_movements.end(), movements[iter]) == visited_movements.end()) { // better than current
-                found_better = true;
+            float objective_value = get_objective_value(cycle, movements[iter]);
+            if (objective_value > 0 && std::find(visited_movements.begin(), visited_movements.end(), movements[iter]) == visited_movements.end()) { // better than current
                 visited_movements.push_back(movements[iter]);
-                int i = movements[iter][0];
-                int j = movements[iter][1];
-                int type = movements[iter][2];
+                found_better = true;
                 if (steepest) {
-                    // modify cycle and continue
-                } else {
-                    if (type == 0){ // edge
-                        std::reverse(cycle.begin() + i, cycle.begin() + j + 1);
-                    }else{ // vertex
-                        std::swap(cycle[i], cycle[j]);
+                    if (objective_value > best_objective_value) {
+                        best_objective_value = objective_value;
+                        best_movement = movements[iter];
                     }
+                } else {
+                    update_cycle(movements[iter], cycle);
                     break;
                 }
             }
+        }
+        if (steepest && found_better){
+            update_cycle(best_movement, cycle);
         }
     } while (found_better);
     return cycle;
 }
 
+void TSP::update_cycle(const std::vector<int>& movement, std::vector<int>& cycle) {
+    int i = movement[0];
+    int j = movement[1];
+    int type = movement[2];
+    if (type == 0){ // edge
+        std::reverse(cycle.begin() + i, cycle.begin() + j + 1);
+    }else{ // vertex
+        std::swap(cycle[i], cycle[j]);
+    }
+}
 
 // Function to perform local search
 auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
 {
     // TODO: we should be able to choose starting cycles
-     auto [cycle1, cycle2] = find_greedy_cycles_regret();
-//    auto [cycle1, cycle2] = generate_random_cycles(100);
+    // BE CAREFUL! -- greedy regret is deterministic since by default it starts with vertex no. 1
+    // we should probably change that to consider all possible starts ?
+    auto [cycle1, cycle2] = find_greedy_cycles_regret();
+    // auto [cycle1, cycle2] = generate_random_cycles(100);
     std::vector<int> hill_cycle1;
     std::vector<int> hill_cycle2;
 
