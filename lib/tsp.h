@@ -71,8 +71,7 @@ private:
     float get_objective_value(const std::vector<int>&, std::vector<int>);
     float get_objective_value(std::vector<int>); // inter class
     void update_cycle(const std::vector<int>&, std::vector<int>&);
-    void update_cycles(std::vector<int>&, std::map<int,int>&); // inter class
-    bool invalid_move_check(std::map<int,int>, std::vector<int>);
+    void update_cycles(std::vector<int>); // inter class
 };
 
 #endif // TSP_H

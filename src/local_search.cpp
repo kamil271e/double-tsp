@@ -29,11 +29,10 @@ auto TSP::generate_all_vertex_movements(int n) -> std::vector<std::vector<int>> 
 
 
 auto TSP::generate_all_vertex_movements_inter(int n) -> std::vector<std::vector<int>> {
-    // vertx movement: type = 1
-    std::vector<std::vector<int>> movements; // i, j, type
+    std::vector<std::vector<int>> movements;
     for (int i = 0; i < n; ++i) {
         for (int j = 0; j < n; ++j) {
-            movements.push_back({i, j, 1});
+            movements.push_back({i, j});
         }
     }
     return movements;
@@ -124,14 +123,6 @@ void TSP::inter_class_search(bool steepest) {
     std::vector<std::vector<int>> movements = generate_all_vertex_movements_inter(cycle1.size()); // only vertex movements for inter class
     // interpretation of movements vector: pair <indx_of_el_in_cycle1, indx_of_el_in_cycle2>
 
-    std::map<int, int> cycle_num; // vertex_num: corresponding_cycle
-    for (int i = 0; i < cycle1.size(); ++i) {
-        cycle_num[cycle1[i]] = 1;
-    }
-    for (int i = 0; i < cycle2.size(); ++i) {
-        cycle_num[cycle2[i]] = 2;
-    }
-
     std::vector<std::vector<int>> visited_movements;
     std::vector<int> best_movement;
     bool found_better = false;
@@ -141,7 +132,6 @@ void TSP::inter_class_search(bool steepest) {
     do{
         std::shuffle(movements.begin(), movements.end(), std::mt19937(std::random_device()())); // shuffle movements
         for (int iter = 0; iter < movements.size(); ++iter) {
-            // if (invalid_move_check(cycle_num, movements[iter])) continue;
             found_better = false;
             float objective_value = get_objective_value(movements[iter]);
             if (objective_value > 0 && std::find(visited_movements.begin(), visited_movements.end(), movements[iter]) == visited_movements.end()) { // better than current
@@ -153,34 +143,24 @@ void TSP::inter_class_search(bool steepest) {
                         best_movement = movements[iter];
                     }
                 } else {
-                    update_cycles(movements[iter], cycle_num);
+                    update_cycles(movements[iter]);
                     break;
                 }
             }
         }
         if (steepest && found_better){
-            update_cycles(best_movement, cycle_num);
+            update_cycles(best_movement);
         }
     } while (found_better);
 }
 
 
-void TSP::update_cycles(std::vector<int> &movement, std::map<int, int> &cycle_num) {
+void TSP::update_cycles(std::vector<int> movement) {
     int i = movement[0]; // idx of vertex in cycle1
     int j = movement[1]; // idx of vertex in cycle2
     int temp = cycle1[i];
     cycle1[i] = cycle2[j];
     cycle2[j] = temp;
-    cycle_num[cycle1[i]] = 1;
-    cycle_num[cycle2[j]] = 2;
-}
-
-
-bool TSP::invalid_move_check(std::map<int, int> cycle_num, std::vector<int> movement) {
-    int i = movement[0];
-    int j = movement[1];
-    if (cycle_num[i] != cycle_num[j]) return false;
-    return true;
 }
 
 
