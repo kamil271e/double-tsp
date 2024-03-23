@@ -93,12 +93,13 @@ std::pair<int, int> TSP::choose_starting_vertices() {
 }
 
 
-double TSP::calc_cycle_len(const std::vector<int>& cycle) {
-    int len = 0;
-    for (int i = 0; i < cycle.size(); ++i) {
-        len += calc_distance(cycle[i], cycle[(i + 1) % cycle.size()]);
+double TSP::calc_cycles_len() {
+    int len1, len2 = 0;
+    for (int i = 0; i < cycle1.size(); ++i) {
+        len1 += calc_distance(cycle1[i], cycle1[(i + 1) % cycle1.size()]);
+        len2 += calc_distance(cycle2[i], cycle2[(i + 1) % cycle2.size()]);
     }
-    return len;
+    return len1 + len2;
 }
 
 
@@ -111,8 +112,8 @@ auto TSP::generate_random_cycles(int n) -> std::tuple<std::vector<int>, std::vec
     std::mt19937 g(rd());
     std::shuffle(values.begin(), values.end(), g);
 
-    std::vector<int> cycle1(values.begin(), values.begin() + (int)(n/2));
-    std::vector<int> cycle2(values.begin() + n - (int)(n/2), values.end());
+    std::vector<int> c1(values.begin(), values.begin() + (int)(n/2));
+    std::vector<int> c2(values.begin() + n - (int)(n/2), values.end());
 
-    return {cycle1, cycle2};
+    return {c1, c2};
 }
