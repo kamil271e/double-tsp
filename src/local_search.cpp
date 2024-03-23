@@ -21,6 +21,7 @@ auto TSP::generate_all_vertex_movements(int n) -> std::vector<std::vector<int>> 
     std::vector<std::vector<int>> movements; // i, j, type
     for (int i = 0; i < n; ++i) {
         for (int j = i + 1; j < n; ++j) {
+            if (i==0 && j==n-1) continue; // redundant - edge move (1, n-2) is the same as vertex move (0, n-1)
             movements.push_back({i, j, 1});
         }
     }
@@ -40,7 +41,7 @@ auto TSP::generate_all_vertex_movements_inter(int n) -> std::vector<std::vector<
 
 
 // Function to calculate the delta of the path / objective value
-float TSP::get_objective_value(const std::vector<int>& cycle, std::vector<int> movement) {
+int TSP::get_objective_value(const std::vector<int>& cycle, std::vector<int> movement) {
     int i = movement[0];
     int j = movement[1];
     int n = cycle.size();
@@ -54,12 +55,16 @@ float TSP::get_objective_value(const std::vector<int>& cycle, std::vector<int> m
         deleted = dist_matrix.dist_matrix[cycle[i]][cycle[i_left]] + dist_matrix.dist_matrix[cycle[j]][cycle[j_right]];
         added = dist_matrix.dist_matrix[cycle[i]][cycle[j_right]] + dist_matrix.dist_matrix[cycle[i_left]][cycle[j]];
     } else{ // vertex
-        if (j - i == 0) {
-            deleted = dist_matrix.dist_matrix[cycle[i]][cycle[i_left]] + dist_matrix.dist_matrix[cycle[j]][cycle[j_right]];
-            added = dist_matrix.dist_matrix[cycle[i]][cycle[j_right]] + dist_matrix.dist_matrix[cycle[i_left]][cycle[j]];
-        }else if (i == 0 && j == n-1){ // extreme case
-            deleted = dist_matrix.dist_matrix[cycle[i]][cycle[i_right]] + dist_matrix.dist_matrix[cycle[j]][cycle[j_left]];
-            added = dist_matrix.dist_matrix[cycle[i]][cycle[j_left]] + dist_matrix.dist_matrix[cycle[j]][cycle[i_right]];
+        if (i == 0 && j == n-1) { // extreme case
+            deleted = dist_matrix.dist_matrix[cycle[i]][cycle[i_right]] +
+                      dist_matrix.dist_matrix[cycle[j]][cycle[j_left]];
+            added = dist_matrix.dist_matrix[cycle[i]][cycle[j_left]] +
+                    dist_matrix.dist_matrix[cycle[j]][cycle[i_right]];
+        } else if (j - i == 1) {
+            deleted = dist_matrix.dist_matrix[cycle[i]][cycle[i_left]] +
+                      dist_matrix.dist_matrix[cycle[j]][cycle[j_right]];
+            added = dist_matrix.dist_matrix[cycle[i]][cycle[j_right]] +
+                    dist_matrix.dist_matrix[cycle[i_left]][cycle[j]];
         }else{
             deleted = dist_matrix.dist_matrix[cycle[i]][cycle[i_left]] + dist_matrix.dist_matrix[cycle[i]][cycle[i_right]]
                       + dist_matrix.dist_matrix[cycle[j]][cycle[j_left]] + dist_matrix.dist_matrix[cycle[j]][cycle[j_right]];
@@ -81,22 +86,19 @@ void TSP::inner_class_search(std::vector<int>& cycle, bool steepest = false)
     std::vector<std::vector<int>> visited_movements;
     std::vector<int> best_movement;
     bool found_better;
-    int best_objective_value = 0;
+    int objective_value, best_objective_value;
 
-    // visited_movements should not be necessary
     do{
         found_better = false;
+        best_objective_value = 0;
         std::shuffle(movements.begin(), movements.end(), std::mt19937(std::random_device()())); // shuffle movements
         for (int iter = 0; iter < movements.size(); ++iter) {
-            float objective_value = get_objective_value(cycle, movements[iter]);
-//            if (objective_value > 0  && std::find(visited_movements.begin(), visited_movements.end(), movements[iter]) == visited_movements.end()) { // better than current
-//                visited_movements.push_back(movements[iter]);
-
-            if (objective_value > 0 ) { // better than current
-//                std::cout << movements[iter][0] << " " << movements[iter][1] << " " << movements[iter][2] << " " << objective_value << std::endl;
+            objective_value = get_objective_value(cycle, movements[iter]);
+            if (objective_value > 0) { // better than current
                 found_better = true;
                 if (steepest) {
                     if (objective_value > best_objective_value) {
+                        std::cout << objective_value << std::endl;
                         best_objective_value = objective_value;
                         best_movement = movements[iter];
                     }
@@ -110,7 +112,6 @@ void TSP::inner_class_search(std::vector<int>& cycle, bool steepest = false)
             update_cycle(best_movement, cycle);
         }
     } while (found_better);
-//    std::cout << visited_movements.size() << " " << movements.size() << std::endl; // 2 2400 / 3 2400
 }
 
 
@@ -132,13 +133,14 @@ void TSP::inter_class_search(bool steepest) {
 
     std::vector<int> best_movement;
     bool found_better;
-    int best_objective_value = 0;
+    int objective_value, best_objective_value;
 
     do{
+        best_objective_value = 0;
         found_better = false;
         std::shuffle(movements.begin(), movements.end(), std::mt19937(std::random_device()())); // shuffle movements
         for (int iter = 0; iter < movements.size(); ++iter) {
-            float objective_value = get_objective_value(movements[iter]);
+            objective_value = get_objective_value(movements[iter]);
             if (objective_value > 0) { // better than current
                 found_better = true;
                 if (steepest) {
@@ -168,7 +170,7 @@ void TSP::update_cycles(std::vector<int> movement) {
 }
 
 
-float TSP::get_objective_value(std::vector<int> movement) {
+int TSP::get_objective_value(std::vector<int> movement) {
     int i = movement[0];
     int j = movement[1];
     int n = cycle1.size();
@@ -192,7 +194,7 @@ auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
 {
     // BE CAREFUL! -- greedy regret is deterministic since by default it starts with vertex no. 1
     // we should probably change that to consider all possible starts ?
-    // auto [rand1, rand2] = generate_random_cycles(100);
+     auto [rand1, rand2] = generate_random_cycles(100);
 
     auto [regret1, regret2] = find_greedy_cycles_regret();
     cycle1 = regret1;
@@ -212,11 +214,11 @@ auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
 
     std::cout << "START LOCAL SEARCH" << std::endl;
     // INNER CLASS SEARCH
-    inner_class_search(cycle1, true);
-    inner_class_search(cycle2, true);
+    //    inner_class_search(cycle1, false);
+    //    inner_class_search(cycle2, false);
 
     // INTER CLASS SEARCH
-    // inter_class_search(false);
+     inter_class_search(true);
     std::cout << calc_cycles_len() << std::endl;
 
     return {cycle1, cycle2};

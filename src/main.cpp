@@ -39,6 +39,7 @@ int main(int argc, char* argv[]){
         std::cerr << "Invalid algorithm type. Please choose from [nearest, expansion, regret, local]" << std::endl;
         return 1;
     }
+
     TSP tsp(m, alg_type);
     generate_cycles(tsp);
 

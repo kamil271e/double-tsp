@@ -68,8 +68,8 @@ private:
     auto generate_all_vertex_movements(int) -> std::vector<std::vector<int>>;
     auto generate_all_vertex_movements_inter(int) -> std::vector<std::vector<int>>;
     auto generate_random_cycles(int) -> std::tuple<std::vector<int>, std::vector<int>>;
-    float get_objective_value(const std::vector<int>&, std::vector<int>);               // inner class
-    float get_objective_value(std::vector<int>);                                        // inter class
+    int get_objective_value(const std::vector<int>&, std::vector<int>);               // inner class
+    int get_objective_value(std::vector<int>);                                        // inter class
     void update_cycle(const std::vector<int>&, std::vector<int>&);                      // inner class
     void update_cycles(std::vector<int>);                                               // inter class
 };
