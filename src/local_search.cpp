@@ -131,14 +131,15 @@ void TSP::update_cycle(const std::vector<int>& movement, std::vector<int>& cycle
     }
 }
 
+
 /**
- * Performs a random walk on the given initial cycle for a specified number of iterations.
+ * Performs a random walk on the given initial cycle for a specified time limit.
  * 
  * @param init_cycle The initial cycle to start the random walk from.
- * @param iterations The number of iterations to perform the random walk.
+ * @param time_limit The time limit for the random walk in microseconds.
  * @return The best cycle found during the random walk.
  */
-auto TSP::random_walk(const std::vector<int>& init_cycle, int iterations) -> std::vector<int>
+auto TSP::random_walk(const std::vector<int>& init_cycle, int time_limit) -> std::vector<int>
 {
     std::vector<std::vector<int>> movements;
     std::vector<std::vector<int>> edge_movements = generate_all_edge_movements(init_cycle);
@@ -149,7 +150,10 @@ auto TSP::random_walk(const std::vector<int>& init_cycle, int iterations) -> std
     std::vector<int> best_cycle = cycle;
     int best_fitness = 0;
 
-    for (int iter = 0; iter < iterations; ++iter) {
+    auto start_time = std::chrono::steady_clock::now();
+    auto end_time = start_time + std::chrono::microseconds(time_limit);
+
+    while (std::chrono::steady_clock::now() < end_time) {
         std::vector<int> movement = get_random_move(movements);
         update_cycle(movement, cycle);
         float fitness = get_objective_value(cycle, movement);
@@ -190,9 +194,12 @@ auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
     std::vector<int> random_cycle1;
     std::vector<int> random_cycle2;
 
+    int time_limit_random = 33228; // 33.228 ms
+    int time_limit_regret = 3926; // 3.926 ms
+
     std::cout << "START RANDOM WALK" << std::endl;
-    random_cycle1 = random_walk(cycle1, 10);
-    random_cycle2 = random_walk(cycle2, 10);
+    random_cycle1 = random_walk(cycle1, time_limit_random);
+    random_cycle2 = random_walk(cycle2, time_limit_regret);
     std::cout << "LENGTHS AFTER RANDOM WALK: " << calc_cycle_len(random_cycle1) << " " << calc_cycle_len(random_cycle2) << "\n" << std::endl;
 
 
