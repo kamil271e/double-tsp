@@ -127,9 +127,6 @@ auto TSP::generate_random_cycles(int n) -> std::tuple<std::vector<int>, std::vec
 // TODO - more generic, we will use it for all algorithms
 void TSP::save_time(long duration, struct LocalSearchParams params) {
     std::string cycles_time_file = "../cycles/T_local_" + params.input_data + "_" + params.movements_type + "_" + std::to_string(params.steepest) + "_" + params.filename.substr(0, params.filename.size() - 4) + ".txt";
-
-    std::cout << "File name: " << cycles_time_file << std::endl;
-
     std::ifstream infile(cycles_time_file);
     if (!infile) {
         std::ofstream outfile(cycles_time_file);

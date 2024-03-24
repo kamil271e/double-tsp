@@ -14,7 +14,7 @@ for instance in "${instances[@]}"; do
                 combination="$instance$start$movement$algo"
                 if [[ ! " ${visited_combinations[@]} " =~ " $combination " ]]; then
                     visited_combinations+=("$combination")
-                    echo "Running local search: $instance $start $movement $algo"
+                    # echo "Running local search: $instance $start $movement $algo"
                     ./report.sh "$instance" "local" "$start" "$movement" "$algo"
                 fi
             done

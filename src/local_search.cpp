@@ -100,7 +100,6 @@ void TSP::inner_class_search(std::vector<int>& cycle, bool steepest = false)
                 found_better = true;
                 if (steepest) {
                     if (objective_value > best_objective_value) {
-                        std::cout << objective_value << std::endl;
                         best_objective_value = objective_value;
                         best_movement = movements[iter];
                     }
@@ -199,29 +198,11 @@ auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
 
     // Types of input data for the cycles generation
     if (params.input_data == "random") {
-        std::cout << "RANDOM CYCLES" << std::endl;
         std::tie(cycle1, cycle2) = generate_random_cycles(100);
     }
     else if(params.input_data == "regret") {
-        std::cout << "REGRET CYCLES" << std::endl;
         std::tie(cycle1, cycle2) = find_greedy_cycles_regret();
     }
-
-    std::cout << "INITIAL CYCLES: " << std::endl;
-    std::cout << "Cycle 1: ";
-    for (int vertex : cycle1) {
-        std::cout << vertex + 1 << " ";
-    }
-    std::cout << std::endl;
-    for (int vertex : cycle2) {
-        std::cout << vertex + 1 << " ";
-    }
-    std::cout << std::endl;
-    std::cout << calc_cycles_len() << std::endl;
-
-
-    std::cout << "START LOCAL SEARCH" << std::endl;
-
     auto start_time = std::chrono::high_resolution_clock::now();
 
     if (params.movements_type == "inner"){
@@ -234,8 +215,6 @@ auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
     auto end_time = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
     save_time(duration, params);
-
-    std::cout << calc_cycles_len() << std::endl;
 
     return {cycle1, cycle2};
 
