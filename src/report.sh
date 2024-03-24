@@ -1,7 +1,7 @@
 #!/bin/bash
 
 declare -a ALGO_TYPES=("nearest" "expansion" "regret" "local" 'random_walk')
-declare -a MOVEMENTS_TYPES=("inner" "inter")
+declare -a MOVEMENTS_TYPES=("edge" "vertex")
 declare -a STEEPEST=("0" "1") # greedy - 0 / steepest - 1
 declare -a INPUT_DATA=("random" "regret")
 
