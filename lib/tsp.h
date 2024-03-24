@@ -60,7 +60,7 @@ private:
     void append_vertex(int, std::vector<int>&);
     void insert_vertex(int, int, std::vector<int>&);
     void log_build_process();
-    void save_time(long, struct LocalSearchParams);
+    void save_time_and_length(long, struct LocalSearchParams);
     
     // GREEDY
     auto find_greedy_cycles_nearest() -> std::tuple<std::vector<int>, std::vector<int>>;
