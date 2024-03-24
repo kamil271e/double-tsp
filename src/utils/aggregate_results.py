@@ -5,7 +5,7 @@ from tabulate import tabulate
 
 INSTANCES = ["kroA100", "kroB100"]
 GREEDY_ALGOS = ["nearest", "expansion", "regret"]
-LOCAL_ALGOS = list(itertools.product(["random", "regret"], ["inner", "inter"], ["0", "1"]))
+LOCAL_ALGOS = list(itertools.product(["random", "regret"], ["edge", "vertex"], ["greedy", "steepest"]))
 CYCLES_DIR = "../cycles"
 
 

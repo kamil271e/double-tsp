@@ -55,11 +55,11 @@ auto TSP::get_delta(std::vector<int> movement) ->  std::tuple<int,int>{
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dist(0, 1);
-    int chosen = -1;
+    int cycle_chosen = -1; // -1 none; 0 cycle1; 1 cycle2
 
     if (movement[2] == 0){ // inner move
         std::vector<int>& cycle = (dist(gen) == 0) ? cycle1 : cycle2;
-        chosen = dist(gen);
+        cycle_chosen = dist(gen);
         if (movement[3] == 0){ // edge
             deleted = dist_matrix.dist_matrix[cycle[i]][cycle[i_left]] + dist_matrix.dist_matrix[cycle[j]][cycle[j_right]];
             added = dist_matrix.dist_matrix[cycle[i]][cycle[j_right]] + dist_matrix.dist_matrix[cycle[i_left]][cycle[j]];
@@ -87,14 +87,14 @@ auto TSP::get_delta(std::vector<int> movement) ->  std::tuple<int,int>{
         added = dist_matrix.dist_matrix[cycle1[i]][cycle2[j_left]] + dist_matrix.dist_matrix[cycle1[i]][cycle2[j_right]]
                 + dist_matrix.dist_matrix[cycle2[j]][cycle1[i_left]] + dist_matrix.dist_matrix[cycle2[j]][cycle1[i_right]];
     }
-    return {(int)(deleted - added), chosen};
+    return {(int)(deleted - added), cycle_chosen};
 }
 
 
 void TSP::update_cycle(const std::vector<int>& movement, std::vector<int>& cycle) {
     int i = movement[0];
     int j = movement[1];
-    int type = movement[2];
+    int type = movement[3];
     if (type == 0){ // edge
         std::reverse(cycle.begin() + i, cycle.begin() + j + 1);
     }else{ // vertex
@@ -129,6 +129,7 @@ void TSP::main_search(bool steepest, bool vertex) {
     } else{
         movements_inner = generate_all_edge_movements(cycle1.size());
     }
+    movements.insert(movements.end(), movements_inter.begin(), movements_inter.end());
     movements.insert(movements.end(), movements_inner.begin(), movements_inner.end());
 
     std::vector<int> best_movement;
@@ -144,6 +145,7 @@ void TSP::main_search(bool steepest, bool vertex) {
         for (int iter = 0; iter < movements.size(); ++iter) {
             std::tie(objective_value, cycle_num) = get_delta(movements[iter]); // we need to remember chosen cycle for apply_movement method; type = 0 - cycle1, 1 - cycle2
             if (objective_value > 0) { // better than current
+//                std::cout << movements[iter][0] << " " << movements[iter][1] << " " << movements[iter][2] << " " << cycle_num << std::endl;
                 found_better = true;
                 if (steepest) {
                     if (objective_value > best_objective_value) {
