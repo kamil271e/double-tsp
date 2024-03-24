@@ -43,7 +43,7 @@ public:
 
     auto solve() -> std::tuple<std::vector<int>, std::vector<int>>;
     const Matrix& dist_matrix;
-    int start_idx=0;
+    int start_idx=-1; // random start
 
 private:
     std::vector<bool> visited = std::vector<bool>(dist_matrix.x_coord.size(), false);

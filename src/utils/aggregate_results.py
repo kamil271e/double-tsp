@@ -53,7 +53,8 @@ def get_local_time_table():
         algo_results = []
         for instance in INSTANCES:
             data = np.loadtxt(f'{CYCLES_DIR}/T_local_{algo[0]}_{algo[1]}_{algo[2]}_{instance}.txt')
-            algo_results.append((np.min(data), np.max(data), np.mean(data)))
+            data = data / 1000  # microseconds to milliseconds
+            algo_results.append((int(np.min(data)), int(np.max(data)), int(np.mean(data))))
         results.append(algo_results)
     data = []
 
