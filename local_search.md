@@ -25,7 +25,7 @@ fun generate_vertex_movements():
 fun generate_vertex_movements_inter():
     for i = 0 to cycle.size():
         for j = 0 to cycle.size():
-            movements.add({i, j, 0})
+            movements.add({i, j, 1})
     return movements
 ```
 
