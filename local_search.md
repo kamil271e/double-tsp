@@ -45,15 +45,6 @@ lambda dist(i, j): M[cycle[i]][cycle[j]]
 ```rust
 fun gen_objective_value(movement):
     i, j, n = movement[0], movement[1], cycle.size()
-    del = dist(i, i_left) + dist(i, i_right) + dist(j, j_left) + dist(j, j_right)
-    add = dist(i, j_left) + dist(i, j_right) + dist(j, i_left) + dist(j, i_right)
-    return del - add
-```
-
-### inter-class
-```rust
-fun gen_objective_value(movement):
-    i, j, n = movement[0], movement[1], cycle.size()
     if movement[2] == 0:  # edge
         del = dist(cycle, i, i_left) + dist(cycle, j, j_right)
         add = dist(cycle, i, j_right) + dist(cycle, i_left, j)
@@ -68,6 +59,15 @@ fun gen_objective_value(movement):
             del = dist(i, i_left) + dist(i, i_right) + dist(j, j_left) + dist(j, j_right)
             add = dist(i, j_left) + dist(i, j_right) + dist(j, i_left) + dist(j, i_right)
 
+    return del - add
+```
+
+### inter-class
+```rust
+fun gen_objective_value(movement):
+    i, j, n = movement[0], movement[1], cycle.size()
+    del = dist(i, i_left) + dist(i, i_right) + dist(j, j_left) + dist(j, j_right)
+    add = dist(i, j_left) + dist(i, j_right) + dist(j, i_left) + dist(j, i_right)
     return del - add
 ```
 
