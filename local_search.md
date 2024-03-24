@@ -1,47 +1,47 @@
 # Local search
 
-## Utils methods
-### Generate edge movements
+## Generate movements / neighbourhood
+Movements consist of tuples: ``(idx_i, idx_j, type)`` where ``idx_i`` and ``idx_j`` are indices of the cycle/cycles and ``type`` is the type of movement (0: edge, 1: vertex). <br>
+### Edge movements
 ```rust
 fun generate_edge_movements():
-    movements = vector<<idx_i, idx_j, type>>
-    for i = 0 to total_vertices():
-        for j = i + 2 to total_vertices():
-            if (i==0 && j==n-1) continue;
-            movements.push_back({i, j, 0})
+    for i = 0 to cycle.size():
+        for j = i + 2 to cycle.size():
+            if i==0 && j==n-1: continue
+            movements.add({i, j, 0})
     return movements
 ```
-### Generate vertex movements
+### Vertex movements: inner-class
 ```rust
 fun generate_vertex_movements():
-    movements = vector<<idx_i, idx_j, type>>
-    for i = 0 to total_vertices():
-        for j = 0 to total_vertices():
+    for i = 0 to cycle.size():
+        for j = 0 to cycle.size():
             if (i==j) continue;
-            movements.push_back({i, j, 1})
+            movements.add({i, j, 1})
     return movements
 ```
-### Generate vertex movements - inter-class
+### Vertex movements: inter-class
 ```rust
 fun generate_vertex_movements_inter():
-    movements = vector<<idx_i, idx_j, type>>
-    for i = 0 to total_vertices():
-        for j = 0 to total_vertices():
-            movements.push_back({i, j, 0})
+    for i = 0 to cycle.size():
+        for j = 0 to cycle.size():
+            movements.add({i, j, 0})
     return movements
 ```
 
-### Get objective value (delta) - inner-class
-Variables interpretation:
+## Get objective value (delta)
+Variables interpretation: <br>
+``M``: distance matrix <br>
+``i, i_left, i_right``
+``j, j_left, j_right``: indices (for inter-class operations we make assumption that ``i`` always correspond to ``cycle1`` and ``j`` to ``cycle2``) <br>
+``dist(i, j)``: distance between i-th and j-th element of the cycle / cycles <br>
 ```rust
 i_left, i_right = (i - 1 + n) % n, (i + 1) % n;
 j_left, j_right = (j - 1 + n) % n, (j + 1) % n;
-fun dist(i, j): return M[cycle[i]][cycle[j]]
+lambda dist(i, j): M[cycle[i]][cycle[j]]
 ```
 
-``M``: distance matrix <br>
-``i, i_left, i_right``: cycle1 <br>
-``j, j_left, j_right``: cycle2 <br>
+### inner-class
 ```rust
 fun gen_objective_value(movement):
     i, j, n = movement[0], movement[1], cycle.size()
@@ -50,7 +50,7 @@ fun gen_objective_value(movement):
     return del - add
 ```
 
-### Get objective value (delta) - inter-class
+### inter-class
 ```rust
 fun gen_objective_value(movement):
     i, j, n = movement[0], movement[1], cycle.size()
@@ -71,8 +71,47 @@ fun gen_objective_value(movement):
     return del - add
 ```
 
+## Update cycles / apply movement
+### inner-class
+```rust
+fun apply_movement(movement):
+    i, j, type = movement[0], movement[1], movement[2]
+    if type == 0: 
+        reverse(cycle[i], cycle[j] + 1) // edge
+    else: 
+        swap(cycle[i], cycle[j]) // vertex
+```
+### inter-class
+```rust
+fun apply_movement(movement):
+    i, j = movement[0], movement[1]
+    swap(cycle1[i], cycle2[j])
+```
 
-## Algorithms
+## Algorithm
+```rust
+fun local_search(cycle, steepest: bool):
+    if inner: movements = <generate_edge_movements(), generate_vertex_movements()>
+    else: movements = generate_vertex_movements_inter()
+    do{
+        found_better = false
+        best_delta = 0
+        movements.shuffle()
+        for movement in movements:
+            delta = gen_objective_value(movement)
+            if delta > 0:
+                found_better = true
+                if steepest:
+                    if delta > best_delta:
+                        best_delta = delta
+                        best_movement = movement
+                else:
+                    apply_movement(movement)
+                    break;
+        if steepest and found_better:
+            apply_movement(best_movement)
+    } while (found_better); 
+```
 
 ## Results
 
