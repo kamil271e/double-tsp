@@ -4,6 +4,7 @@ from get_coords_per_instance import get_coords
 
 RESULTS_DIR = '../cycles'
 
+
 def get_cycle_lengths(instance_path, cycles):
     numbers_lists = cycles.split("\n")
     cycle1_nodes = list(map(int, numbers_lists[0].split()))
