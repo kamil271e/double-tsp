@@ -196,7 +196,7 @@ void TSP::random_walk_inner(std::vector<int> cycle, int time_limit)
     int best_objective_value = 0;
 
     auto start_time = std::chrono::steady_clock::now();
-    auto end_time = start_time + std::chrono::microseconds(time_limit);
+    auto end_time = start_time + std::chrono::microseconds(time_limit/2);
 
     std::vector<std::vector<int>> movements;
     std::vector<std::vector<int>> edge_movements = generate_all_edge_movements(cycle.size());
@@ -227,7 +227,7 @@ void TSP::random_walk_inter(int time_limit)
     int best_objective_value = 0;
 
     auto start_time = std::chrono::steady_clock::now();
-    auto end_time = start_time + std::chrono::microseconds(time_limit / 2);
+    auto end_time = start_time + std::chrono::microseconds(time_limit);
 
     std::vector<std::vector<int>> movements = generate_all_vertex_movements_inter(cycle1.size());
 
