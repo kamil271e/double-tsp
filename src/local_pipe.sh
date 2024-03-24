@@ -15,3 +15,6 @@ for r in "${regret_random[@]}"; do
         done
     done
 done
+
+python utils/aggregate_results.py "local"
+python utils/generate_visualizations.py "local"

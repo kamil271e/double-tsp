@@ -1,6 +1,4 @@
-import os
 import numpy as np
-import shutil
 import matplotlib.pyplot as plt
 import networkx as nx
 import sys
