@@ -63,7 +63,7 @@ int main(int argc, char* argv[]){
         LocalSearchParams params;
         params.input_data = std::string(argv[3]);
         params.movements_type = std::string(argv[4]);
-        //params.steepest = std::stoi(argv[5]);
+        params.steepest = std::stoi(argv[5]);
         params.filename = argv[1];
         AlgType alg_type = choose_algo(std::string(argv[2]));
         TSP tsp(m, alg_type, params.input_data, params.movements_type, params.steepest, params.filename);

@@ -136,7 +136,6 @@ void createFileIfNotExists(const std::string& filePath) {
 
 // TODO - more generic, we will use it for all algorithms
 void TSP::save_time(long duration, struct LocalSearchParams params, std::string algo) {
-//    std::cout << duration << std::endl;
     std::string steepest = (params.steepest == 1) ? "steepest" : "greedy";
     std::string cycles_time_file = "../cycles/T_" + algo +"_" + params.input_data + "_" + params.movements_type + "_" + steepest + "_" + params.filename.substr(0, params.filename.size() - 4) + ".txt";
     createFileIfNotExists(cycles_time_file);

@@ -188,7 +188,7 @@ auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
     main_search(params.steepest, vertex);
 
     auto end_time_local = std::chrono::high_resolution_clock::now();
-    auto duration_local = std::chrono::duration_cast<std::chrono::microseconds>(end_time_local - start_time_local).count();
+    auto duration_local = std::chrono::duration_cast<std::chrono::milliseconds>(end_time_local - start_time_local).count();
     save_time(duration_local, params, "local");
 
     return {cycle1, cycle2};
