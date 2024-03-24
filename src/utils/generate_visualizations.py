@@ -73,7 +73,7 @@ def visualize_tsp_cycles(path, cycles, plot_name, title='TSP Cycles'):
     plt.savefig(os.path.join(PLOTS_DIR,f"{plot_name}.png"))
 
 
-def choose_best():
+def choose_best_greedy():
     for length_file in os.listdir(CYCLES_DIR):
         if length_file.endswith(".txt") and length_file.startswith('L'):
             parts = length_file.split("_")
@@ -90,7 +90,7 @@ def choose_best():
             visualize_tsp_cycles(f'{instance}.tsp', cycles, plot_name, title)
 
 
-def generate_all():
+def generate_all_greedy():
     for cycles_file in os.listdir(CYCLES_DIR):
         parts = cycles_file.split("_")
         algo, instance = parts[0],  parts[1].split(".")[0]
@@ -103,6 +103,31 @@ def generate_all():
         plot_name = cycles_file[:-4]
         visualize_tsp_cycles(f'{instance}.tsp', cycles, plot_name, title)
 
+
+def choose_best_local():
+    for length_file in os.listdir(CYCLES_DIR):
+        if length_file.endswith(".txt") and length_file.startswith('L'):
+            parts = length_file.split("_")
+            algo, start_type, movement_type, greedy_or_steepest, instance = parts[1], parts[2], parts[3], parts[4], parts[5].split(".")[0]
+            path = os.path.join(CYCLES_DIR, length_file)
+            data = np.loadtxt(path)
+            idx = np.argmin(data)
+
+            cycles_file = length_file[2:] # no "L_" prefix
+
+            cycles = read_lines(cycles_file, 2*idx)
+            title = f'{cycles_file[:-4]}_{np.min(data)}'
+            plot_name = cycles_file[:-4]
+            visualize_tsp_cycles(f'{instance}.tsp', cycles, plot_name, title)
+
+
 if __name__ == "__main__":
-    generate_all()
-    # choose_best()
+    if len(sys.argv) < 2:
+        print("Usage: python generate_visualizations.py <greedy/local>")
+    else:
+        if sys.argv[1] == "greedy":
+            choose_best_greedy()
+        elif sys.argv[1] == "local":
+            choose_best_local()
+        else:
+            print("Invalid argument. Choose between 'greedy' and 'local'")
