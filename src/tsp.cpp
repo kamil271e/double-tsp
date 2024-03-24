@@ -135,13 +135,11 @@ void createFileIfNotExists(const std::string& filePath) {
 }
 
 // TODO - more generic, we will use it for all algorithms
-void TSP::save_time_and_length(long duration, struct LocalSearchParams params) {
+void TSP::save_time(long duration, struct LocalSearchParams params) {
         std::string steepest = (params.steepest == 1) ? "steepest" : "greedy";
         std::string cycles_time_file = "../cycles/T_local_" + params.input_data + "_" + params.movements_type + "_" + steepest + "_" + params.filename.substr(0, params.filename.size() - 4) + ".txt";
-        std::string cycles_length_file = "../cycles/L_local_" + params.input_data + "_" + params.movements_type + "_" + steepest + "_" + params.filename.substr(0, params.filename.size() - 4) + ".txt";
 
         createFileIfNotExists(cycles_time_file);
-        createFileIfNotExists(cycles_length_file);
 
         std::ofstream outfile(cycles_time_file, std::ios_base::app);
         if (outfile.is_open()) {
@@ -149,14 +147,6 @@ void TSP::save_time_and_length(long duration, struct LocalSearchParams params) {
             outfile.close();
         } else {
             std::cerr << "Failed to open " << cycles_time_file << " for writing." << std::endl;
-        }
-
-        std::ofstream out_len_file(cycles_length_file, std::ios_base::app);
-        if (out_len_file.is_open()) {
-            out_len_file << calc_cycles_len() << std::endl;
-            out_len_file.close();
-        } else {
-            std::cerr << "Failed to open " << cycles_length_file << " for writing." << std::endl;
         }
 }
 

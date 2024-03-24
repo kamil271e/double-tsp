@@ -214,7 +214,7 @@ auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
 
     auto end_time = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
-    save_time_and_length(duration, params);
+    save_time(duration, params);
 
     return {cycle1, cycle2};
 

@@ -39,12 +39,17 @@ if [[ ! " ${STEEPEST[@]} " =~ " $steepest " ]]; then
     exit 1
 fi
 
+_steepest=""
+if [[ "$steepest" == "0" ]]; then
+    _steepest="steepest"
+else
+    _steepest="greedy"
+fi
+
 # N: no. of iterations
 N=3
-cycles_len_file="../cycles/L_${algotype}_${instance_path::-4}.txt"
-cycles_file="../cycles/${algotype}_${instance_path::-4}.txt"
-
-#cycles_time_file="../cycles_time/${algotype}_${input_data}_${movements_type}_${steepest}_${instance_path::-4}.txt"
+cycles_len_file="../cycles/L_${algotype}_${input_data}_${movements_type}_${_steepest}_${instance_path::-4}.txt"
+cycles_file="../cycles/${algotype}_${input_data}_${movements_type}_${_steepest}_${instance_path::-4}.txt"
 
 g++ -o main.out main.cpp matrix.cpp tsp.cpp greedy.cpp local_search.cpp
 
