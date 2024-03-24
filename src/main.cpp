@@ -27,6 +27,8 @@ AlgType choose_algo(std::string algo){
         return AlgType::regret;
     } else if (algo == "local") {
         return AlgType::local;
+    } else if (algo == "random_walk") {
+        return AlgType::random_walk;
     } else {
         std::cerr << "Invalid algorithm type. Please choose from [nearest, expansion, regret, local]" << std::endl;
         exit(1);
@@ -54,14 +56,14 @@ int main(int argc, char* argv[]){
         TSP tsp(m, alg_type);
         generate_cycles(tsp);
 
-    }else{ // LOCAL
+    }else{ // LOCAL | Random Walk
         Matrix m;
         m.load_from_path(argv[1]);
         m.generate_dist_matrix();
         LocalSearchParams params;
         params.input_data = std::string(argv[3]);
         params.movements_type = std::string(argv[4]);
-        params.steepest = std::stoi(argv[5]);
+        //params.steepest = std::stoi(argv[5]);
         params.filename = argv[1];
         AlgType alg_type = choose_algo(std::string(argv[2]));
         TSP tsp(m, alg_type, params.input_data, params.movements_type, params.steepest, params.filename);

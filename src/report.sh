@@ -1,6 +1,6 @@
 #!/bin/bash
 
-declare -a ALGO_TYPES=("nearest" "expansion" "regret" "local")
+declare -a ALGO_TYPES=("nearest" "expansion" "regret" "local" 'random_walk')
 declare -a MOVEMENTS_TYPES=("inner" "inter")
 declare -a STEEPEST=("0" "1") # greedy - 0 / steepest - 1
 declare -a INPUT_DATA=("random" "regret")
@@ -40,14 +40,14 @@ if [[ ! " ${STEEPEST[@]} " =~ " $steepest " ]]; then
 fi
 
 _steepest=""
-if [[ "$steepest" == "0" ]]; then
+if [[ "$steepest" == "1" ]]; then
     _steepest="steepest"
 else
     _steepest="greedy"
 fi
 
 # N: no. of iterations
-N=100
+N=1
 cycles_len_file="../cycles/L_${algotype}_${input_data}_${movements_type}_${_steepest}_${instance_path::-4}.txt"
 cycles_file="../cycles/${algotype}_${input_data}_${movements_type}_${_steepest}_${instance_path::-4}.txt"
 

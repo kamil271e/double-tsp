@@ -27,6 +27,7 @@ enum class AlgType {
     greedy_cycle,
     regret,
     local,
+    random_walk
 };
 
 struct LocalSearchParams {
@@ -60,7 +61,7 @@ private:
     void append_vertex(int, std::vector<int>&);
     void insert_vertex(int, int, std::vector<int>&);
     void log_build_process();
-    void save_time(long, struct LocalSearchParams); // TODO make more generic ;-;
+    void save_time(long, struct LocalSearchParams, std::string algo); // TODO make more generic ;-;
     
     // GREEDY
     auto find_greedy_cycles_nearest() -> std::tuple<std::vector<int>, std::vector<int>>;
@@ -73,6 +74,7 @@ private:
 
     // LOCAL SEARCH
     auto local_search() -> std::tuple<std::vector<int>, std::vector<int>>;
+    auto random_walk() -> std::tuple<std::vector<int>, std::vector<int>>;
     void inner_class_search(std::vector<int>&, bool);
     void inter_class_search(bool);
     auto generate_all_edge_movements(int) -> std::vector<std::vector<int>>;
@@ -83,6 +85,8 @@ private:
     int get_objective_value(std::vector<int>);                                          // inter class
     void update_cycle(const std::vector<int>&, std::vector<int>&);                      // inner class
     void update_cycles(std::vector<int>);                                               // inter class
+    void random_walk_inner(std::vector<int>, int);
+    void random_walk_inter(int);
 };
 
 #endif // TSP_H

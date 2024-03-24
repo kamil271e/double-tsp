@@ -189,6 +189,63 @@ int TSP::get_objective_value(std::vector<int> movement) {
     return deleted - added;
 }
 
+void TSP::random_walk_inner(std::vector<int> cycle, int time_limit)
+{
+
+    std::vector<int> best_movement = cycle;
+    int best_objective_value = 0;
+
+    auto start_time = std::chrono::steady_clock::now();
+    auto end_time = start_time + std::chrono::microseconds(time_limit);
+
+    std::vector<std::vector<int>> movements;
+    std::vector<std::vector<int>> edge_movements = generate_all_edge_movements(cycle.size());
+    std::vector<std::vector<int>> vertex_movements = generate_all_vertex_movements(cycle.size());
+    movements.insert(movements.end(), edge_movements.begin(), edge_movements.end());
+    movements.insert(movements.end(), vertex_movements.begin(), vertex_movements.end());
+
+    while (std::chrono::steady_clock::now() < end_time) {
+    std::vector<int> movement = movements[std::rand() % movements.size()];
+        update_cycle(movement, cycle);
+        float fitness = get_objective_value(cycle, movement);
+        if (fitness > best_objective_value) {
+            best_objective_value = fitness;
+            best_movement = cycle;
+        }
+    }   
+
+
+    cycle = best_movement;
+}
+
+
+
+void TSP::random_walk_inter(int time_limit)
+{
+    std::vector<int> best_movement1 = cycle1;
+    std::vector<int> best_movement2 = cycle2;
+    int best_objective_value = 0;
+
+    auto start_time = std::chrono::steady_clock::now();
+    auto end_time = start_time + std::chrono::microseconds(time_limit / 2);
+
+    std::vector<std::vector<int>> movements = generate_all_vertex_movements_inter(cycle1.size());
+
+    while (std::chrono::steady_clock::now() < end_time) {
+        std::vector<int> movement = movements[std::rand() % movements.size()];
+        update_cycles(movement);
+        float fitness = get_objective_value(movement);
+        if (fitness > best_objective_value) {
+            best_objective_value = fitness;
+            best_movement1 = cycle1;
+            best_movement2 = cycle2;
+        }
+    }
+
+    cycle1 = best_movement1;
+    cycle2 = best_movement2;
+}
+
 
 // Function to perform local search
 auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
@@ -199,22 +256,64 @@ auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
     // Types of input data for the cycles generation
     if (params.input_data == "random") {
         std::tie(cycle1, cycle2) = generate_random_cycles(100);
+
     }
     else if(params.input_data == "regret") {
         std::tie(cycle1, cycle2) = find_greedy_cycles_regret();
     }
-    auto start_time = std::chrono::high_resolution_clock::now();
+
+    auto start_time_local = std::chrono::high_resolution_clock::now();
 
     if (params.movements_type == "inner"){
         inner_class_search(cycle1, params.steepest);
         inner_class_search(cycle2, params.steepest);
+        
     }else{
         inter_class_search(params.steepest);
     }
 
-    auto end_time = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
-    save_time(duration, params);
+    auto end_time_local = std::chrono::high_resolution_clock::now();
+    auto duration_local = std::chrono::duration_cast<std::chrono::microseconds>(end_time_local - start_time_local).count();
+    save_time(duration_local, params, "local");
+
+    return {cycle1, cycle2};
+
+}
+
+auto TSP::random_walk() -> std::tuple<std::vector<int>, std::vector<int>>
+{
+    // BE CAREFUL! -- greedy regret is deterministic since by default it starts with vertex no. 1
+    // we should probably change that to consider all possible starts ?
+    int time_limit; // 33.228 ms  
+
+    std::vector<int> random_cycle1;
+    std::vector<int> random_cycle2;
+
+    // Types of input data for the cycles generation
+    if (params.input_data == "random") {
+        std::tie(cycle1, cycle2) = generate_random_cycles(100);
+        time_limit = 33228;
+
+    }
+    else if(params.input_data == "regret") {
+        std::tie(cycle1, cycle2) = find_greedy_cycles_regret();
+        time_limit = 3926;
+    }
+
+    auto start_time_random = std::chrono::high_resolution_clock::now();
+
+    if (params.movements_type == "inner"){
+        random_walk_inner(cycle1, time_limit);
+        random_walk_inner(cycle2, time_limit);
+        
+    }else{
+       random_walk_inter(time_limit);
+    }
+
+    auto end_time_random = std::chrono::high_resolution_clock::now();
+
+    auto duration_random = std::chrono::duration_cast<std::chrono::microseconds>(end_time_random - start_time_random).count();
+    save_time(duration_random, params, "random_walk");
 
     return {cycle1, cycle2};
 

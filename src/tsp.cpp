@@ -21,6 +21,8 @@ auto TSP::solve() -> std::tuple<std::vector<int>, std::vector<int>>{
             return find_greedy_cycles_regret();
         case AlgType::local:
             return local_search();
+        case AlgType::random_walk:
+            return random_walk();
         default:
             // Handle unsupported algorithm type
             break;
@@ -135,9 +137,9 @@ void createFileIfNotExists(const std::string& filePath) {
 }
 
 // TODO - more generic, we will use it for all algorithms
-void TSP::save_time(long duration, struct LocalSearchParams params) {
+void TSP::save_time(long duration, struct LocalSearchParams params, std::string algo) {
         std::string steepest = (params.steepest == 1) ? "steepest" : "greedy";
-        std::string cycles_time_file = "../cycles/T_local_" + params.input_data + "_" + params.movements_type + "_" + steepest + "_" + params.filename.substr(0, params.filename.size() - 4) + ".txt";
+        std::string cycles_time_file = "../cycles/T_" + algo +"_" + params.input_data + "_" + params.movements_type + "_" + steepest + "_" + params.filename.substr(0, params.filename.size() - 4) + ".txt";
 
         createFileIfNotExists(cycles_time_file);
 

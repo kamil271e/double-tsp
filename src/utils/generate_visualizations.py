@@ -121,7 +121,27 @@ def choose_best_local():
             plot_name = cycles_file[:-4]
             visualize_tsp_cycles(f'{instance}.tsp', cycles, plot_name, title)
 
+# Eksperymenty z random walk
+# ------------------------------------------------------------------------------------------------
+def choose_best_random_walk():
+    for length_file in os.listdir(CYCLES_DIR):
+        if length_file.endswith(".txt") and length_file.startswith('L'):
+            
+            algo = "random_walk"
+            parts = length_file.split("_")
+            start_type, movement_type, instance =  parts[3], parts[4],  parts[6].split(".")[0]
+            print(start_type, movement_type, instance)
+            path = os.path.join(CYCLES_DIR, length_file)
+            data = np.loadtxt(path)
+            idx = np.argmin(data)
 
+            cycles_file = algo + "_" + start_type + "_" +  movement_type + "_" + instance # no "L_" prefix
+
+            cycles = read_lines(length_file[2:], 2*idx)
+            title = rf'{cycles_file}: $\bf{{{int(np.min(data))}}}$'
+            plot_name = cycles_file
+            visualize_tsp_cycles(f'{instance}.tsp', cycles, plot_name, title)
+#------------------------------------------------------------------------------------------------
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python generate_visualizations.py <greedy/local>")
@@ -130,5 +150,7 @@ if __name__ == "__main__":
             choose_best_greedy()
         elif sys.argv[1] == "local":
             choose_best_local()
+        elif sys.argv[1] == "random_walk":
+            choose_best_random_walk()
         else:
             print("Invalid argument. Choose between 'greedy' and 'local'")
