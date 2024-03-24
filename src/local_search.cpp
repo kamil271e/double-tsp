@@ -1,4 +1,6 @@
 #include "../lib/tsp.h"
+#include <filesystem>
+
 
 
 auto TSP::generate_all_edge_movements(int n) -> std::vector<std::vector<int>> {
@@ -194,13 +196,19 @@ auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
 {
     // BE CAREFUL! -- greedy regret is deterministic since by default it starts with vertex no. 1
     // we should probably change that to consider all possible starts ?
-     auto [rand1, rand2] = generate_random_cycles(100);
 
-    auto [regret1, regret2] = find_greedy_cycles_regret();
-    cycle1 = regret1;
-    cycle2 = regret2;
+    // Types of input data for the cycles generation
+    if (params.input_data == "random") {
+        std::cout << "RANDOM CYCLES" << std::endl;
+        std::tie(cycle1, cycle2) = generate_random_cycles(100);
+    }
+    else if(params.input_data == "regret") {
+        std::cout << "REGRET CYCLES" << std::endl;
+        std::tie(cycle1, cycle2) = find_greedy_cycles_regret();
+    }
 
     std::cout << "INITIAL CYCLES: " << std::endl;
+    std::cout << "Cycle 1: ";
     for (int vertex : cycle1) {
         std::cout << vertex + 1 << " ";
     }
@@ -213,12 +221,20 @@ auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
 
 
     std::cout << "START LOCAL SEARCH" << std::endl;
-    // INNER CLASS SEARCH
-    //    inner_class_search(cycle1, false);
-    //    inner_class_search(cycle2, false);
 
-    // INTER CLASS SEARCH
-     inter_class_search(true);
+    auto start_time = std::chrono::high_resolution_clock::now();
+
+    if (params.movements_type == "inner"){
+        inner_class_search(cycle1, params.steepest);
+        inner_class_search(cycle2, params.steepest);
+    }else{
+        inter_class_search(params.steepest);
+    }
+
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
+    save_time(duration, params);
+
     std::cout << calc_cycles_len() << std::endl;
 
     return {cycle1, cycle2};

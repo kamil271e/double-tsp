@@ -2,7 +2,12 @@
 
 
 TSP::TSP(const Matrix& dist_matrix, AlgType alg_type)
-    : dist_matrix(dist_matrix), alg_type(alg_type){
+        : dist_matrix(dist_matrix), alg_type(alg_type){
+}
+
+
+TSP::TSP(const Matrix& dist_matrix, AlgType alg_type, std::string input_data, std::string movements_type, int steepest, std::string filename)
+        : dist_matrix(dist_matrix), alg_type(alg_type), params({input_data, movements_type, filename, steepest}){
 }
 
 
@@ -117,4 +122,23 @@ auto TSP::generate_random_cycles(int n) -> std::tuple<std::vector<int>, std::vec
     std::vector<int> c2(values.begin() + n - (int)(n/2), values.end());
 
     return {c1, c2};
+}
+
+// TODO - more generic, we will use it for all algorithms
+void TSP::save_time(long duration, struct LocalSearchParams params) {
+    std::string cycles_time_file = "../cycles/T_local_" + params.input_data + "_" + params.movements_type + "_" + std::to_string(params.steepest) + "_" + params.filename.substr(0, params.filename.size() - 4) + ".txt";
+
+    std::cout << "File name: " << cycles_time_file << std::endl;
+
+    std::ifstream infile(cycles_time_file);
+    if (!infile) {
+        std::ofstream outfile(cycles_time_file);
+        outfile.close();
+    } else {
+        infile.close();
+    }
+
+    std::ofstream outfile(cycles_time_file, std::ios_base::app);
+    outfile << duration << std::endl;
+    outfile.close();
 }

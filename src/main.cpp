@@ -17,31 +17,56 @@ void generate_cycles(TSP tsp){
     std::cout << std::endl;
 }
 
-int main(int argc, char* argv[]){
-    if (argc < 3) {
-        std::cerr << "Usage: " << argv[0] << " <filename> <algotype> {nearest, expansion, regret, local} [start_idx]" << std::endl;
-        return 1;
-    }
-    Matrix m;
-    m.load_from_path(argv[1]);
-    m.generate_dist_matrix();
 
-    AlgType alg_type;
-    if (std::string(argv[2]) == "nearest") {
-        alg_type = AlgType::nearest_neighbors;
-    } else if (std::string(argv[2]) == "expansion") {
-        alg_type = AlgType::greedy_cycle;
-    } else if (std::string(argv[2]) == "regret") {
-        alg_type = AlgType::regret;
-    } else if (std::string(argv[2]) == "local") {
-        alg_type =  AlgType::local;
+AlgType choose_algo(std::string algo){
+    if (algo == "nearest") {
+        return AlgType::nearest_neighbors;
+    } else if (algo == "expansion") {
+        return AlgType::greedy_cycle;
+    } else if (algo == "regret") {
+        return AlgType::regret;
+    } else if (algo == "local") {
+        return AlgType::local;
     } else {
         std::cerr << "Invalid algorithm type. Please choose from [nearest, expansion, regret, local]" << std::endl;
-        return 1;
+        exit(1);
     }
+}
 
-    TSP tsp(m, alg_type);
-    generate_cycles(tsp);
+
+int main(int argc, char* argv[]){
+    // TODO: make it better
+    //    if (argc < 3) {
+    //        std::cerr << "Usage: " << argv[0] << " <filename> <algotype> {nearest, expansion, regret} [start_idx]" << std::endl;
+    //        return 1;
+    //    }
+    //    if (argc < 6) {
+    //        std::cerr << "Usage: " << argv[0] << " <instance_path> <algotype> [nearest, expansion, regret, local]"
+    //        << " <input_data> [random, regret] <movements_type> [inner, inter] <greedy/steepest> [0, 1]" << std::endl;
+    //        return 1;
+    //    }
+
+    if (argc >= 3 && argc < 6){ // GREEDY
+        Matrix m;
+        m.load_from_path(argv[1]);
+        m.generate_dist_matrix();
+        AlgType alg_type = choose_algo(std::string(argv[2]));
+        TSP tsp(m, alg_type);
+        generate_cycles(tsp);
+
+    }else{ // LOCAL
+        Matrix m;
+        m.load_from_path(argv[1]);
+        m.generate_dist_matrix();
+        LocalSearchParams params;
+        params.input_data = std::string(argv[3]);
+        params.movements_type = std::string(argv[4]);
+        params.steepest = std::stoi(argv[5]);
+        params.filename = argv[1];
+        AlgType alg_type = choose_algo(std::string(argv[2]));
+        TSP tsp(m, alg_type, params.input_data, params.movements_type, params.steepest, params.filename);
+        generate_cycles(tsp);
+    }
 
     return 0;
 }
