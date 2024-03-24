@@ -11,7 +11,8 @@ CYCLES_DIR = "../cycles"
 PLOTS_DIR = '../plots'
 G1_COLOR = 'skyblue'
 G2_COLOR = 'salmon'
-NODE_SIZE = 400
+NODE_SIZE = 600
+EDGE_WIDTH = 2
 
 
 def read_lines(file_path, i):
@@ -54,6 +55,7 @@ def visualize_tsp_cycles(path, cycles, plot_name, title='TSP Cycles'):
         node_color=G1_COLOR,
         edge_color=G1_COLOR,
         node_size=NODE_SIZE,
+        width=EDGE_WIDTH,
         label="Cycle 1",
     )
 
@@ -65,11 +67,12 @@ def visualize_tsp_cycles(path, cycles, plot_name, title='TSP Cycles'):
         node_color=G2_COLOR,
         edge_color=G2_COLOR,
         node_size=NODE_SIZE,
+        width=EDGE_WIDTH,
         label="Cycle 2",
     )
 
-    plt.title(title)
-    plt.legend()
+    plt.suptitle(title, fontsize=20)
+    # plt.legend()
     plt.savefig(os.path.join(PLOTS_DIR,f"{plot_name}.png"))
 
 
@@ -99,7 +102,7 @@ def generate_all_greedy():
         idx = np.argmin(data)
 
         cycles = read_lines(cycles_file, 2*idx)
-        title = f'{cycles_file[:-4]}_{np.min(data)}'
+        title = rf'{cycles_file[:-4]}: $\bf{{{int(np.min(data))}}}$'
         plot_name = cycles_file[:-4]
         visualize_tsp_cycles(f'{instance}.tsp', cycles, plot_name, title)
 
@@ -116,7 +119,7 @@ def choose_best_local():
             cycles_file = length_file[2:] # no "L_" prefix
 
             cycles = read_lines(cycles_file, 2*idx)
-            title = f'{cycles_file[:-4]}_{np.min(data)}'
+            title = rf'{cycles_file[:-4]}: $\bf{{{int(np.min(data))}}}$'
             plot_name = cycles_file[:-4]
             visualize_tsp_cycles(f'{instance}.tsp', cycles, plot_name, title)
 
