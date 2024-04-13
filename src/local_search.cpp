@@ -36,7 +36,7 @@ auto TSP::generate_all_vertex_movements_inter(int n) -> std::vector<std::vector<
     std::vector<std::vector<int>> movements;
     for (int i = 0; i < n; ++i) {
         for (int j = 0; j < n; ++j) {
-            movements.push_back({i, j, 1, 1});
+            if (i != j) movements.push_back({i, j, 1, 1});
         }
     }
     return movements;
@@ -58,8 +58,8 @@ auto TSP::get_delta(std::vector<int> movement) ->  std::tuple<int,int>{
     int cycle_chosen = -1; // -1 none; 0 cycle1; 1 cycle2
 
     if (movement[2] == 0){ // inner move
-        std::vector<int>& cycle = (dist(gen) == 0) ? cycle1 : cycle2;
         cycle_chosen = dist(gen);
+        std::vector<int>& cycle = (cycle_chosen == 0) ? cycle1 : cycle2; // TODO: potential issue
         if (movement[3] == 0){ // edge
             deleted = dist_matrix.dist_matrix[cycle[i]][cycle[i_left]] + dist_matrix.dist_matrix[cycle[j]][cycle[j_right]];
             added = dist_matrix.dist_matrix[cycle[i]][cycle[j_right]] + dist_matrix.dist_matrix[cycle[i_left]][cycle[j]];
@@ -81,7 +81,7 @@ auto TSP::get_delta(std::vector<int> movement) ->  std::tuple<int,int>{
                         + dist_matrix.dist_matrix[cycle[j]][cycle[i_left]] + dist_matrix.dist_matrix[cycle[j]][cycle[i_right]];
             }
         }
-    }else{
+    }else{ // inter move
         deleted = dist_matrix.dist_matrix[cycle1[i]][cycle1[i_left]] + dist_matrix.dist_matrix[cycle1[i]][cycle1[i_right]]
                   + dist_matrix.dist_matrix[cycle2[j]][cycle2[j_left]] + dist_matrix.dist_matrix[cycle2[j]][cycle2[j_right]];
         added = dist_matrix.dist_matrix[cycle1[i]][cycle2[j_left]] + dist_matrix.dist_matrix[cycle1[i]][cycle2[j_right]]
@@ -155,6 +155,7 @@ void TSP::main_search(bool steepest, bool vertex) {
                     }
                 } else {
                     apply_movement(movements[iter], cycle_num);
+                    found_better = false;
                     break;
                 }
             }
