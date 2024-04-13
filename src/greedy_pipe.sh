@@ -9,5 +9,5 @@ for instance in "${instances[@]}"; do
     done
 done
 
-python utils/aggregate_results.py
-python utils/generate_visualizations.py
+python utils/aggregate_results.py "greedy"
+python utils/generate_visualizations.py "greedy"

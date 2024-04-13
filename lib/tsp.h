@@ -18,6 +18,7 @@
 #include <ctime>   // for time
 #include <algorithm> // for std::shuffle
 #include <iomanip>
+#include <chrono> 
 #include "matrix.h"
 
 
@@ -26,20 +27,30 @@ enum class AlgType {
     greedy_cycle,
     regret,
     local,
+    random_walk
 };
 
+struct LocalSearchParams {
+    std::string input_data; // random, regret
+    std::string movements_type; // inner, inter
+    std::string filename; // name of the file
+    int steepest; // greedy(0), steepest(1)
+};
 
 class TSP{
 public:
-    TSP(const Matrix& dist_matrix, AlgType);
+    TSP(const Matrix& dist_matrix, AlgType); // regular constructor
+    TSP(const Matrix& dist_matrix, AlgType, std::string input_data, std::string movements_type, int steepest, std::string filename); // local search constructor
+
     auto solve() -> std::tuple<std::vector<int>, std::vector<int>>;
     const Matrix& dist_matrix;
-    int start_idx=0;
-   
+    int start_idx=-1; // random start
+
 private:
     std::vector<bool> visited = std::vector<bool>(dist_matrix.x_coord.size(), false);
     std::vector<int> cycle1, cycle2;
     AlgType alg_type;
+    LocalSearchParams params;
 
     // UTILS
     int find_random_start();
@@ -50,6 +61,7 @@ private:
     void append_vertex(int, std::vector<int>&);
     void insert_vertex(int, int, std::vector<int>&);
     void log_build_process();
+    void save_time(long, struct LocalSearchParams, std::string algo); // TODO make more generic ;-;
     
     // GREEDY
     auto find_greedy_cycles_nearest() -> std::tuple<std::vector<int>, std::vector<int>>;
@@ -62,16 +74,21 @@ private:
 
     // LOCAL SEARCH
     auto local_search() -> std::tuple<std::vector<int>, std::vector<int>>;
+    auto random_walk() -> std::tuple<std::vector<int>, std::vector<int>>;
     void inner_class_search(std::vector<int>&, bool);
     void inter_class_search(bool);
     auto generate_all_edge_movements(int) -> std::vector<std::vector<int>>;
     auto generate_all_vertex_movements(int) -> std::vector<std::vector<int>>;
     auto generate_all_vertex_movements_inter(int) -> std::vector<std::vector<int>>;
     auto generate_random_cycles(int) -> std::tuple<std::vector<int>, std::vector<int>>;
-    int get_objective_value(const std::vector<int>&, std::vector<int>);               // inner class
-    int get_objective_value(std::vector<int>);                                        // inter class
+    int get_objective_value(const std::vector<int>&, std::vector<int>);                 // inner class
+    int get_objective_value(std::vector<int>);                                          // inter class
     void update_cycle(const std::vector<int>&, std::vector<int>&);                      // inner class
     void update_cycles(std::vector<int>);                                               // inter class
+    void random_walk_inner(std::vector<int>, int);
+    void random_walk_inter(int);
+    void apply_movement(const std::vector<int> &, int );
+    void main_search(bool, bool);
+    auto get_delta(std::vector<int> movement) ->  std::tuple<int,int>;
 };
-
 #endif // TSP_H
