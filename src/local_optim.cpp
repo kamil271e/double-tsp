@@ -58,7 +58,7 @@ auto TSP::search_candidates() -> std::tuple<std::vector<int>, std::vector<int>>{
             std::tie(objective_value, cycle_num) = get_delta(movement);
 
             // If the objective value is better than the current best, we update the best movement
-            if (objective_value < best_objective_value) {
+            if (objective_value > best_objective_value) {
                 best_objective_value = objective_value;
                 best_movement = movement;
                 best_cycle_num = cycle_num;
