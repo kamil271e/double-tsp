@@ -1,25 +1,25 @@
 # include "../lib/tsp.h"
 
 
-
 auto TSP::local_optim() -> std::tuple<std::vector<int>, std::vector<int>>
 {
     
-    // Convert to cycles
-
+    //Generate input cycles
     local_search();
-    std::cout << "After local search" << std::endl;
-    //Print cycles
-    for (int vertex : cycle1) {
-        std::cout << vertex + 1 << " ";
-    }
-    std::cout << std::endl;
-    for (int vertex : cycle2) {
-        std::cout << vertex + 1 << " ";
-    }
 
-    search_candidates();
-    std::cout << "\nAfter search candidates" << std::endl;
+    if (alg_type == AlgType::search_candidates) {
+       //Measure time
+        auto start_time_local = std::chrono::high_resolution_clock::now();
+        search_candidates();
+        auto end_time_local = std::chrono::high_resolution_clock::now();
+        auto duration_local = std::chrono::duration_cast<std::chrono::milliseconds>(end_time_local - start_time_local).count();
+        save_time(duration_local, params, "search_candidates");
+    }
+    else if(alg_type == AlgType::search_memory){
+        ;
+    }
+    
+
     return {cycle1, cycle2};
 
 }
@@ -44,20 +44,20 @@ auto TSP::search_candidates() -> std::tuple<std::vector<int>, std::vector<int>>{
             auto [c2, j] = find_node({cycle1, cycle2}, b);
             movement, objective_value = {}, 0;
             
-            //std::cout << "c1: " << c1 << " c2: " << c2 << " i: " << i << " j: " << j << std::endl;
 
+            // If the nodes are in the same cycle, we swap the inner edges
             if (c1 == c2) {
-                // move := swap inner edges (a, succ(a)) and (b, succ(b))
+                // move := swap inner edges 
                 movement = {i, j, 0, 0};
-            } else {
-                // move := swap nodes a and b
+            } else { // If the nodes are in different cycles, we swap the inter vertices
+                // move := swap inter vertices 
                 movement = {i, j, 1, 1};
             }
 
-            
+            // Get the objective value of the movement
             std::tie(objective_value, cycle_num) = get_delta(movement);
-            //std::cout << "Objective value: " << objective_value << std::endl;
 
+            // If the objective value is better than the current best, we update the best movement
             if (objective_value < best_objective_value) {
                 best_objective_value = objective_value;
                 best_movement = movement;
@@ -67,19 +67,17 @@ auto TSP::search_candidates() -> std::tuple<std::vector<int>, std::vector<int>>{
         }
     }
 
+    // If we found a better movement, we apply it
     if (found_better) {
-        std::cout << "\n\nFinded better movement:" << std::endl;
-        std::cout << "Best movement: " << best_movement[0] << " " << best_movement[1] << " " << best_movement[2] << " " << best_movement[3] << " " << std::endl;
-        std::cout << "Cycle num: " << best_cycle_num << std::endl;
         apply_movement(best_movement, best_cycle_num);
     }
-
- 
 
     return {cycle1, cycle2};
 
 }
 
+
+// Find the k nearest vertices to a given vertex
 auto TSP::find_nearest_vertices(int vertex, int k) -> std::vector<int>{
     std::vector<int> nearest_vertices;
     std::vector<std::pair<int, double>> distances;
@@ -106,6 +104,7 @@ auto TSP::find_nearest_vertices(int vertex, int k) -> std::vector<int>{
 
 }
 
+// Find the cycle and index of a given node
 auto TSP::find_node(std::tuple<std::vector<int>, std::vector<int>> cycles, int node) -> std::pair<int, int>{ 
 
 

@@ -1,9 +1,10 @@
 #!/bin/bash
 
-declare -a ALGO_TYPES=("nearest" "expansion" "regret" "local" 'random_walk')
+declare -a ALGO_TYPES=("nearest" "expansion" "regret" "local" "random_walk" "search_candidates")
 declare -a MOVEMENTS_TYPES=("edge" "vertex")
 declare -a STEEPEST=("0" "1") # greedy - 0 / steepest - 1
 declare -a INPUT_DATA=("random" "regret")
+
 
 if [ "$#" -ne 5 ]; then
     echo "Usage: $0 <instance_path> <algotype> <input_data> <movements_type> <steepest>" 
@@ -47,11 +48,11 @@ else
 fi
 
 # N: no. of iterations
-N=10
+N=1
 cycles_len_file="../cycles/L_${algotype}_${input_data}_${movements_type}_${_steepest}_${instance_path::-4}.txt"
 cycles_file="../cycles/${algotype}_${input_data}_${movements_type}_${_steepest}_${instance_path::-4}.txt"
 
-g++ -o main.out main.cpp matrix.cpp tsp.cpp greedy.cpp local_search.cpp
+g++ -o main.out main.cpp matrix.cpp tsp.cpp greedy.cpp local_search.cpp local_optim.cpp
 
 for ((i=1; i<=$N; i++)); do
     cpp_output=$(./main.out "$instance_path" "$algotype" "$input_data" "$movements_type" "$steepest")

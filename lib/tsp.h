@@ -30,7 +30,8 @@ enum class AlgType {
     regret,
     local,
     random_walk,
-    search_candidates
+    search_candidates,
+    search_memory
 };
 
 struct LocalSearchParams {
