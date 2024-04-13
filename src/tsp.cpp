@@ -21,6 +21,8 @@ auto TSP::solve() -> std::tuple<std::vector<int>, std::vector<int>>{
             return find_greedy_cycles_regret();
         case AlgType::local:
             return local_search();
+        case AlgType::search_candidates:
+            return local_optim();
         default:
             // Handle unsupported algorithm type
             break;

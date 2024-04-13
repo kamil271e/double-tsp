@@ -41,7 +41,7 @@ auto TSP::generate_all_vertex_movements_inter(int n) -> std::vector<std::vector<
     std::vector<std::vector<int>> movements;
     for (int i = 0; i < n; ++i) {
         for (int j = 0; j < n; ++j) {
-            if (i != j) movements.push_back({i, j, 1, 1});
+            movements.push_back({i, j, 1, 1});
         }
     }
     return movements;
@@ -157,7 +157,6 @@ void TSP::main_search(bool steepest, bool vertex) {
                     }
                 } else {
                     apply_movement(movements[iter], cycle_num);
-                    found_better = false;
                     break;
                 }
             }
