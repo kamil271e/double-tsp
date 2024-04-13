@@ -5,11 +5,14 @@ auto TSP::generate_all_edge_movements(int n) -> std::vector<std::vector<int>> {
     // idx:2 inner move : type = 0
     // idx:2 inter movement: type = 1
     // idx:3 edge = 0, vertex = 1
+    // idx:4 cycle1 = 0, cycle2 = 1
     std::vector<std::vector<int>> movements; // i, j, type
     for (int i = 0; i < n; ++i) {
         for (int j = i + 2; j < n; ++j) {
             if (i==0 && j==n-1) continue;
-            movements.push_back({i, j, 0, 0});
+            for (int k=0; k<2; ++k){
+                movements.push_back({i, j, 0, 0, k});
+            }
         }
     }
     return movements;
@@ -23,7 +26,9 @@ auto TSP::generate_all_vertex_movements(int n) -> std::vector<std::vector<int>> 
     for (int i = 0; i < n; ++i) {
         for (int j = i + 1; j < n; ++j) {
             if (i==0 && j==n-1) continue; // redundant - edge move (1, n-2) is the same as vertex move (0, n-1)
-            movements.push_back({i, j, 0, 1});
+            for (int k=0; k<2; ++k){
+                movements.push_back({i, j, 0, 0, k});
+            }
         }
     }
     return movements;
@@ -52,13 +57,10 @@ auto TSP::get_delta(std::vector<int> movement) ->  std::tuple<int,int>{
     int j_left = (j - 1 + n) % n;
     int j_right = (j + 1) % n;
     float deleted, added;
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dist(0, 1);
     int cycle_chosen = -1; // -1 none; 0 cycle1; 1 cycle2
 
     if (movement[2] == 0){ // inner move
-        cycle_chosen = dist(gen);
+        cycle_chosen = movement[4];
         std::vector<int>& cycle = (cycle_chosen == 0) ? cycle1 : cycle2; // TODO: potential issue
         if (movement[3] == 0){ // edge
             deleted = dist_matrix.dist_matrix[cycle[i]][cycle[i_left]] + dist_matrix.dist_matrix[cycle[j]][cycle[j_right]];
@@ -181,7 +183,7 @@ auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
     bool vertex;
     if (params.movements_type == "edge"){
         vertex = false;
-    }else{ // edge
+    }else{
         vertex = true;
     }
     auto start_time_local = std::chrono::high_resolution_clock::now();

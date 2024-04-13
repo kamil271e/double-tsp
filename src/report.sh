@@ -47,7 +47,7 @@ else
 fi
 
 # N: no. of iterations
-N=1
+N=10
 cycles_len_file="../cycles/L_${algotype}_${input_data}_${movements_type}_${_steepest}_${instance_path::-4}.txt"
 cycles_file="../cycles/${algotype}_${input_data}_${movements_type}_${_steepest}_${instance_path::-4}.txt"
 
