@@ -5,7 +5,7 @@ auto TSP::local_optim() -> std::tuple<std::vector<int>, std::vector<int>>
 {
     
     //Generate input cycles
-    local_search();
+    std::tie(cycle1, cycle2) = generate_random_cycles(100);
 
     if (alg_type == AlgType::search_candidates) {
        //Measure time
@@ -13,7 +13,7 @@ auto TSP::local_optim() -> std::tuple<std::vector<int>, std::vector<int>>
         search_candidates();
         auto end_time_local = std::chrono::high_resolution_clock::now();
         auto duration_local = std::chrono::duration_cast<std::chrono::milliseconds>(end_time_local - start_time_local).count();
-        save_time(duration_local, params, "search_candidates");
+        //save_time(duration_local, params, "search_candidates"); //TODO: Implement save_time for search_candidates
     }
     else if(alg_type == AlgType::search_memory){
         ;

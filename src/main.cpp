@@ -42,7 +42,8 @@ AlgType choose_algo(std::string algo){
 
 int main(int argc, char* argv[]){
 
-    // NEAREST | EXPANSION | REGRET
+
+    // NEAREST | EXPANSION | REGRET | 
     if (argc >= 3 && argc < 6){ 
         Matrix m;
         m.load_from_path(argv[1]);
@@ -50,13 +51,15 @@ int main(int argc, char* argv[]){
         AlgType alg_type = choose_algo(std::string(argv[2]));
         TSP tsp(m, alg_type);
         generate_cycles(tsp);
+        return 0;
+
     }else if (argc < 3){
         std::cerr << "Usage: " << argv[0] << " <filename> <algotype> {nearest, expansion, regret} [start_idx]" << std::endl;
         return 1;
     }
-    
 
-    // LOCAL | SEARCH_CANDIDATES | SEARCH_MEMORY
+    
+    // LOCAL 
     if (argc == 6) {
         Matrix m;
         m.load_from_path(argv[1]);
@@ -69,6 +72,7 @@ int main(int argc, char* argv[]){
         AlgType alg_type = choose_algo(std::string(argv[2]));
         TSP tsp(m, alg_type, params.input_data, params.movements_type, params.steepest, params.filename);
         generate_cycles(tsp);
+        return 0;
     }else if (argc < 6){
         std::cerr << "Usage: " << argv[0] << " <instance_path> <algotype> [nearest, expansion, regret, local, search_memory, search_candidates]"
         << " <input_data> [random, regret] <movements_type> [inner, inter] <greedy/steepest> [0, 1]" << std::endl;
