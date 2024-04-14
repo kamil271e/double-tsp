@@ -22,6 +22,7 @@ auto TSP::solve() -> std::tuple<std::vector<int>, std::vector<int>>{
         case AlgType::local:
             return local_search();
         case AlgType::search_candidates:
+        case AlgType::search_memory:
             return local_optim();
         default:
             // Handle unsupported algorithm type

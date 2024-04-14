@@ -1,5 +1,6 @@
-# include "../lib/tsp.h"
-
+#include <set>
+#include <tuple>
+#include "../lib/tsp.h"
 
 auto TSP::local_optim() -> std::tuple<std::vector<int>, std::vector<int>>
 {
@@ -16,12 +17,77 @@ auto TSP::local_optim() -> std::tuple<std::vector<int>, std::vector<int>>
         //save_time(duration_local, params, "search_candidates"); //TODO: Implement save_time for search_candidates
     }
     else if(alg_type == AlgType::search_memory){
-        ;
+        search_memory();
     }
     
-
     return {cycle1, cycle2};
 
+}
+
+// we define a tuple to store cached movements
+// (i, j, edge/vertex (0/1), cycle_num, applicable (0/1), score),
+using TupleType = std::tuple<int, int, int, int, int, int>;
+
+// it will always be sorted descending by the score
+struct TupleComparator {
+    bool operator()(const TupleType& t1, const TupleType& t2) const {
+        return std::get<4>(t1) > std::get<5>(t2);
+    }
+};
+
+auto TSP::search_memory() -> std::tuple <std::vector<int>, std::vector<int>> {
+//    auto adj_matrix1 = generate_adj_matrix(cycle1);
+//    auto adj_matrix2 = generate_adj_matrix(cycle2);
+    std::vector<std::vector<int>> movements;
+    std::vector<std::vector<int>> movements_inter = generate_all_vertex_movements_inter(cycle1.size());
+    std::vector<std::vector<int>> movements_inner = generate_all_edge_movements(cycle1.size());
+    movements.insert(movements.end(), movements_inter.begin(), movements_inter.end());
+    movements.insert(movements.end(), movements_inner.begin(), movements_inner.end());
+
+    // ALGORITHM
+    // add all movements that  delta > 0  to LM
+    // repeat
+        // check all new moves
+        // for m in LM
+            // if edge not in cycle - delete m
+            // if edge1 edge2 reversed - continue
+            // if applicable - > apply
+            // remember (i, j) for next iteration
+    // until no move was applied after traversing entire LM
+
+    std::multiset<TupleType, TupleComparator> LM;
+    for (auto& movement : movements) {
+        int delta, cycle_num;
+        std::tie(delta, cycle_num) = get_delta(movement);
+        if (delta > 0) {
+            LM.insert({movement[0], movement[1], movement[3], cycle_num, 1, delta});
+        }
+    }
+
+    // print LM
+    for (auto& t : LM) {
+        std::cout << std::get<0>(t) << " " << std::get<1>(t) << " " << std::get<2>(t) << " " << std::get<3>(t) << " " << std::get<4>(t) << " " << std::get<5>(t) << std::endl;
+    }
+    return {cycle1, cycle2};
+}
+
+auto TSP::generate_adj_matrix(std::vector<int> cycle) -> std::vector<std::vector<int>>{
+    int n = cycle.size();
+    std::vector<std::vector<int>> adj_matrix(2 * n, std::vector<int>(2 * n, 0));
+    for (int i = 0; i < n; i++){
+        adj_matrix[cycle[i]-1][cycle[(i+1)%n]-1] = 1;
+        adj_matrix[cycle[(i+1)%n]-1][cycle[i]-1] = -1;
+    }
+    return adj_matrix;
+}
+
+void TSP::visualize_adj_matrix(std::vector<std::vector<int>> adj_matrix){
+    for (int i = 0; i < adj_matrix.size(); ++i){
+        for (int j = 0; j < adj_matrix.size(); ++j){
+            std::cout << adj_matrix[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
 }
 
 auto TSP::search_candidates() -> std::tuple<std::vector<int>, std::vector<int>>{
@@ -75,7 +141,6 @@ auto TSP::search_candidates() -> std::tuple<std::vector<int>, std::vector<int>>{
     return {cycle1, cycle2};
 
 }
-
 
 // Find the k nearest vertices to a given vertex
 auto TSP::find_nearest_vertices(int vertex, int k) -> std::vector<int>{
@@ -132,3 +197,5 @@ auto TSP::find_node(std::tuple<std::vector<int>, std::vector<int>> cycles, int n
 
     assert(false && "City must be in either cycle");   
 }
+
+

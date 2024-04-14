@@ -28,12 +28,13 @@ N=1
 cycles_len_file="../cycles/L_${algotype}_${instance_path::-4}.txt"
 cycles_file="../cycles/${algotype}_${instance_path::-4}.txt"
 
-g++ -o main.out main.cpp matrix.cpp tsp.cpp greedy.cpp local_search.cpp local_optim.cpp
+g++ -o main.out main.cpp matrix.cpp tsp.cpp greedy.cpp local_search.cpp local_optim.cpp utils.cpp
 
 for ((i=1; i<=$N; i++)); do
     cpp_output=$(./main.out "$instance_path" "$algotype" )
-    echo "$cpp_output" >> "$cycles_file"
-    python utils/cycle_lengths.py "$instance_path" "$cpp_output" >> "$cycles_len_file"
+    echo "$cpp_output"
+#    echo "$cpp_output" >> "$cycles_file"
+#    python utils/cycle_lengths.py "$instance_path" "$cpp_output" >> "$cycles_len_file"
 done
 
 rm main.out

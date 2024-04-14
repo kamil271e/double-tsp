@@ -100,6 +100,9 @@ private:
     auto search_candidates() -> std::tuple<std::vector<int>, std::vector<int>>; 
     auto find_nearest_vertices(int, int) -> std::vector<int>;
     auto find_node(std::tuple<std::vector<int>, std::vector<int>>, int ) -> std::pair<int, int>;
+    auto generate_adj_matrix(std::vector<int>) -> std::vector<std::vector<int>>;
+    void visualize_adj_matrix(std::vector<std::vector<int>>);
+    auto search_memory() -> std::tuple<std::vector<int>, std::vector<int>>;
 
 };
 #endif // TSP_H

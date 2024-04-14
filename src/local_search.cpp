@@ -1,5 +1,4 @@
 #include "../lib/tsp.h"
-#include "../lib/utils.h"
 
 
 auto TSP::generate_all_edge_movements(int n) -> std::vector<std::vector<int>> {
@@ -180,24 +179,19 @@ auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
         std::tie(cycle1, cycle2) = find_greedy_cycles_regret();
     }
 
-    auto adj_matrix1 = generate_adj_matrix(cycle1);
-//    auto adj_matrix2 = generate_adj_matrix(cycle2);
+    bool vertex;
+    if (params.movements_type == "edge"){
+        vertex = false;
+    }else{
+        vertex = true;
+    }
+    auto start_time_local = std::chrono::high_resolution_clock::now();
 
-    visualize_adj_matrix(adj_matrix1);
+    main_search(params.steepest, vertex);
 
-//    bool vertex;
-//    if (params.movements_type == "edge"){
-//        vertex = false;
-//    }else{
-//        vertex = true;
-//    }
-//    auto start_time_local = std::chrono::high_resolution_clock::now();
-//
-//    main_search(params.steepest, vertex);
-//
-//    auto end_time_local = std::chrono::high_resolution_clock::now();
-//    auto duration_local = std::chrono::duration_cast<std::chrono::microseconds>(end_time_local - start_time_local).count();
-//    save_time(duration_local, params, "local");
+    auto end_time_local = std::chrono::high_resolution_clock::now();
+    auto duration_local = std::chrono::duration_cast<std::chrono::microseconds>(end_time_local - start_time_local).count();
+    save_time(duration_local, params, "local");
 
     return {cycle1, cycle2};
 
