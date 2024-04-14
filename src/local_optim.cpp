@@ -24,25 +24,50 @@ auto TSP::local_optim() -> std::tuple<std::vector<int>, std::vector<int>>
 
 }
 
-auto TSP::init_LM(std::vector<std::vector<int>> movements) -> std::multiset<TupleType, TupleComparator>{
+auto TSP::init_LM(std::vector<std::vector<int>>& movements) -> std::multiset<TupleType, TupleComparator>{
     std::multiset<TupleType, TupleComparator> LM;
+    std::vector<std::vector<int>> filtered_movements;
     for (auto& movement : movements) {
         int delta, cycle_num;
         std::tie(delta, cycle_num) = get_delta(movement);
         if (delta > 0) {
             LM.insert({movement[0], movement[1], movement[3], cycle_num, 1, delta});
+        } else{
+            filtered_movements.push_back(movement);
         }
     }
+    movements = filtered_movements;
     return LM;
+}
+
+void TSP::update_LM(std::vector<std::vector<int>>& movements, std::multiset<TupleType, TupleComparator>& LM){
+    std::vector<std::vector<int>> filtered_movements;
+    for (auto& movement : movements) {
+        int delta, cycle_num;
+        std::tie(delta, cycle_num) = get_delta(movement);
+        if (delta > 0) {
+            LM.insert({movement[0], movement[1], movement[3], cycle_num, 1, delta});
+        } else{
+            filtered_movements.push_back(movement);
+        }
+    }
+    movements = filtered_movements;
+}
+
+
+void TSP::update_adj_matrix(int matrix_num, int i, int j) {
+    std::vector<std::vector<int>>& adj_matrix = (matrix_num == 0) ? adj_matrix1 : adj_matrix2;
+    // we need to delete edges (i-1, i) (j, j+1) and add edges (i,j+1) (i-1,j)
+    // do we really need this?
 }
 
 
 auto TSP::search_memory() -> std::tuple <std::vector<int>, std::vector<int>> {
-    auto adj_matrix1 = generate_adj_matrix(cycle1);
-    auto adj_matrix2 = generate_adj_matrix(cycle2);
+    adj_matrix1 = generate_adj_matrix(cycle1);
+    adj_matrix2 = generate_adj_matrix(cycle2);
     std::vector<std::vector<int>> movements;
-//    std::vector<std::vector<int>> movements_inter = generate_all_vertex_movements_inter(cycle1.size());
-//    movements.insert(movements.end(), movements_inter.begin(), movements_inter.end());
+    // std::vector<std::vector<int>> movements_inter = generate_all_vertex_movements_inter(cycle1.size());
+    // movements.insert(movements.end(), movements_inter.begin(), movements_inter.end());
     std::vector<std::vector<int>> movements_inner = generate_all_edge_movements(cycle1.size());
     movements.insert(movements.end(), movements_inner.begin(), movements_inner.end());
 
@@ -57,50 +82,71 @@ auto TSP::search_memory() -> std::tuple <std::vector<int>, std::vector<int>> {
             // remember (i, j) for next iteration
     // until no move was applied after traversing entire LM
 
+    // check new moves? - store in movements only those that are not in LM
+
+    // czy ruch aplikowalny: - i,j: poprzednia good iteracja; i',j': obecna iteracja
+    // reverse inside: if i' > i and j' < j
+    // not applicable: if (i' < i and j' < j) or (i' > i and j' > j) or (i'=i or j'=j) (i out, j in) or (i in, j out)
+    // good: if i' < i and j' > j (i out, j out)
+
     int start_len = calc_cycles_len();
     int n = cycle1.size();
     bool found_better;
+    int last_i = -1;
+    int last_j = 1000000;
+    std::cout << movements.size() << std::endl;
     std::multiset<TupleType, TupleComparator> LM = init_LM(movements);
+    std::cout << movements.size() << std::endl;
+    std::cout << std::endl;
+
     do{
         found_better = false;
+        update_LM(movements, LM);
         for (auto it = LM.begin(); it != LM.end();) {
-            auto move = *it;
-            int i = std::get<0>(move);
-            int j = std::get<1>(move);
-            int edge_or_vertex = std::get<2>(move);
-            int cycle_num = std::get<3>(move);
-            int applicable = std::get<4>(move);
-            int delta = std::get<5>(move);
+            int i = std::get<0>(*it);
+            int j = std::get<1>(*it);
+            // int edge_or_vertex = std::get<2>(*it);
+            int cycle_num = std::get<3>(*it);
+            int applicable = std::get<4>(*it);
             std::vector<int>& cycle = (cycle_num == 0) ? cycle1 : cycle2;
+            std::vector<std::vector<int>>& adj_matrix = (cycle_num == 0) ? adj_matrix1 : adj_matrix2;
 
+            // edges to delete
             int edge11 = cycle[(i - 1 + n) % n];
             int edge12 = cycle[i];
-
             int edge21 = cycle[j];
             int edge22 = cycle[(j + 1) % n];
 
-            if (adj_matrix1[edge11][edge12] == 0 || adj_matrix1[edge21][edge22] == 0) {
+            if (adj_matrix[edge11][edge12] == 0 || adj_matrix[edge21][edge22] == 0) {
                 it = LM.erase(it);
+                movements.push_back({i, j, 0, cycle_num});
                 continue;
             }
-            if (adj_matrix1[edge11][edge12] == -1 && adj_matrix1[edge21][edge22] == -1) {
+            else if ((adj_matrix[edge11][edge12] == -1 && adj_matrix[edge21][edge22] == 1) ||
+                (adj_matrix[edge11][edge12] == 1 && adj_matrix[edge21][edge22] == -1)){
                 ++it;
                 continue;
             }
-            apply_movement({i, j, 0, 0, cycle_num});
-            found_better = true;
-            ++it;
+            else{
+                apply_movement({i, j, 0, 0, cycle_num});
+                update_adj_matrix(cycle_num, i, j);
+                it = LM.erase(it);
+                movements.push_back({i, j, 0, cycle_num});
+                found_better = true;
+                last_i = i;
+                last_j = j;
+            }
+            // if (adj_matrix[edge11][edge12] == -1 && adj_matrix[edge21][edge22] == -1)
+            // std::cout << cycle_num << adj_matrix[edge11][edge12] << " " << adj_matrix1[edge11][edge12] << " " << adj_matrix2[edge11][edge12] << std::endl;
         }
     }while(found_better);
 
     int end_len = calc_cycles_len();
-//    for (auto& t : LM) {
-//        std::cout << std::get<0>(t) << " " << std::get<1>(t) << " " << std::get<2>(t) << " " << std::get<3>(t) << " " << std::get<4>(t) << " " << std::get<5>(t) << std::endl;
-//    }
-
     std::cout << start_len << " " << end_len << std::endl;
+
     return {cycle1, cycle2};
 }
+
 
 auto TSP::generate_adj_matrix(const std::vector<int>& cycle) -> std::vector<std::vector<int>>{
     int n = cycle.size();
@@ -112,6 +158,7 @@ auto TSP::generate_adj_matrix(const std::vector<int>& cycle) -> std::vector<std:
     return adj_matrix;
 }
 
+
 void TSP::visualize_adj_matrix(std::vector<std::vector<int>> adj_matrix){
     for (int i = 0; i < adj_matrix.size(); ++i){
         for (int j = 0; j < adj_matrix.size(); ++j){
@@ -120,6 +167,7 @@ void TSP::visualize_adj_matrix(std::vector<std::vector<int>> adj_matrix){
         std::cout << std::endl;
     }
 }
+
 
 auto TSP::search_candidates() -> std::tuple<std::vector<int>, std::vector<int>>{
 
@@ -172,6 +220,7 @@ auto TSP::search_candidates() -> std::tuple<std::vector<int>, std::vector<int>>{
 
 }
 
+
 // Find the k nearest vertices to a given vertex
 auto TSP::find_nearest_vertices(int vertex, int k) -> std::vector<int>{
     std::vector<int> nearest_vertices;
@@ -198,6 +247,7 @@ auto TSP::find_nearest_vertices(int vertex, int k) -> std::vector<int>{
     return nearest_vertices;    
 
 }
+
 
 // Find the cycle and index of a given node
 auto TSP::find_node(std::tuple<std::vector<int>, std::vector<int>> cycles, int node) -> std::pair<int, int>{ 

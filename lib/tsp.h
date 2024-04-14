@@ -65,6 +65,7 @@ public:
 private:
     std::vector<bool> visited = std::vector<bool>(dist_matrix.x_coord.size(), false);
     std::vector<int> cycle1, cycle2;
+    std::vector<std::vector<int>> adj_matrix1, adj_matrix2; // TODO: we can store it in one adj_matrix
     AlgType alg_type;
     LocalSearchParams params;
 
@@ -115,7 +116,9 @@ private:
     auto generate_adj_matrix(const std::vector<int>&) -> std::vector<std::vector<int>>;
     void visualize_adj_matrix(std::vector<std::vector<int>>);
     auto search_memory() -> std::tuple<std::vector<int>, std::vector<int>>;
-    auto init_LM(std::vector<std::vector<int>>) -> std::multiset<TupleType, TupleComparator>;
+    auto init_LM(std::vector<std::vector<int>>&) -> std::multiset<TupleType, TupleComparator>;
+    void update_LM(std::vector<std::vector<int>>&, std::multiset<TupleType, TupleComparator>&);
+    void update_adj_matrix(int, int, int);
 
 };
 #endif // TSP_H
