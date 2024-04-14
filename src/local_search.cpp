@@ -1,4 +1,5 @@
 #include "../lib/tsp.h"
+#include "../lib/utils.h"
 
 
 auto TSP::generate_all_edge_movements(int n) -> std::vector<std::vector<int>> {
@@ -41,7 +42,7 @@ auto TSP::generate_all_vertex_movements_inter(int n) -> std::vector<std::vector<
     std::vector<std::vector<int>> movements;
     for (int i = 0; i < n; ++i) {
         for (int j = 0; j < n; ++j) {
-            if (i != j) movements.push_back({i, j, 1, 1});
+            movements.push_back({i, j, 1, 1});
         }
     }
     return movements;
@@ -61,8 +62,9 @@ auto TSP::get_delta(std::vector<int> movement) ->  std::tuple<int,int>{
 
     if (movement[2] == 0){ // inner move
         cycle_chosen = movement[4];
-        std::vector<int>& cycle = (cycle_chosen == 0) ? cycle1 : cycle2; // TODO: potential issue
+        std::vector<int>& cycle = (cycle_chosen == 0) ? cycle1 : cycle2;
         if (movement[3] == 0){ // edge
+            // we switch edges: (i_left, i) and (j, j_right)
             deleted = dist_matrix.dist_matrix[cycle[i]][cycle[i_left]] + dist_matrix.dist_matrix[cycle[j]][cycle[j_right]];
             added = dist_matrix.dist_matrix[cycle[i]][cycle[j_right]] + dist_matrix.dist_matrix[cycle[i_left]][cycle[j]];
         }else{ // vertex
@@ -147,7 +149,6 @@ void TSP::main_search(bool steepest, bool vertex) {
         for (int iter = 0; iter < movements.size(); ++iter) {
             std::tie(objective_value, cycle_num) = get_delta(movements[iter]); // we need to remember chosen cycle for apply_movement method; type = 0 - cycle1, 1 - cycle2
             if (objective_value > 0) { // better than current
-//                std::cout << movements[iter][0] << " " << movements[iter][1] << " " << movements[iter][2] << " " << cycle_num << std::endl;
                 found_better = true;
                 if (steepest) {
                     if (objective_value > best_objective_value) {
@@ -157,7 +158,6 @@ void TSP::main_search(bool steepest, bool vertex) {
                     }
                 } else {
                     apply_movement(movements[iter], cycle_num);
-                    found_better = false;
                     break;
                 }
             }
@@ -180,19 +180,24 @@ auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
         std::tie(cycle1, cycle2) = find_greedy_cycles_regret();
     }
 
-    bool vertex;
-    if (params.movements_type == "edge"){
-        vertex = false;
-    }else{
-        vertex = true;
-    }
-    auto start_time_local = std::chrono::high_resolution_clock::now();
+    auto adj_matrix1 = generate_adj_matrix(cycle1);
+//    auto adj_matrix2 = generate_adj_matrix(cycle2);
 
-    main_search(params.steepest, vertex);
+    visualize_adj_matrix(adj_matrix1);
 
-    auto end_time_local = std::chrono::high_resolution_clock::now();
-    auto duration_local = std::chrono::duration_cast<std::chrono::milliseconds>(end_time_local - start_time_local).count();
-    save_time(duration_local, params, "local");
+//    bool vertex;
+//    if (params.movements_type == "edge"){
+//        vertex = false;
+//    }else{
+//        vertex = true;
+//    }
+//    auto start_time_local = std::chrono::high_resolution_clock::now();
+//
+//    main_search(params.steepest, vertex);
+//
+//    auto end_time_local = std::chrono::high_resolution_clock::now();
+//    auto duration_local = std::chrono::duration_cast<std::chrono::microseconds>(end_time_local - start_time_local).count();
+//    save_time(duration_local, params, "local");
 
     return {cycle1, cycle2};
 

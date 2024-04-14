@@ -29,7 +29,9 @@ AlgType choose_algo(std::string algo){
         return AlgType::local;
     } else if (algo == "random_walk") {
         return AlgType::random_walk;
-    } else {
+//    } else if (algo == "local_cache"){
+//        return AlgType::local_cache;
+    }else {
         std::cerr << "Invalid algorithm type. Please choose from [nearest, expansion, regret, local]" << std::endl;
         exit(1);
     }

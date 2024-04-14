@@ -1,5 +1,5 @@
 #include "../lib/matrix.h"
-#include "../src/utils.cpp"
+#include "../lib/utils.h"
 
 Matrix::Matrix() {}
 
