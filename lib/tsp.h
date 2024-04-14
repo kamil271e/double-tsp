@@ -118,7 +118,7 @@ private:
     auto search_memory() -> std::tuple<std::vector<int>, std::vector<int>>;
     auto init_LM(std::vector<std::vector<int>>&) -> std::multiset<TupleType, TupleComparator>;
     void update_LM(std::vector<std::vector<int>>&, std::multiset<TupleType, TupleComparator>&);
-    void update_adj_matrix(int, int, int);
-
+    void update_adj_matrix(std::vector<std::vector<int>>&, std::vector<int>&, int, int);
+    void reverse_edges(std::vector<std::vector<int>>&, std::vector<int>&, int, int);
 };
 #endif // TSP_H

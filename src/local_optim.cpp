@@ -55,10 +55,31 @@ void TSP::update_LM(std::vector<std::vector<int>>& movements, std::multiset<Tupl
 }
 
 
-void TSP::update_adj_matrix(int matrix_num, int i, int j) {
-    std::vector<std::vector<int>>& adj_matrix = (matrix_num == 0) ? adj_matrix1 : adj_matrix2;
+void TSP::update_adj_matrix(std::vector <std::vector<int>> & adj_matrix, std::vector<int> &cycle, int i, int j) {
+    int n = cycle.size();
+    int i_left = (i - 1 + n) % n;
+    int j_right = (j + 1) % n;
+
     // we need to delete edges (i-1, i) (j, j+1) and add edges (i,j+1) (i-1,j)
-    // do we really need this?
+    adj_matrix[cycle[i_left]][cycle[i]] = 0;
+    adj_matrix[cycle[i]][cycle[i_left]] = 0;
+    adj_matrix[cycle[j]][cycle[j_right]] = 0;
+    adj_matrix[cycle[j_right]][cycle[j]] = 0;
+
+    adj_matrix[cycle[i]][cycle[j_right]] = 1;
+    adj_matrix[cycle[j_right]][cycle[i]] = -1;
+    adj_matrix[cycle[i_left]][cycle[j]] = 1;
+    adj_matrix[cycle[j]][cycle[i_left]] = -1;
+
+    for (int k = i + 1; k < j - 1; ++k) {
+        reverse_edges(adj_matrix, cycle, k, k + 1);
+    }
+}
+
+
+void TSP::reverse_edges(std::vector<std::vector<int>> & adj_matrix, std::vector<int> &cycle, int i, int j) {
+    adj_matrix[cycle[i]][cycle[j]] = -1;
+    adj_matrix[cycle[j]][cycle[i]] = 1;
 }
 
 
@@ -89,16 +110,18 @@ auto TSP::search_memory() -> std::tuple <std::vector<int>, std::vector<int>> {
     // not applicable: if (i' < i and j' < j) or (i' > i and j' > j) or (i'=i or j'=j) (i out, j in) or (i in, j out)
     // good: if i' < i and j' > j (i out, j out)
 
+    // int last_i = -1;
+    // int last_j = 1000000;
+
     int start_len = calc_cycles_len();
     int n = cycle1.size();
     bool found_better;
-    int last_i = -1;
-    int last_j = 1000000;
+
     std::cout << movements.size() << std::endl;
     std::multiset<TupleType, TupleComparator> LM = init_LM(movements);
     std::cout << movements.size() << std::endl;
     std::cout << std::endl;
-
+    int c = 0;
     do{
         found_better = false;
         update_LM(movements, LM);
@@ -107,7 +130,7 @@ auto TSP::search_memory() -> std::tuple <std::vector<int>, std::vector<int>> {
             int j = std::get<1>(*it);
             // int edge_or_vertex = std::get<2>(*it);
             int cycle_num = std::get<3>(*it);
-            int applicable = std::get<4>(*it);
+            // int applicable = std::get<4>(*it);
             std::vector<int>& cycle = (cycle_num == 0) ? cycle1 : cycle2;
             std::vector<std::vector<int>>& adj_matrix = (cycle_num == 0) ? adj_matrix1 : adj_matrix2;
 
@@ -129,21 +152,20 @@ auto TSP::search_memory() -> std::tuple <std::vector<int>, std::vector<int>> {
             }
             else{
                 apply_movement({i, j, 0, 0, cycle_num});
-                update_adj_matrix(cycle_num, i, j);
+                update_adj_matrix(adj_matrix, cycle, i, j);
                 it = LM.erase(it);
                 movements.push_back({i, j, 0, cycle_num});
                 found_better = true;
-                last_i = i;
-                last_j = j;
+                // last_i = i;
+                // last_j = j;
+                c++;
             }
-            // if (adj_matrix[edge11][edge12] == -1 && adj_matrix[edge21][edge22] == -1)
-            // std::cout << cycle_num << adj_matrix[edge11][edge12] << " " << adj_matrix1[edge11][edge12] << " " << adj_matrix2[edge11][edge12] << std::endl;
         }
     }while(found_better);
 
     int end_len = calc_cycles_len();
     std::cout << start_len << " " << end_len << std::endl;
-
+    std::cout << c <<std::endl;
     return {cycle1, cycle2};
 }
 
@@ -277,5 +299,3 @@ auto TSP::find_node(std::tuple<std::vector<int>, std::vector<int>> cycles, int n
 
     assert(false && "City must be in either cycle");   
 }
-
-
