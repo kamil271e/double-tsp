@@ -6,15 +6,15 @@
 void generate_cycles(TSP tsp){
     auto [cycle1, cycle2] = tsp.solve();
 
-//    for (int vertex : cycle1) {
-//        std::cout << vertex + 1 << " ";
-//    }
-//    std::cout << std::endl;
-//
-//    for (int vertex : cycle2) {
-//        std::cout << vertex + 1 << " ";
-//    }
-//    std::cout << std::endl;
+    for (int vertex : cycle1) {
+        std::cout << vertex + 1 << " ";
+    }
+    std::cout << std::endl;
+
+    for (int vertex : cycle2) {
+        std::cout << vertex + 1 << " ";
+    }
+    std::cout << std::endl;
 }
 
 

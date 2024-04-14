@@ -23,6 +23,18 @@
 #include <bits/stdc++.h> // for assert 
 
 
+// tuple to store cached movements in local optim
+// (i, j, edge/vertex (0/1), cycle_num, applicable (0/1), score),
+using TupleType = std::tuple<int, int, int, int, int, int>;
+
+
+// it will always be sorted descending by the score
+struct TupleComparator {
+    bool operator()(const TupleType& t1, const TupleType& t2) const {
+        return std::get<5>(t1) > std::get<5>(t2);
+    }
+};
+
 
 enum class AlgType {
     nearest_neighbors,
@@ -91,7 +103,7 @@ private:
     void update_cycles(std::vector<int>);                                               // inter class
     void random_walk_inner(std::vector<int>, int);
     void random_walk_inter(int);
-    void apply_movement(const std::vector<int> &, int );
+    void apply_movement(const std::vector<int> &);
     void main_search(bool, bool);
     auto get_delta(std::vector<int> movement) ->  std::tuple<int,int>;
 
@@ -100,9 +112,10 @@ private:
     auto search_candidates() -> std::tuple<std::vector<int>, std::vector<int>>; 
     auto find_nearest_vertices(int, int) -> std::vector<int>;
     auto find_node(std::tuple<std::vector<int>, std::vector<int>>, int ) -> std::pair<int, int>;
-    auto generate_adj_matrix(std::vector<int>) -> std::vector<std::vector<int>>;
+    auto generate_adj_matrix(const std::vector<int>&) -> std::vector<std::vector<int>>;
     void visualize_adj_matrix(std::vector<std::vector<int>>);
     auto search_memory() -> std::tuple<std::vector<int>, std::vector<int>>;
+    auto init_LM(std::vector<std::vector<int>>) -> std::multiset<TupleType, TupleComparator>;
 
 };
 #endif // TSP_H
