@@ -104,13 +104,16 @@ void TSP::update_cycle(const std::vector<int>& movement, std::vector<int>& cycle
     }
 }
 
-void TSP::apply_movement(const std::vector<int> &movement, int cycle_num) {
-    if (cycle_num == 0){
-        update_cycle(movement, cycle1);
-    }else if (cycle_num == 1){
-        update_cycle(movement, cycle2);
-    }else{
+void TSP::apply_movement(const std::vector<int> &movement) {
+    if (movement.size() < 5){
         update_cycles(movement);
+    } else{
+        int cycle_num = movement[4];
+        if (cycle_num == 0){
+            update_cycle(movement, cycle1);
+        }else if (cycle_num == 1){
+            update_cycle(movement, cycle2);
+        }
     }
 }
 
@@ -155,13 +158,13 @@ void TSP::main_search(bool steepest, bool vertex) {
                         best_cycle_num = cycle_num;
                     }
                 } else {
-                    apply_movement(movements[iter], cycle_num);
+                    apply_movement(movements[iter]);
                     break;
                 }
             }
         }
         if (steepest && found_better){
-            apply_movement(best_movement, best_cycle_num);
+            apply_movement(best_movement);
         }
     } while (found_better);
 }

@@ -91,7 +91,7 @@ private:
     void update_cycles(std::vector<int>);                                               // inter class
     void random_walk_inner(std::vector<int>, int);
     void random_walk_inter(int);
-    void apply_movement(const std::vector<int> &, int );
+    void apply_movement(const std::vector<int> &);
     void main_search(bool, bool);
     auto get_delta(std::vector<int> movement) ->  std::tuple<int,int>;
 

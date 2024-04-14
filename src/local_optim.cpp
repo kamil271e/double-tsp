@@ -5,7 +5,7 @@ auto TSP::local_optim() -> std::tuple<std::vector<int>, std::vector<int>>
 {
     
     //Generate input cycles
-    std::tie(cycle1, cycle2) = generate_random_cycles(100);
+    std::tie(cycle1, cycle2) = generate_random_cycles(200);
 
     if (alg_type == AlgType::search_candidates) {
        //Measure time
@@ -27,51 +27,68 @@ auto TSP::local_optim() -> std::tuple<std::vector<int>, std::vector<int>>
 auto TSP::search_candidates() -> std::tuple<std::vector<int>, std::vector<int>>{
 
     std::vector<int> movement;
-    std::vector<int> best_movement = {};
-    int best_objective_value = 0;
-    int objective_value;
-    int cycle_num, best_cycle_num;
+    std::vector<int> best_movement;
+    int best_objective_value;
+    int objective_value, _;
 
-    bool found_better  = false;
+    bool found_better;
     int k = 10;
 
-
-    for (int a = 0; a < dist_matrix.x_coord.size(); ++a) {
-        auto nearest_vertices = find_nearest_vertices(a, k);
-        for (int b : nearest_vertices) {
-            // Find cycles c1, c2 and indices i, j of nodes a and b 
+    std::vector<int> candidate_moves = {};
+    do{
+        best_objective_value = 0;
+        found_better  = false;
+        best_movement = {};
+       
+        /*For each vertex n1 from 0 to N-1
+                For each vertex n2 from the list of the closest vertices to n1 */
+        for (int a = 0; a < dist_matrix.x_coord.size() - 1; ++a) {
+            auto nearest_vertices = find_nearest_vertices(a, k);
             auto [c1, i] = find_node({cycle1, cycle2}, a);
-            auto [c2, j] = find_node({cycle1, cycle2}, b);
-            movement, objective_value = {}, 0;
-            
 
-            // If the nodes are in the same cycle, we swap the inner edges
-            if (c1 == c2) {
-                // move := swap inner edges 
-                movement = {i, j, 0, 0};
-            } else { // If the nodes are in different cycles, we swap the inter vertices
-                // move := swap inter vertices 
-                movement = {i, j, 1, 1};
-            }
+            for (int b : nearest_vertices) {
+                if (a == b) continue;
+                // Find cycles c1, c2 and indices i, j of nodes a and b 
+                auto [c2, j] = find_node({cycle1, cycle2}, b);
+                movement, objective_value = {}, 0;
+                                
+                //Check all moves to add edges n1-n2 and remove one of the current edges connecting n1
+                if (c1 == c2){
+                    movement = {i,j,0,0, c1};
+                } else {
+                    movement = {i,j,1,0};
+                }
 
-            // Get the objective value of the movement
-            std::tie(objective_value, cycle_num) = get_delta(movement);
+                // Get the objective value of the movement
+                std::tie(objective_value, _) = get_delta(movement);
 
-            // If the objective value is better than the current best, we update the best movement
-            if (objective_value > best_objective_value) {
-                best_objective_value = objective_value;
-                best_movement = movement;
-                best_cycle_num = cycle_num;
-                found_better = true;
+
+                // If the objective value is better than the current best, we update the best movement
+                if (objective_value > best_objective_value) {
+                    best_objective_value = objective_value;
+                    best_movement = movement;
+                    found_better = true;
+                }
+                
             }
         }
-    }
 
-    // If we found a better movement, we apply it
-    if (found_better) {
-        apply_movement(best_movement, best_cycle_num);
-    }
+        // If we found a better movement, we apply it
+        if (found_better) {
+           
+            if (candidate_moves != best_movement){
+                candidate_moves = best_movement;
+                apply_movement(best_movement);
+            }
+            else{
 
+                found_better = false;
+            }
+        }
+
+    }while (found_better); // Fix this condition, because if found_better is true, we never break the loop
+    
+    
     return {cycle1, cycle2};
 
 }
@@ -99,7 +116,6 @@ auto TSP::find_nearest_vertices(int vertex, int k) -> std::vector<int>{
         nearest_vertices.push_back(distances[i].first);
     }
 
-
     return nearest_vertices;    
 
 }
@@ -113,7 +129,7 @@ auto TSP::find_node(std::tuple<std::vector<int>, std::vector<int>> cycles, int n
 
     // If element was found 
     if (it1 != cycle1.end())  
-    { 
+    {
         // calculating the index 
         int index = it1 - cycle1.begin(); 
         return {0, index};
