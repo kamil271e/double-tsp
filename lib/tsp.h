@@ -20,6 +20,8 @@
 #include <iomanip>
 #include <chrono> 
 #include "matrix.h"
+#include <bits/stdc++.h> // for assert 
+
 
 
 enum class AlgType {
@@ -27,7 +29,9 @@ enum class AlgType {
     greedy_cycle,
     regret,
     local,
-    random_walk
+    random_walk,
+    search_candidates,
+    search_memory
 };
 
 struct LocalSearchParams {
@@ -90,5 +94,12 @@ private:
     void apply_movement(const std::vector<int> &, int );
     void main_search(bool, bool);
     auto get_delta(std::vector<int> movement) ->  std::tuple<int,int>;
+
+    //LOCAL OPTIM
+    auto local_optim() -> std::tuple<std::vector<int>, std::vector<int>>;
+    auto search_candidates() -> std::tuple<std::vector<int>, std::vector<int>>; 
+    auto find_nearest_vertices(int, int) -> std::vector<int>;
+    auto find_node(std::tuple<std::vector<int>, std::vector<int>>, int ) -> std::pair<int, int>;
+
 };
 #endif // TSP_H

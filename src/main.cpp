@@ -29,8 +29,10 @@ AlgType choose_algo(std::string algo){
         return AlgType::local;
     } else if (algo == "random_walk") {
         return AlgType::random_walk;
-//    } else if (algo == "local_cache"){
-//        return AlgType::local_cache;
+    } else if ( algo == "search_candidates"){
+        return AlgType::search_candidates;
+    } else if( algo == "search_memory" ){
+        return AlgType::search_memory;
     }else {
         std::cerr << "Invalid algorithm type. Please choose from [nearest, expansion, regret, local]" << std::endl;
         exit(1);
@@ -39,26 +41,26 @@ AlgType choose_algo(std::string algo){
 
 
 int main(int argc, char* argv[]){
-    // TODO: make it better
-    //    if (argc < 3) {
-    //        std::cerr << "Usage: " << argv[0] << " <filename> <algotype> {nearest, expansion, regret} [start_idx]" << std::endl;
-    //        return 1;
-    //    }
-    //    if (argc < 6) {
-    //        std::cerr << "Usage: " << argv[0] << " <instance_path> <algotype> [nearest, expansion, regret, local]"
-    //        << " <input_data> [random, regret] <movements_type> [inner, inter] <greedy/steepest> [0, 1]" << std::endl;
-    //        return 1;
-    //    }
 
-    if (argc >= 3 && argc < 6){ // GREEDY
+
+    // NEAREST | EXPANSION | REGRET | 
+    if (argc >= 3 && argc < 6){ 
         Matrix m;
         m.load_from_path(argv[1]);
         m.generate_dist_matrix();
         AlgType alg_type = choose_algo(std::string(argv[2]));
         TSP tsp(m, alg_type);
         generate_cycles(tsp);
+        return 0;
 
-    }else{ // LOCAL | Random Walk
+    }else if (argc < 3){
+        std::cerr << "Usage: " << argv[0] << " <filename> <algotype> {nearest, expansion, regret} [start_idx]" << std::endl;
+        return 1;
+    }
+
+    
+    // LOCAL 
+    if (argc == 6) {
         Matrix m;
         m.load_from_path(argv[1]);
         m.generate_dist_matrix();
@@ -70,6 +72,11 @@ int main(int argc, char* argv[]){
         AlgType alg_type = choose_algo(std::string(argv[2]));
         TSP tsp(m, alg_type, params.input_data, params.movements_type, params.steepest, params.filename);
         generate_cycles(tsp);
+        return 0;
+    }else if (argc < 6){
+        std::cerr << "Usage: " << argv[0] << " <instance_path> <algotype> [nearest, expansion, regret, local, search_memory, search_candidates]"
+        << " <input_data> [random, regret] <movements_type> [inner, inter] <greedy/steepest> [0, 1]" << std::endl;
+        return 1;
     }
 
     return 0;
