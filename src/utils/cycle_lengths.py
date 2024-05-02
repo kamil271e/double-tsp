@@ -18,7 +18,7 @@ def get_cycle_lengths(instance_path, cycles):
             node_positions[cycle1_nodes[(i + 1) % len(cycle1_nodes)]],
         )
     len_cycle2 = 0
-    for i in range(len(cycle1_nodes)):
+    for i in range(len(cycle2_nodes)):
         len_cycle2 += get_length(
             node_positions[cycle2_nodes[i]],
             node_positions[cycle2_nodes[(i + 1) % len(cycle2_nodes)]],

@@ -95,6 +95,9 @@ private:
 
     // LOCAL SEARCH EXTENSION
     auto multiple_local_search() -> std::tuple<std::vector<int>, std::vector<int>>;
+    int calculate_objective(const std::vector<int>&, const std::vector<int>&);
+    // Temporary solution to the problem of duplicate vertices in the cycle
+    auto delete_duplicates(const std::vector<int>&) -> std::vector<int>;
 
 };
 #endif // TSP_H
