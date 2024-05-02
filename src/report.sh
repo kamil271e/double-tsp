@@ -1,6 +1,6 @@
 #!/bin/bash
 
-declare -a ALGO_TYPES=("nearest" "expansion" "regret" "local" 'random_walk')
+declare -a ALGO_TYPES=("nearest" "expansion" "regret" "local" "random_walk" "multiple_search")
 declare -a MOVEMENTS_TYPES=("edge" "vertex")
 declare -a STEEPEST=("0" "1") # greedy - 0 / steepest - 1
 declare -a INPUT_DATA=("random" "regret")
@@ -56,7 +56,7 @@ g++ -o main.out main.cpp matrix.cpp tsp.cpp greedy.cpp local_search.cpp
 for ((i=1; i<=$N; i++)); do
     cpp_output=$(./main.out "$instance_path" "$algotype" "$input_data" "$movements_type" "$steepest")
     echo "$cpp_output" >> "$cycles_file"
-    python utils/cycle_lengths.py "$instance_path" "$cpp_output" >> "$cycles_len_file"
+    #python utils/cycle_lengths.py "$instance_path" "$cpp_output" >> "$cycles_len_file"
 done
 
 rm main.out

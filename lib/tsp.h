@@ -27,7 +27,8 @@ enum class AlgType {
     greedy_cycle,
     regret,
     local,
-    random_walk
+    random_walk,
+    multiple_local_search
 };
 
 struct LocalSearchParams {
@@ -35,6 +36,7 @@ struct LocalSearchParams {
     std::string movements_type; // inner, inter
     std::string filename; // name of the file
     int steepest; // greedy(0), steepest(1)
+    int num_starts; // number of starts for multiple local search
 };
 
 class TSP{
@@ -90,5 +92,9 @@ private:
     void apply_movement(const std::vector<int> &, int );
     void main_search(bool, bool);
     auto get_delta(std::vector<int> movement) ->  std::tuple<int,int>;
+
+    // LOCAL SEARCH EXTENSION
+    auto multiple_local_search() -> std::tuple<std::vector<int>, std::vector<int>>;
+
 };
 #endif // TSP_H
