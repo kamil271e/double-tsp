@@ -59,6 +59,7 @@ int main(int argc, char* argv[]){
     
     // LOCAL 
     if (argc == 6) {
+
         Matrix m;
         m.load_from_path(argv[1]);
         m.generate_dist_matrix();
@@ -67,9 +68,9 @@ int main(int argc, char* argv[]){
         params.movements_type = std::string(argv[4]);
         params.steepest = std::stoi(argv[5]);
         params.filename = argv[1];
-        params.num_starts = 100;
         
         AlgType alg_type = choose_algo(std::string(argv[2]));
+        //Print alg_type
         TSP tsp(m, alg_type, params.input_data, params.movements_type, params.steepest, params.filename);
         generate_cycles(tsp);
         return 0;

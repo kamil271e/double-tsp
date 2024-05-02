@@ -36,7 +36,7 @@ struct LocalSearchParams {
     std::string movements_type; // inner, inter
     std::string filename; // name of the file
     int steepest; // greedy(0), steepest(1)
-    int num_starts; // number of starts for multiple local search
+    int num_starts = 100; // number of starts for multiple local search
 };
 
 class TSP{
