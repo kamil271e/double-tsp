@@ -23,6 +23,7 @@ auto TSP::multiple_local_search() -> std::tuple<std::vector<int>, std::vector<in
     int best_objective_value = std::numeric_limits<int>::max();
     int objective_value;
 
+    auto start_time = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < params.num_starts; ++i) {
         std::tie(cycle1, cycle2) = local_search();
         objective_value = calc_cycles_len();
@@ -33,6 +34,9 @@ auto TSP::multiple_local_search() -> std::tuple<std::vector<int>, std::vector<in
             best_cycle2 = cycle2;
         }
     }
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
+    save_time(duration, params, "multiple_search");
     return {best_cycle1, best_cycle2};
 }
 
