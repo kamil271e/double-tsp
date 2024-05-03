@@ -197,3 +197,18 @@ auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
     return {cycle1, cycle2};
 
 }
+
+auto TSP::local_search(std::vector<int> cycle1, std::vector<int> cycle2) -> std::tuple<std::vector<int>, std::vector<int>>
+{
+    bool vertex;
+    if (params.movements_type == "edge"){
+        vertex = false;
+    }else{
+        vertex = true;
+    }
+
+    main_search(params.steepest, vertex);
+
+    return {cycle1, cycle2};
+
+}

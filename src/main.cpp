@@ -31,6 +31,8 @@ AlgType choose_algo(std::string algo){
         return AlgType::random_walk;
     } else if ( algo == "multiple_search"){
         return AlgType::multiple_local_search;
+    } else if ( algo == "iswd1"){
+        return AlgType::iswd1;
     }else {
         std::cerr << "Invalid algorithm type. Please choose from [nearest, expansion, regret, local]" << std::endl;
         exit(1);

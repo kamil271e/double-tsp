@@ -28,12 +28,13 @@ enum class AlgType {
     regret,
     local,
     random_walk,
-    multiple_local_search
+    multiple_local_search,
+    iswd1
 };
 
 struct LocalSearchParams {
     std::string input_data; // random, regret
-    std::string movements_type; // inner, inter
+    std::string movements_type; // vertex, edge
     std::string filename; // name of the file
     int steepest; // greedy(0), steepest(1)
     int num_starts = 100; // number of starts for multiple local search
@@ -76,6 +77,8 @@ private:
 
     // LOCAL SEARCH
     auto local_search() -> std::tuple<std::vector<int>, std::vector<int>>;
+    auto local_search(std::vector<int>, std::vector<int>) -> std::tuple<std::vector<int>, std::vector<int>>;
+
     auto random_walk() -> std::tuple<std::vector<int>, std::vector<int>>;
     void inner_class_search(std::vector<int>&, bool);
     void inter_class_search(bool);
@@ -98,6 +101,9 @@ private:
     int calculate_objective(const std::vector<int>&, const std::vector<int>&);
     // Temporary solution to the problem of duplicate vertices in the cycle
     auto delete_duplicates(const std::vector<int>&) -> std::vector<int>;
+    auto iterative_local_search_one() -> std::tuple<std::vector<int>, std::vector<int>>;
+    auto perturbation_one(std::vector<int>& , std::vector<int>& ) -> std::tuple<std::vector<int>, std::vector<int>>;
+    double calculateAverage(const std::string&);
 
 };
 #endif // TSP_H
