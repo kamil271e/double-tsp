@@ -233,7 +233,7 @@ auto TSP::iterative_local_search_two() -> std::tuple<std::vector<int>, std::vect
 
     //Find avarage value of MSLS time
     // long long avg_time = calculateAverage("/home/wladyka/Study/IMO/double-tsp/cycles/T_multiple_search_regret_vertex_steepest_kroA200.txt");
-    long long avg_time = calculateAverage("/home/kamil/Desktop/git/double-tsp/cycles/T_multiple_search_regret_vertex_steepest_kroA100.txt");
+    long long avg_time = calculateAverage("/home/kamil/Desktop/git/double-tsp/cycles/T_multiple_search_regret_vertex_steepest_kroA200.txt");
     std::chrono::milliseconds duration(avg_time);
     auto avg_time_in_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(duration);
     auto target_time = std::chrono::steady_clock::now() + avg_time_in_milliseconds;
@@ -244,7 +244,6 @@ auto TSP::iterative_local_search_two() -> std::tuple<std::vector<int>, std::vect
     //I'm not sure about this line, as I don't understand what the option means 
     std::tie(cycle_x1, cycle_x2) = local_search(cycle_x1, cycle_x2);
     //Create loop, where avg_time is the stop condition
-    std::cout << "LEN: " << calculate_objective(cycle_x1, cycle_x2) << std::endl;
 
     while(std::chrono::steady_clock::now() < target_time)
     {
@@ -266,7 +265,6 @@ auto TSP::iterative_local_search_two() -> std::tuple<std::vector<int>, std::vect
             cycle_x2 = cycle_y2;
         }
     }
-    std::cout << "LEN: " << calculate_objective(cycle_x1, cycle_x2) << std::endl;
 
     auto end_time = std::chrono::high_resolution_clock::now();
     auto operating_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
