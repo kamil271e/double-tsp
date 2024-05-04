@@ -77,69 +77,44 @@ auto TSP::iterative_local_search_one() -> std::tuple<std::vector<int>, std::vect
 
     }
     else if(params.input_data == "regret") {
-        std::cout << "Regret" << std::endl;
         std::tie(cycle_x1, cycle_x2) = find_greedy_cycles_regret();
     }
 
-
     //Find avarage value of MSLS time
-    long long avg_time = calculateAverage("/home/wladyka/Study/IMO/double-tsp/cycles/T_multiple_search_regret_vertex_steepest_kroA100.txt");
+    long long avg_time = calculateAverage("/home/wladyka/Study/IMO/double-tsp/cycles/T_multiple_search_regret_vertex_steepest_kroA200.txt");
     std::chrono::milliseconds duration(avg_time);
     auto avg_time_in_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(duration);
     auto target_time = std::chrono::steady_clock::now() + avg_time_in_milliseconds;
 
+    auto start_time = std::chrono::high_resolution_clock::now();
+
     //x := Local search (x)
     std::tie(cycle_x1, cycle_x2) = local_search(cycle_x1, cycle_x2);
-
     //Create loop, where avg_time is the stop condition
     while(std::chrono::steady_clock::now() < target_time)
     {
         // y := x
         cycle_y1 = cycle_x1;
         cycle_y2 = cycle_x2;
-
-        std::cout << "y := x" << std::endl;
-        std::cout << "Cycle 1: ";
-        for (int i = 0; i < cycle_y1.size(); ++i) {
-            std::cout << cycle_y1[i] << " ";
-        }
-        std::cout << std::endl;
-        std::cout << "Cycle 2: ";
-        for (int i = 0; i < cycle_y2.size(); ++i) {
-            std::cout << cycle_y2[i] << " ";
-        }
-        std::cout << std::endl;
-
        
-
         // Perturbation (y)
         std::tie(cycle_y1, cycle_y2) = perturbation_one(cycle_y1, cycle_y2);
-
-        
-        std::cout << "Perturbation (y)" << std::endl;
-        std::cout << "Cycle 1: ";
-        for (int i = 0; i < cycle_y1.size(); ++i) {
-            std::cout << cycle_y1[i] << " ";
-        }
-        std::cout << std::endl;
-        std::cout << "Cycle 2: ";
-        for (int i = 0; i < cycle_y2.size(); ++i) {
-            std::cout << cycle_y2[i] << " ";
-        }
-        std::cout << std::endl;
-        //break;
 
         // y := Local search (y)
         std::tie(cycle_y1, cycle_y2) = local_search(cycle_y1, cycle_y2);
 
         
         // If f(y) > f(x) then x := y
-        if (calculate_objective(cycle_y1, cycle_y2) > calculate_objective(cycle_x1, cycle_x2))
+        if (calculate_objective(cycle_y1, cycle_y2) < calculate_objective(cycle_x1, cycle_x2))
         {
             cycle_x1 = cycle_y1;
             cycle_x2 = cycle_y2;
         }
     }
+
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto operating_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
+    save_time(operating_time, params, "iswd1");
 
     return {cycle_x1, cycle_x2};
 }
@@ -147,11 +122,10 @@ auto TSP::iterative_local_search_one() -> std::tuple<std::vector<int>, std::vect
 auto TSP::perturbation_one(std::vector<int> &c1, std::vector<int> &c2) -> std::tuple<std::vector<int>, std::vector<int>>
 {
 
-
     // Randomly select the number of vertices to be replaced
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<int> num_vertices_dist(1, c1.size() / 16);
+    std::uniform_int_distribution<int> num_vertices_dist(1, c1.size() / 8);
     int num_vertices = num_vertices_dist(gen);
 
     // Randomly select the vertices to be replaced
@@ -164,49 +138,40 @@ auto TSP::perturbation_one(std::vector<int> &c1, std::vector<int> &c2) -> std::t
         }
     }
 
-    // Initialize the movement vector with the selected vertices
-    int movement_type;
-    int vertex;
-
-    //Print selected vertices
-    std::cout << "Selected vertices: ";
-    for (int i = 0; i < vertices.size(); ++i) {
-        std::cout << vertices[i] << " ";
-    }
-    std::cout << std::endl;
-
     // Replace the selected vertices with random vertices with the random movement type
     for (int i = 0; i < vertices.size(); ++i) {
+        
         // Randomly select the vertex to be replaced
-        vertex = vertex_dist(gen);
-        //Print selected vertex
-        std::cout << "Selected vertex: " << vertex << std::endl;
-
+        int j = vertex_dist(gen);
+       
         //Create random movement edge or vertex (0 or 1)
         std::uniform_int_distribution<int> movement_type_dist(0, 1);
-        movement_type = movement_type_dist(gen);
+        int movement_type = movement_type_dist(gen);
     
-        //Check if the vertices are in the same сycle
-        auto& cycle = std::find(c1.begin(), c1.end(), vertex) != c1.end() ? c1 : c2;
+        // Find the cycle in which the selected vertex is located
+        auto& num_cycle_i = std::find(c1.begin(), c1.end(), vertices[i]) != c1.end() ? c1 : c2;
+        auto& num_cycle_j = std::find(c1.begin(), c1.end(), j) != c1.end() ? c1 : c2;
 
-        if (std::find(cycle.begin(), cycle.end(), vertex) != cycle.end()) { //Update the cycle (inner class)
-            if (movement_type == 0){ // edge
-                std::reverse(cycle.begin() + i, cycle.begin() + vertex + 1);
-            } else { // vertex
-                std::swap(cycle[i], cycle[vertex]);
+        //Find index of selected vertex
+        int idx_i = std::find(num_cycle_i.begin(), num_cycle_i.end(), vertices[i]) - num_cycle_i.begin();
+        int idx_j = std::find(num_cycle_j.begin(), num_cycle_j.end(), j) - num_cycle_j.begin();
+
+        if (vertices[i] != j){
+            // Check if the selected vertex is in the same num_cycle_j
+            if (std::find(num_cycle_j.begin(), num_cycle_j.end(), j) != num_cycle_j.end() && std::find(num_cycle_j.begin(), num_cycle_j.end(), vertices[i]) != num_cycle_j.end()) { 
+                //Update the num_cycle_j (inner class)
+                if (movement_type == 0){ // edge
+                    std::reverse(num_cycle_j.begin() + idx_i, num_cycle_j.begin() + idx_j + 1);
+                } else { // vertex
+                    std::swap(num_cycle_j[idx_i], num_cycle_j[idx_j]);
+                }
             }
-
-        }
-        else //Update the cycles(inter class)
-        {
-            int temp = c1[i];
-            c1[i] = c2[vertex];
-            c2[vertex] = temp;
-        }
-        {
-            int temp = c1[i];
-            c1[i] = c2[vertex];
-            c2[vertex] = temp;
+            else //Update the cycles(inter class)
+            {
+                int temp = c1[idx_i];
+                c1[idx_i] = c2[idx_j];
+                c2[idx_j] = temp;
+            }
         }
         
     }

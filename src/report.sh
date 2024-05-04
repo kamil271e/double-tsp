@@ -55,8 +55,8 @@ g++ -o main.out main.cpp matrix.cpp tsp.cpp greedy.cpp local_search.cpp local_se
 
 for ((i=1; i<=$N; i++)); do
     cpp_output=$(./main.out "$instance_path" "$algotype" "$input_data" "$movements_type" "$steepest")
-    echo "$cpp_output" #>> "$cycles_file"
-    #python utils/cycle_lengths.py "$instance_path" "$cpp_output" >> "$cycles_len_file"
+    echo "$cpp_output" >> "$cycles_file"
+    python utils/cycle_lengths.py "$instance_path" "$cpp_output" >> "$cycles_len_file"
 done
 
 rm main.out
