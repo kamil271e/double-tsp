@@ -46,6 +46,7 @@ auto TSP::multiple_local_search() -> std::tuple<std::vector<int>, std::vector<in
     return {best_cycle1, best_cycle2};
 }
 
+
 // Temporary solution to the problem of duplicate vertices in the cycle
 // Function to delete duplicate vertices in the cycle
 auto TSP::delete_duplicates(const std::vector<int>& cycle) -> std::vector<int>
@@ -83,7 +84,6 @@ auto TSP::iterative_local_search_one() -> std::tuple<std::vector<int>, std::vect
     std::vector<int> cycle_x1, cycle_x2;
     std::vector<int> cycle_y1, cycle_y2;
 
-
     //Generate the initial solution x
      if (params.input_data == "random") {
         std::tie(cycle_x1, cycle_x2) = generate_random_cycles(100);
@@ -103,8 +103,6 @@ auto TSP::iterative_local_search_one() -> std::tuple<std::vector<int>, std::vect
 
     //x := Local search (x)
     std::tie(cycle_x1, cycle_x2) = local_search(cycle_x1, cycle_x2);
-
-   
 
     //Create loop, where avg_time is the stop condition
     while(std::chrono::steady_clock::now() < target_time)
@@ -128,10 +126,10 @@ auto TSP::iterative_local_search_one() -> std::tuple<std::vector<int>, std::vect
        
 
         // Perturbation (y)
-        std::tie(cycle_y1, cycle_y2) = perturbation_one(cycle_y1, cycle_y2);
+        perturbation_one(cycle_y1, cycle_y2);
+        std::tie(cycle_y1, cycle_y2) = {cycle1, cycle2};
 
         
-
         std::cout << "Perturbation (y)" << std::endl;
         std::cout << "Cycle 1: ";
         for (int i = 0; i < cycle_y1.size(); ++i) {
@@ -143,7 +141,7 @@ auto TSP::iterative_local_search_one() -> std::tuple<std::vector<int>, std::vect
             std::cout << cycle_y2[i] << " ";
         }
         std::cout << std::endl;
-        break;
+        //break;
 
         // y := Local search (y)
         std::tie(cycle_y1, cycle_y2) = local_search(cycle_y1, cycle_y2);
@@ -164,14 +162,18 @@ auto TSP::iterative_local_search_one() -> std::tuple<std::vector<int>, std::vect
 auto TSP::perturbation_one(std::vector<int> &cycle1, std::vector<int> &cycle2) -> std::tuple<std::vector<int>, std::vector<int>>
 {
 
-    
+
     // Randomly select the number of vertices to be replaced
-    int num_vertices = rand() % (cycle1.size() / 8) + 1;
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<int> num_vertices_dist(1, cycle1.size() / 8);
+    int num_vertices = num_vertices_dist(gen);
 
     // Randomly select the vertices to be replaced
     std::vector<int> vertices;
-    for (int i = 0; i < num_vertices; ++i) {
-        int vertex = rand() % dist_matrix.x_coord.size();
+    std::uniform_int_distribution<int> vertex_dist(0, dist_matrix.x_coord.size() - 1);
+    while (vertices.size() < num_vertices) {
+        int vertex = vertex_dist(gen);
         if (std::find(vertices.begin(), vertices.end(), vertex) == vertices.end()) {
             vertices.push_back(vertex);
         }
@@ -183,14 +185,23 @@ auto TSP::perturbation_one(std::vector<int> &cycle1, std::vector<int> &cycle2) -
     int movement_type;
     int vertex;
 
+    //Print selected vertices
+    std::cout << "Selected vertices: ";
+    for (int i = 0; i < vertices.size(); ++i) {
+        std::cout << vertices[i] << " ";
+    }
+    std::cout << std::endl;
+
     // Replace the selected vertices with random vertices with the random movement type
     for (int i = 0; i < vertices.size(); ++i) {
-        
         // Randomly select the vertex to be replaced
-        vertex = rand() % dist_matrix.x_coord.size();
+        vertex = vertex_dist(gen);
+        //Print selected vertex
+        std::cout << "Selected vertex: " << vertex << std::endl;
 
-        //Create random movement inter or inner (0 or 1)
-        movement_type = rand() % 2;
+        //Create random movement edge or vertex (0 or 1)
+        std::uniform_int_distribution<int> movement_type_dist(0, 1);
+        movement_type = movement_type_dist(gen);
     
         //Check if the vertices are in the same сycle
         if (std::find(cycle1.begin(), cycle1.end(), vertex) != cycle1.end() || std::find(cycle2.begin(), cycle2.end(), vertex) != cycle2.end())
@@ -207,39 +218,21 @@ auto TSP::perturbation_one(std::vector<int> &cycle1, std::vector<int> &cycle2) -
         apply_movement(movement, cycle_num);
     }
 
-    
+    //Print new cycle
+    // std::cout << "New cycle 1: ";
+    // for (int i = 0; i < cycle1.size(); ++i) {
+    //     std::cout << cycle1[i] << " ";
+    // }
+    // std::cout << std::endl;
+    // std::cout << "New cycle 2: ";
+    // for (int i = 0; i < cycle2.size(); ++i) {
+    //     std::cout << cycle2[i] << " ";
+    // }
+    // std::cout << std::endl;
+
 
     return {cycle1, cycle2};
 
 }
 
 
-double TSP::calculateAverage(const std::string& filename) {
-    std::ifstream file(filename);
-    if (!file.is_open()) {
-        std::cerr << "Error opening file: " << filename << std::endl;
-        return 0.0; // Or handle the error in some other way
-    }
-
-    std::string line;
-    double sum = 0.0;
-    int count = 0;
-
-    while (std::getline(file, line)) {
-        std::istringstream iss(line);
-        double value;
-        while (iss >> value) {
-            sum += value;
-            count++;
-        }
-    }
-
-    file.close();
-
-    if (count == 0) {
-        std::cerr << "No values found in the file." << std::endl;
-        return 0.0; // Or handle this case in some other way
-    }
-
-    return sum / count;
-}
