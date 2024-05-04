@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "../lib/tsp.h"
 
 
@@ -198,8 +200,10 @@ auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
 
 }
 
-auto TSP::local_search(std::vector<int> cycle1, std::vector<int> cycle2) -> std::tuple<std::vector<int>, std::vector<int>>
+auto TSP::local_search(std::vector<int> c1, std::vector<int> c2) -> std::tuple<std::vector<int>, std::vector<int>>
 {
+    cycle1 = std::move(c1);
+    cycle2 = std::move(c2);
     bool vertex;
     if (params.movements_type == "edge"){
         vertex = false;

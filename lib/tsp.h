@@ -79,26 +79,26 @@ private:
     auto local_search() -> std::tuple<std::vector<int>, std::vector<int>>;
     auto local_search(std::vector<int>, std::vector<int>) -> std::tuple<std::vector<int>, std::vector<int>>;
 
-    auto random_walk() -> std::tuple<std::vector<int>, std::vector<int>>;
-    void inner_class_search(std::vector<int>&, bool);
-    void inter_class_search(bool);
-    auto generate_all_edge_movements(int) -> std::vector<std::vector<int>>;
-    auto generate_all_vertex_movements(int) -> std::vector<std::vector<int>>;
-    auto generate_all_vertex_movements_inter(int) -> std::vector<std::vector<int>>;
+    // auto random_walk() -> std::tuple<std::vector<int>, std::vector<int>>;
+    // void inner_class_search(std::vector<int>&, bool);
+    // void inter_class_search(bool);
+    static auto generate_all_edge_movements(int) -> std::vector<std::vector<int>>;
+    static auto generate_all_vertex_movements(int) -> std::vector<std::vector<int>>;
+    static auto generate_all_vertex_movements_inter(int) -> std::vector<std::vector<int>>;
     auto generate_random_cycles(int) -> std::tuple<std::vector<int>, std::vector<int>>;
-    int get_objective_value(const std::vector<int>&, std::vector<int>);                 // inner class
-    int get_objective_value(std::vector<int>);                                          // inter class
+    // int get_objective_value(const std::vector<int>&, std::vector<int>);                 // inner class
+    // int get_objective_value(std::vector<int>);                                          // inter class
     void update_cycle(const std::vector<int>&, std::vector<int>&);                      // inner class
     void update_cycles(std::vector<int>);                                               // inter class
-    void random_walk_inner(std::vector<int>, int);
-    void random_walk_inter(int);
+    // void random_walk_inner(std::vector<int>, int);
+    // void random_walk_inter(int);
     void apply_movement(const std::vector<int> &, int );
     void main_search(bool, bool);
     auto get_delta(std::vector<int> movement) ->  std::tuple<int,int>;
 
     // LOCAL SEARCH EXTENSION
     auto multiple_local_search() -> std::tuple<std::vector<int>, std::vector<int>>;
-    int calculate_objective(const std::vector<int>&, const std::vector<int>&);
+    int calculate_objective();
     // Temporary solution to the problem of duplicate vertices in the cycle
     auto delete_duplicates(const std::vector<int>&) -> std::vector<int>;
     auto iterative_local_search_one() -> std::tuple<std::vector<int>, std::vector<int>>;

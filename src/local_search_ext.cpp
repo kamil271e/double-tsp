@@ -46,20 +46,6 @@ auto TSP::multiple_local_search() -> std::tuple<std::vector<int>, std::vector<in
     return {best_cycle1, best_cycle2};
 }
 
-// Function to calculate objective value of the cycle
-int TSP::calculate_objective(const std::vector<int>& cycle1, const std::vector<int>& cycle2)
-{
-    int objective_value = 0;
-    for (size_t i = 0; i < cycle1.size(); ++i) {
-        objective_value += dist_matrix.dist_matrix[cycle1[i]][cycle1[(i + 1) % cycle1.size()]];
-        objective_value += dist_matrix.dist_matrix[cycle2[i]][cycle2[(i + 1) % cycle2.size()]];
-    }
-   
-    return objective_value;
-
-}
-
-
 // Temporary solution to the problem of duplicate vertices in the cycle
 // Function to delete duplicate vertices in the cycle
 auto TSP::delete_duplicates(const std::vector<int>& cycle) -> std::vector<int>
