@@ -75,6 +75,7 @@ private:
     double get_expansion_cost(int, int, int);
     std::pair<int, int> find_nearest_neighbor(int, int, const std::vector<bool>&);
     std::pair<int, double> get_2regret(int, std::vector<int>, float=0.42);
+    std::tuple<std::vector<int>, std::vector<int>> find_greedy_cycles_regrest_from_incomplete(std::vector<int>&, std::vector<int>&) ;
 
     // LOCAL SEARCH
     auto local_search() -> std::tuple<std::vector<int>, std::vector<int>>;

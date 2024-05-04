@@ -116,7 +116,7 @@ auto TSP::iterative_local_search_one() -> std::tuple<std::vector<int>, std::vect
 
     auto end_time = std::chrono::high_resolution_clock::now();
     auto operating_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
-    save_time(operating_time, params, "iswd1");
+    save_time(operating_time, params, "ils1");
     std::cout << "LEN: " << calculate_objective(cycle_x1, cycle_x2) << std::endl;
     return {cycle_x1, cycle_x2};
 }
@@ -202,6 +202,20 @@ Repeat
 To meet the stop conditions
 */
 
+void display_temp(std::vector<int> &c1, std::vector<int> &c2){
+    std::cout << "TSP Cycle 1: ";
+    for (size_t vertex : c1) {
+        std::cout << vertex + 1 << " ";
+    }
+    std::cout << std::endl;
+
+    std::cout << "TSP Cycle 2: ";
+    for (size_t vertex : c2) {
+        std::cout << vertex + 1 << " ";
+    }
+    std::cout << std::endl;
+    std::cout << "---------------------------------------------------" << std::endl;
+}
 
 auto TSP::iterative_local_search_two() -> std::tuple<std::vector<int>, std::vector<int>>
 {
@@ -230,17 +244,15 @@ auto TSP::iterative_local_search_two() -> std::tuple<std::vector<int>, std::vect
     //I'm not sure about this line, as I don't understand what the option means 
     std::tie(cycle_x1, cycle_x2) = local_search(cycle_x1, cycle_x2);
     //Create loop, where avg_time is the stop condition
+    std::cout << "LEN: " << calculate_objective(cycle_x1, cycle_x2) << std::endl;
+
     while(std::chrono::steady_clock::now() < target_time)
     {
         // y := x
         cycle_y1 = cycle_x1;
         cycle_y2 = cycle_x2;
 
-        //TODO: Destroy (y) 
         std::tie(cycle_y1, cycle_y2) = destroy_perturbation(cycle_y1, cycle_y2);
-
-        exit(0);
-        //TODO: Repair (y)
         std::tie(cycle_y1, cycle_y2) = repair_perturbation(cycle_y1, cycle_y2);
 
         // y := Local search (y)  (option)
@@ -254,27 +266,13 @@ auto TSP::iterative_local_search_two() -> std::tuple<std::vector<int>, std::vect
             cycle_x2 = cycle_y2;
         }
     }
+    std::cout << "LEN: " << calculate_objective(cycle_x1, cycle_x2) << std::endl;
 
     auto end_time = std::chrono::high_resolution_clock::now();
     auto operating_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
     save_time(operating_time, params, "ils2");
 
     return {cycle_x1, cycle_x2};
-}
-
-void display_temp(std::vector<int> &c1, std::vector<int> &c2){
-    std::cout << "TSP Cycle 1: ";
-    for (size_t vertex : c1) {
-        std::cout << vertex + 1 << " ";
-    }
-    std::cout << std::endl;
-
-    std::cout << "TSP Cycle 2: ";
-    for (size_t vertex : c2) {
-        std::cout << vertex + 1 << " ";
-    }
-    std::cout << std::endl;
-    std::cout << "---------------------------------------------------" << std::endl;
 }
 
 
@@ -288,30 +286,12 @@ auto TSP::destroy_perturbation(std::vector<int> &c1, std::vector<int> &c2) -> st
 
     int index1 = dist(gen);
     int index2 = dist(gen);
-    std::cout << std::endl;
-    std::cout << std::endl;
-    std::cout << "Index1: " << index1 << " Index2: " << index2 << std::endl;
-    std::cout << "Value1: " << c1[index1]+1 << " Value2: " << c2[index2]+1 << std::endl;
-    std::cout << std::endl;
-    std::cout << std::endl;
-
-//    int range1 = (int)(c1.size() * 0.3);
-//    int range2 = (int)(c2.size() * 0.3);
-//
-//    c1.erase(c1.begin() + index1, c1.begin() + std::min(index1 + range1, (int)c1.size()));
-//    c2.erase(c2.begin() + index2, c2.begin() + std::min(index2 + range2, (int)c2.size()));
 
     int size1 = static_cast<int>(c1.size());
     int size2 = static_cast<int>(c2.size());
 
     int range1 = static_cast<int>(size1 * coef);
     int range2 = static_cast<int>(size2 * coef);
-
-    // Adjust range for edge case
-//    range1 = std::min(range1, size1 - index1);
-//    range2 = std::min(range2, size2 - index2);
-//    c1.erase(c1.begin() + index1, c1.begin() + index1 + range1);
-//    c2.erase(c2.begin() + index2, c2.begin() + index2 + range2);
 
     int delete_start1, delete_start2;
     int delete_end1, delete_end2;
@@ -332,16 +312,6 @@ auto TSP::destroy_perturbation(std::vector<int> &c1, std::vector<int> &c2) -> st
         delete_end2 = range2;
     }
 
-    std::cout << std::endl;
-    std::cout << std::endl;
-    std::cout << "Range1: " << range1 << " Range2: " << range2 << std::endl;
-    std::cout << "delete_start1: " << delete_start1 << " delete_end1: " << delete_end1 << std::endl;
-    std::cout << "delete_start2: " << delete_start2 << " delete_end2: " << delete_end2 << std::endl;
-    std::cout << std::endl;
-    std::cout << std::endl;
-
-    display_temp(c1, c2);
-
     c1.erase(c1.begin() + index1, c1.begin() + index1 + delete_end1);
     if (delete_start1 > 0) {
         c1.erase(c1.begin(), c1.begin() + delete_start1);
@@ -352,16 +322,12 @@ auto TSP::destroy_perturbation(std::vector<int> &c1, std::vector<int> &c2) -> st
         c2.erase(c2.begin(), c2.begin() + delete_start2);
     }
 
-    display_temp(c1, c2);
-
     return {c1, c2};
 }
 
 
 auto TSP::repair_perturbation(std::vector<int> &c1, std::vector<int> &c2) -> std::tuple<std::vector<int>, std::vector<int>>
 {
-    
-    //TODO: implement repair perturbation
-
+    find_greedy_cycles_regrest_from_incomplete(c1, c2);
     return {c1, c2};
 }
