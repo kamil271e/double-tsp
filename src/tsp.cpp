@@ -60,18 +60,6 @@ int TSP::find_farthest(int node) {
     return farthest_node;
 }
 
-// Function to calculate objective value of the cycle
-int TSP::calculate_objective()
-{
-    int objective_value = 0;
-    for (size_t i = 0; i < cycle1.size(); ++i) {
-        objective_value += dist_matrix.dist_matrix[cycle1[i]][cycle1[(i + 1) % cycle1.size()]];
-        objective_value += dist_matrix.dist_matrix[cycle2[i]][cycle2[(i + 1) % cycle2.size()]];
-    }
-
-    return objective_value;
-
-}
 
 int TSP::calc_distance(int v1, int v2) {
     return std::sqrt(std::pow(dist_matrix.x_coord[v2] - dist_matrix.x_coord[v1], 2) +
@@ -192,12 +180,12 @@ double TSP::calculateAverage(const std::string& filename) {
 }
 
 // Function to calculate objective value of the cycle
-int TSP::calculate_objective(const std::vector<int>& cycle1, const std::vector<int>& cycle2)
+int TSP::calculate_objective(const std::vector<int>& c1, const std::vector<int>& c2)
 {
     int objective_value = 0;
-    for (size_t i = 0; i < cycle1.size(); ++i) {
-        objective_value += dist_matrix.dist_matrix[cycle1[i]][cycle1[(i + 1) % cycle1.size()]];
-        objective_value += dist_matrix.dist_matrix[cycle2[i]][cycle2[(i + 1) % cycle2.size()]];
+    for (size_t i = 0; i < c1.size(); ++i) {
+        objective_value += dist_matrix.dist_matrix[c1[i]][c1[(i + 1) % c1.size()]];
+        objective_value += dist_matrix.dist_matrix[c2[i]][c2[(i + 1) % c2.size()]];
     }
    
     return objective_value;

@@ -47,19 +47,6 @@ auto TSP::multiple_local_search() -> std::tuple<std::vector<int>, std::vector<in
 }
 
 
-// Temporary solution to the problem of duplicate vertices in the cycle
-// Function to delete duplicate vertices in the cycle
-auto TSP::delete_duplicates(const std::vector<int>& cycle) -> std::vector<int>
-{
-    std::vector<int> new_cycle;
-    for (int i = 0; i < cycle.size(); ++i) {
-        if (std::find(new_cycle.begin(), new_cycle.end(), cycle[i]) == new_cycle.end()) {
-            new_cycle.push_back(cycle[i]);
-        }
-    }
-    return new_cycle;
-}
-
 /*
 Iterative local search with little perturbation. Perturbation1 (ILS1) can involve, for example, replacing several edges and/or vertices with others selected at random. The stop condition for ILSx is to reach a time equal to the average MSLS time for the same instance.
 
@@ -126,8 +113,7 @@ auto TSP::iterative_local_search_one() -> std::tuple<std::vector<int>, std::vect
        
 
         // Perturbation (y)
-        perturbation_one(cycle_y1, cycle_y2);
-        std::tie(cycle_y1, cycle_y2) = {cycle1, cycle2};
+        std::tie(cycle_y1, cycle_y2) = perturbation_one(cycle_y1, cycle_y2);
 
         
         std::cout << "Perturbation (y)" << std::endl;
@@ -147,7 +133,6 @@ auto TSP::iterative_local_search_one() -> std::tuple<std::vector<int>, std::vect
         std::tie(cycle_y1, cycle_y2) = local_search(cycle_y1, cycle_y2);
 
         
-
         // If f(y) > f(x) then x := y
         if (calculate_objective(cycle_y1, cycle_y2) > calculate_objective(cycle_x1, cycle_x2))
         {
@@ -159,14 +144,14 @@ auto TSP::iterative_local_search_one() -> std::tuple<std::vector<int>, std::vect
     return {cycle_x1, cycle_x2};
 }
 
-auto TSP::perturbation_one(std::vector<int> &cycle1, std::vector<int> &cycle2) -> std::tuple<std::vector<int>, std::vector<int>>
+auto TSP::perturbation_one(std::vector<int> &c1, std::vector<int> &c2) -> std::tuple<std::vector<int>, std::vector<int>>
 {
 
 
     // Randomly select the number of vertices to be replaced
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<int> num_vertices_dist(1, cycle1.size() / 8);
+    std::uniform_int_distribution<int> num_vertices_dist(1, c1.size() / 16);
     int num_vertices = num_vertices_dist(gen);
 
     // Randomly select the vertices to be replaced
@@ -180,8 +165,6 @@ auto TSP::perturbation_one(std::vector<int> &cycle1, std::vector<int> &cycle2) -
     }
 
     // Initialize the movement vector with the selected vertices
-    std::vector<int> movement;
-    int cycle_num = -1;
     int movement_type;
     int vertex;
 
@@ -204,34 +187,31 @@ auto TSP::perturbation_one(std::vector<int> &cycle1, std::vector<int> &cycle2) -
         movement_type = movement_type_dist(gen);
     
         //Check if the vertices are in the same сycle
-        if (std::find(cycle1.begin(), cycle1.end(), vertex) != cycle1.end() || std::find(cycle2.begin(), cycle2.end(), vertex) != cycle2.end())
-        {
-            //Find the cycle number
-            cycle_num = (std::find(cycle2.begin(), cycle2.end(), vertex) != cycle2.end()) ? 1 : 0;
-            movement = {i, vertex, 0, movement_type, cycle_num};
+        auto& cycle = std::find(c1.begin(), c1.end(), vertex) != c1.end() ? c1 : c2;
+
+        if (std::find(cycle.begin(), cycle.end(), vertex) != cycle.end()) { //Update the cycle (inner class)
+            if (movement_type == 0){ // edge
+                std::reverse(cycle.begin() + i, cycle.begin() + vertex + 1);
+            } else { // vertex
+                std::swap(cycle[i], cycle[vertex]);
+            }
+
         }
-        else
+        else //Update the cycles(inter class)
         {
-            movement = {i, vertex, 1, movement_type};
+            int temp = c1[i];
+            c1[i] = c2[vertex];
+            c2[vertex] = temp;
+        }
+        {
+            int temp = c1[i];
+            c1[i] = c2[vertex];
+            c2[vertex] = temp;
         }
         
-        apply_movement(movement, cycle_num);
     }
 
-    //Print new cycle
-    // std::cout << "New cycle 1: ";
-    // for (int i = 0; i < cycle1.size(); ++i) {
-    //     std::cout << cycle1[i] << " ";
-    // }
-    // std::cout << std::endl;
-    // std::cout << "New cycle 2: ";
-    // for (int i = 0; i < cycle2.size(); ++i) {
-    //     std::cout << cycle2[i] << " ";
-    // }
-    // std::cout << std::endl;
-
-
-    return {cycle1, cycle2};
+    return {c1, c2};
 
 }
 
