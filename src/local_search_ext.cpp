@@ -180,4 +180,98 @@ auto TSP::perturbation_one(std::vector<int> &c1, std::vector<int> &c2) -> std::t
 
 }
 
+/*
+Iterative local search with Large-scale neighborhood search, i.e., a larger Destroy-Repair perturbation.
 
+Perturbation2 (ILS2) should involve removing more edges and vertices (e.g., 30%) (destroy) and fixing the solution using a heuristic method, one of those implemented in the first lesson. The vertices/edges to be removed can be chosen randomly or heuristically, such as those that are close to the second cycle. We also test this version without a local search (only subject the initial solution to a local search, as long as the starting solution was random) The stop condition for ILSx is to reach a time equal to the average MSLS time for the same instance.
+
+Attention , one run of MSLS includes 100 iterations of LS, and the the final result is the best solution obtained in those 100 runs. The starting solution can be a random solution or one obtained using a randomized heuristic.
+
+Pseudo code:
+
+Generate the initial solution x
+x := Local search (x) (option)
+Repeat
+    y := x
+    Destroy (y)
+    Repair (y)
+    y := Local search (y) (option)
+    If f(y) > f(x) then
+         x := y
+To meet the stop conditions
+*/
+
+
+auto TSP::iterative_local_search_two() -> std::tuple<std::vector<int>, std::vector<int>>
+{
+    std::vector<int> cycle_x1, cycle_x2;
+    std::vector<int> cycle_y1, cycle_y2;
+
+    //Generate the initial solution x
+     if (params.input_data == "random") {
+        std::tie(cycle_x1, cycle_x2) = generate_random_cycles(100);
+
+    }
+    else if(params.input_data == "regret") {
+        std::tie(cycle_x1, cycle_x2) = find_greedy_cycles_regret();
+    }
+
+    //Find avarage value of MSLS time
+    long long avg_time = calculateAverage("/home/wladyka/Study/IMO/double-tsp/cycles/T_multiple_search_regret_vertex_steepest_kroA200.txt");
+    std::chrono::milliseconds duration(avg_time);
+    auto avg_time_in_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(duration);
+    auto target_time = std::chrono::steady_clock::now() + avg_time_in_milliseconds;
+
+    auto start_time = std::chrono::high_resolution_clock::now();
+
+    //?????? x := Local search (x) (option) ????? 
+    //I'm not sure about this line, as I don't understand what the option means 
+    std::tie(cycle_x1, cycle_x2) = local_search(cycle_x1, cycle_x2);
+    //Create loop, where avg_time is the stop condition
+    while(std::chrono::steady_clock::now() < target_time)
+    {
+        // y := x
+        cycle_y1 = cycle_x1;
+        cycle_y2 = cycle_x2;
+
+        //TODO: Destroy (y) 
+        std::tie(cycle_y1, cycle_y2) = destroy_perturbation(cycle_y1, cycle_y2);
+
+        //TODO: Repair (y)
+        std::tie(cycle_y1, cycle_y2) = repair_perturbation(cycle_y1, cycle_y2);
+
+        // y := Local search (y)  (option)
+        //I'm not sure about this line, as I don't understand what the option means 
+        std::tie(cycle_y1, cycle_y2) = local_search(cycle_y1, cycle_y2);
+
+        // If f(y) > f(x) then x := y
+        if (calculate_objective(cycle_y1, cycle_y2) < calculate_objective(cycle_x1, cycle_x2))
+        {
+            cycle_x1 = cycle_y1;
+            cycle_x2 = cycle_y2;
+        }
+    }
+
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto operating_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
+    save_time(operating_time, params, "ils2");
+
+    return {cycle_x1, cycle_x2};
+
+
+}
+
+auto TSP::destroy_perturbation(std::vector<int> &c1, std::vector<int> &c2) -> std::tuple<std::vector<int>, std::vector<int>>
+{
+    //TODO: implement destroy perturbation
+
+    return {c1, c2};
+}
+
+auto TSP::repair_perturbation(std::vector<int> &c1, std::vector<int> &c2) -> std::tuple<std::vector<int>, std::vector<int>>
+{
+    
+    //TODO: implement repair perturbation
+
+    return {c1, c2};
+}

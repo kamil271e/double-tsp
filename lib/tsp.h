@@ -29,7 +29,8 @@ enum class AlgType {
     local,
     random_walk,
     multiple_local_search,
-    iswd1
+    ils1,
+    ils2
 };
 
 struct LocalSearchParams {
@@ -102,8 +103,12 @@ private:
     // Temporary solution to the problem of duplicate vertices in the cycle
     auto delete_duplicates(const std::vector<int>&) -> std::vector<int>;
     auto iterative_local_search_one() -> std::tuple<std::vector<int>, std::vector<int>>;
+    auto iterative_local_search_two() -> std::tuple<std::vector<int>, std::vector<int>>;
     auto perturbation_one(std::vector<int>& , std::vector<int>& ) -> std::tuple<std::vector<int>, std::vector<int>>;
     double calculateAverage(const std::string&);
+
+    auto destroy_perturbation(std::vector<int> &, std::vector<int> &) -> std::tuple<std::vector<int>, std::vector<int>>;
+    auto repair_perturbation(std::vector<int> &, std::vector<int> &) -> std::tuple<std::vector<int>, std::vector<int>>;
 
 };
 #endif // TSP_H

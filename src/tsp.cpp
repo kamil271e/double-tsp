@@ -23,8 +23,10 @@ auto TSP::solve() -> std::tuple<std::vector<int>, std::vector<int>>{
             return local_search();
         case AlgType::multiple_local_search:
             return multiple_local_search();
-        case AlgType::iswd1:
+        case AlgType::ils1:
             return iterative_local_search_one();
+        case AlgType::ils2:
+            return iterative_local_search_two();
         default:
             // Handle unsupported algorithm type
             break;
