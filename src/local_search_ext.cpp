@@ -16,6 +16,22 @@ Until stop conditions are met
 Return the best solution found
 */
 
+// Util function for debug purposes
+void display(std::vector<int> &c1, std::vector<int> &c2){
+    std::cout << "TSP Cycle 1: ";
+    for (size_t vertex : c1) {
+        std::cout << vertex + 1 << " ";
+    }
+    std::cout << std::endl;
+
+    std::cout << "TSP Cycle 2: ";
+    for (size_t vertex : c2) {
+        std::cout << vertex + 1 << " ";
+    }
+    std::cout << std::endl;
+    std::cout << "---------------------------------------------------" << std::endl;
+}
+
 auto TSP::multiple_local_search() -> std::tuple<std::vector<int>, std::vector<int>>
 {
 
@@ -25,7 +41,7 @@ auto TSP::multiple_local_search() -> std::tuple<std::vector<int>, std::vector<in
 
     auto start_time = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < params.num_starts; ++i) {
-        std::tie(cycle1, cycle2) = local_search();
+        local_search();
         objective_value = calculate_objective(cycle1,cycle2);
         if (objective_value < best_objective_value)
          {
@@ -38,11 +54,7 @@ auto TSP::multiple_local_search() -> std::tuple<std::vector<int>, std::vector<in
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
     save_time(duration, params, "multiple_search");
 
-    //TODO: Find a reason for the duplicate vertices in the cycle
-    // Temporary solution to the problem of duplicate vertices in the cycle
-    best_cycle1 = delete_duplicates(best_cycle1);
-    best_cycle2 = delete_duplicates(best_cycle2);
-    std::cout << "LEN: " << calculate_objective(best_cycle1, best_cycle2) << std::endl;
+    // std::cout << "LEN: " << calculate_objective(best_cycle1, best_cycle2) << std::endl;
     return {best_cycle1, best_cycle2};
 }
 
@@ -201,21 +213,6 @@ Repeat
          x := y
 To meet the stop conditions
 */
-
-void display_temp(std::vector<int> &c1, std::vector<int> &c2){
-    std::cout << "TSP Cycle 1: ";
-    for (size_t vertex : c1) {
-        std::cout << vertex + 1 << " ";
-    }
-    std::cout << std::endl;
-
-    std::cout << "TSP Cycle 2: ";
-    for (size_t vertex : c2) {
-        std::cout << vertex + 1 << " ";
-    }
-    std::cout << std::endl;
-    std::cout << "---------------------------------------------------" << std::endl;
-}
 
 auto TSP::iterative_local_search_two() -> std::tuple<std::vector<int>, std::vector<int>>
 {
