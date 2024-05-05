@@ -92,7 +92,6 @@ auto TSP::iterative_local_search_one() -> std::tuple<std::vector<int>, std::vect
         std::tie(cycle_x1, cycle_x2) = find_greedy_cycles_regret();
     }
 
-    
     // Find avarage value of MSLS time
     
     auto avg_time = calculateAverageMSLStime();
