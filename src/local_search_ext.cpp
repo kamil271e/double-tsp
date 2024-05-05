@@ -1,5 +1,5 @@
 #include "../lib/tsp.h"
-
+#include <unordered_set>
 
 /*
 
@@ -32,9 +32,28 @@ void display(std::vector<int> &c1, std::vector<int> &c2){
     std::cout << "---------------------------------------------------" << std::endl;
 }
 
+// Util function for checking duplicates
+void has_duplicates(std::vector<int>& nums1, std::vector<int>& nums2) {
+    std::vector<int> concatenated = nums1;
+    concatenated.insert(concatenated.end(), nums2.begin(), nums2.end());
+    std::unordered_set<int> unique_nums;
+
+    for (int num : concatenated) {
+        if (unique_nums.find(num) != unique_nums.end()) {
+            std::cout << "Duplicates found" << std::endl;
+            return;
+        }
+        else {
+            unique_nums.insert(num);
+        }
+    }
+    std::cout << "No duplicates found" << std::endl;
+}
+
+
+
 auto TSP::multiple_local_search() -> std::tuple<std::vector<int>, std::vector<int>>
 {
-
     std::vector<int> best_cycle1, best_cycle2;
     int best_objective_value = std::numeric_limits<int>::max();
     int objective_value;
@@ -42,7 +61,7 @@ auto TSP::multiple_local_search() -> std::tuple<std::vector<int>, std::vector<in
     auto start_time = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < params.num_starts; ++i) {
         local_search();
-        objective_value = calculate_objective(cycle1,cycle2);
+        objective_value = calculate_objective(cycle1, cycle2);
         if (objective_value < best_objective_value)
          {
             best_objective_value = objective_value;
@@ -54,6 +73,7 @@ auto TSP::multiple_local_search() -> std::tuple<std::vector<int>, std::vector<in
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
     save_time(duration, params, "msls");
 
+    // has_duplicates(best_cycle1, best_cycle2);
     // std::cout << "LEN: " << calculate_objective(best_cycle1, best_cycle2) << std::endl;
     return {best_cycle1, best_cycle2};
 }
@@ -64,7 +84,7 @@ Iterative local search with little perturbation. Perturbation1 (ILS1) can involv
 
 Attention , one run of MSLS includes 100 iterations of LS, and the the final result is the best solution obtained in those 100 runs. The starting solution can be a random solution or one obtained using a randomized heuristic.
 
-Pseudo code:
+Pseudocode:
 
 Generate the initial solution x
 x := Local search (x)
@@ -92,7 +112,7 @@ auto TSP::iterative_local_search_one() -> std::tuple<std::vector<int>, std::vect
         std::tie(cycle_x1, cycle_x2) = find_greedy_cycles_regret();
     }
 
-    // Find avarage value of MSLS time
+    // Find average value of MSLS time
     
     auto avg_time = calculateAverageMSLStime();
     auto start_time = std::chrono::high_resolution_clock::now();
@@ -148,7 +168,6 @@ auto TSP::perturbation_one(std::vector<int> &c1, std::vector<int> &c2) -> std::t
 
     // Replace the selected vertices with random vertices with the random movement type
     for (int i = 0; i < vertices.size(); ++i) {
-        
         // Randomly select the vertex to be replaced
         int j = vertex_dist(gen);
        
@@ -264,7 +283,6 @@ auto TSP::iterative_local_search_two() -> std::tuple<std::vector<int>, std::vect
 
 auto TSP::destroy_perturbation(std::vector<int> &c1, std::vector<int> &c2) -> std::tuple<std::vector<int>, std::vector<int>>
 {
-    // TODO: implement destroy perturbation
     float coef = 0.3;
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -314,6 +332,6 @@ auto TSP::destroy_perturbation(std::vector<int> &c1, std::vector<int> &c2) -> st
 
 auto TSP::repair_perturbation(std::vector<int> &c1, std::vector<int> &c2) -> std::tuple<std::vector<int>, std::vector<int>>
 {
-    find_greedy_cycles_regrest_from_incomplete(c1, c2);
+    find_greedy_cycles_regret_from_incomplete(c1, c2);
     return {c1, c2};
 }

@@ -128,6 +128,11 @@ auto TSP::find_nearest_expansion(int first, int last, const std::vector<bool>& v
 
 
 auto TSP::find_greedy_cycles_regret() -> std::tuple<std::vector<int>, std::vector<int>> {
+    if (!cycle1.empty() && !cycle2.empty()) {
+        cycle1.clear();
+        cycle2.clear();
+        visited = std::vector<bool>(dist_matrix.x_coord.size(), false);
+    }
     auto start = choose_starting_vertices();
     append_vertex(start.first, cycle1);
     append_vertex(start.second, cycle2);
@@ -192,7 +197,7 @@ double TSP::get_expansion_cost(int first, int last, int candidate){
     return dist_matrix.dist_matrix[first][candidate] + dist_matrix.dist_matrix[last][candidate] - dist_matrix.dist_matrix[first][last];
 }
 
-auto TSP::find_greedy_cycles_regrest_from_incomplete(std::vector<int> &c1, std::vector<int> &c2) -> std::tuple<std::vector<int>, std::vector<int>> {
+auto TSP::find_greedy_cycles_regret_from_incomplete(std::vector<int> &c1, std::vector<int> &c2) -> std::tuple<std::vector<int>, std::vector<int>> {
     std::map<int, std::pair<int, double>> regrets;
     visited = std::vector<bool>(dist_matrix.x_coord.size(), false);
     for (int vertex : c1) visited[vertex] = true;
