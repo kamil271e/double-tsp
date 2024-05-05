@@ -52,7 +52,7 @@ auto TSP::multiple_local_search() -> std::tuple<std::vector<int>, std::vector<in
     }
     auto end_time = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
-    save_time(duration, params, "multiple_search");
+    save_time(duration, params, "msls");
 
     // std::cout << "LEN: " << calculate_objective(best_cycle1, best_cycle2) << std::endl;
     return {best_cycle1, best_cycle2};
@@ -84,7 +84,7 @@ auto TSP::iterative_local_search_one() -> std::tuple<std::vector<int>, std::vect
     std::vector<int> cycle_y1, cycle_y2;
 
     //Generate the initial solution x
-     if (params.input_data == "random") {
+    if (params.input_data == "random") {
         std::tie(cycle_x1, cycle_x2) = generate_random_cycles(100);
 
     }
@@ -92,20 +92,16 @@ auto TSP::iterative_local_search_one() -> std::tuple<std::vector<int>, std::vect
         std::tie(cycle_x1, cycle_x2) = find_greedy_cycles_regret();
     }
 
-    //Find avarage value of MSLS time
-    //    long long avg_time = calculateAverage("/home/wladyka/Study/IMO/double-tsp/cycles/T_multiple_search_regret_vertex_steepest_kroA100.txt");
-    long long avg_time = calculateAverage("/home/kamil/Desktop/git/double-tsp/cycles/T_multiple_search_regret_vertex_steepest_kroA100.txt");
-
-    std::chrono::milliseconds duration(avg_time);
-    auto avg_time_in_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(duration);
-    auto target_time = std::chrono::steady_clock::now() + avg_time_in_milliseconds;
-
+    
+    // Find avarage value of MSLS time
+    
+    auto avg_time = calculateAverageMSLStime();
     auto start_time = std::chrono::high_resolution_clock::now();
 
     //x := Local search (x)
     std::tie(cycle_x1, cycle_x2) = local_search(cycle_x1, cycle_x2);
     //Create loop, where avg_time is the stop condition
-    while(std::chrono::steady_clock::now() < target_time)
+    while(std::chrono::steady_clock::now() < avg_time)
     {
         // y := x
         cycle_y1 = cycle_x1;
@@ -129,7 +125,7 @@ auto TSP::iterative_local_search_one() -> std::tuple<std::vector<int>, std::vect
     auto end_time = std::chrono::high_resolution_clock::now();
     auto operating_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
     save_time(operating_time, params, "ils1");
-    std::cout << "LEN: " << calculate_objective(cycle_x1, cycle_x2) << std::endl;
+    //std::cout << "LEN: " << calculate_objective(cycle_x1, cycle_x2) << std::endl;
     return {cycle_x1, cycle_x2};
 }
 
@@ -188,7 +184,7 @@ auto TSP::perturbation_one(std::vector<int> &c1, std::vector<int> &c2) -> std::t
         }
         
     }
-    std::cout << "LEN: " << calculate_objective(c1, c2) << std::endl;
+    //std::cout << "LEN: " << calculate_objective(c1, c2) << std::endl;
     return {c1, c2};
 
 }
@@ -229,11 +225,7 @@ auto TSP::iterative_local_search_two() -> std::tuple<std::vector<int>, std::vect
     }
 
     //Find avarage value of MSLS time
-    // long long avg_time = calculateAverage("/home/wladyka/Study/IMO/double-tsp/cycles/T_multiple_search_regret_vertex_steepest_kroA200.txt");
-    long long avg_time = calculateAverage("/home/kamil/Desktop/git/double-tsp/cycles/T_multiple_search_regret_vertex_steepest_kroA200.txt");
-    std::chrono::milliseconds duration(avg_time);
-    auto avg_time_in_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(duration);
-    auto target_time = std::chrono::steady_clock::now() + avg_time_in_milliseconds;
+    auto avg_time = calculateAverageMSLStime();
 
     auto start_time = std::chrono::high_resolution_clock::now();
 
@@ -242,7 +234,7 @@ auto TSP::iterative_local_search_two() -> std::tuple<std::vector<int>, std::vect
     std::tie(cycle_x1, cycle_x2) = local_search(cycle_x1, cycle_x2);
     //Create loop, where avg_time is the stop condition
 
-    while(std::chrono::steady_clock::now() < target_time)
+    while(std::chrono::steady_clock::now() < avg_time)
     {
         // y := x
         cycle_y1 = cycle_x1;

@@ -29,7 +29,7 @@ AlgType choose_algo(std::string algo){
         return AlgType::local;
     } else if (algo == "random_walk") {
         return AlgType::random_walk;
-    } else if ( algo == "multiple_search"){
+    } else if ( algo == "msls"){
         return AlgType::multiple_local_search;
     } else if ( algo == "ils1"){
         return AlgType::ils1;
@@ -78,7 +78,7 @@ int main(int argc, char* argv[]){
         generate_cycles(tsp);
         return 0;
     }else if (argc < 6){
-        std::cerr << "Usage: " << argv[0] << " <instance_path> <algotype> [nearest, expansion, regret, local, multiple_local_search ]"
+        std::cerr << "Usage: " << argv[0] << " <instance_path> <algotype> [nearest, expansion, regret, local, msls, ils1, ils2 ]"
         << " <input_data> [random, regret] <movements_type> [inner, inter] <greedy/steepest> [0, 1]" << std::endl;
         return 1;
     }

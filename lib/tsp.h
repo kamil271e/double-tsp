@@ -65,7 +65,7 @@ private:
     void append_vertex(int, std::vector<int>&);
     void insert_vertex(int, int, std::vector<int>&);
     void log_build_process();
-    void save_time(long, struct LocalSearchParams, std::string algo); // TODO make more generic ;-;
+    void save_time(long, struct LocalSearchParams, std::string); // TODO make more generic ;-;
     
     // GREEDY
     auto find_greedy_cycles_nearest() -> std::tuple<std::vector<int>, std::vector<int>>;
@@ -106,7 +106,8 @@ private:
     auto iterative_local_search_one() -> std::tuple<std::vector<int>, std::vector<int>>;
     auto iterative_local_search_two() -> std::tuple<std::vector<int>, std::vector<int>>;
     auto perturbation_one(std::vector<int>& , std::vector<int>& ) -> std::tuple<std::vector<int>, std::vector<int>>;
-    double calculateAverage(const std::string&);
+    std::chrono::steady_clock::time_point calculateAverageMSLStime();
+
 
     auto destroy_perturbation(std::vector<int> &, std::vector<int> &) -> std::tuple<std::vector<int>, std::vector<int>>;
     auto repair_perturbation(std::vector<int> &, std::vector<int> &) -> std::tuple<std::vector<int>, std::vector<int>>;

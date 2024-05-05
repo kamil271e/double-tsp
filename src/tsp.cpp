@@ -150,18 +150,12 @@ void TSP::save_time(long duration, struct LocalSearchParams params, std::string 
     outfile.close();
 }
 
-
-double TSP::calculateAverage(const std::string& filename) {
-    std::ifstream file(filename);
-    if (!file.is_open()) {
-        std::cerr << "Error opening file: " << filename << std::endl;
-        return 0.0; // Or handle the error in some other way
-    }
-
-    std::string line;
-    double sum = 0.0;
+auto calculateAverageFromFile(std::ifstream& file) {
+    long long sum = 0.0;
     int count = 0;
 
+    // Calculate sum and count
+    std::string line;
     while (std::getline(file, line)) {
         std::istringstream iss(line);
         double value;
@@ -175,11 +169,41 @@ double TSP::calculateAverage(const std::string& filename) {
 
     if (count == 0) {
         std::cerr << "No values found in the file." << std::endl;
-        return 0.0; // Or handle this case in some other way
+        return std::chrono::steady_clock::now(); // Or handle this case in some other way
     }
 
-    return sum / count;
+    // Calculate average time
+    long long avg_time = sum / count;
+    std::chrono::milliseconds duration(avg_time);
+    auto avg_time_in_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(duration);
+    auto target_time = std::chrono::steady_clock::now() + avg_time_in_milliseconds;
+
+    return target_time;
 }
+
+std::chrono::steady_clock::time_point TSP::calculateAverageMSLStime(){
+    
+    //Find the average time from the file
+    std:: string algo = "msls";
+    std::string steepest = (params.steepest == 1) ? "steepest" : "greedy";
+    std::string cycles_time_file = "../cycles/T_" + algo +"_" + params.input_data + "_" + params.movements_type + "_" + steepest + "_" + params.filename.substr(0, params.filename.size() - 4) + ".txt";
+    std::ifstream  file(cycles_time_file);
+
+    //std::cout << "Calculating average time from file: " << cycles_time_file << std::endl;
+
+    //Check if the file exists
+    if (!file.is_open()){
+        std::cerr << "Error: File not found." << std::endl;
+        std::cerr << "Please use the following script to generate data: " << std::endl;
+        std::cerr << "./repeat.sh " << params.filename <<" "<< algo << " " << params.input_data << " " << params.movements_type << " " << params.steepest << "\n" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    auto target_time = calculateAverageFromFile(file);
+
+    return target_time;
+}
+
 
 // Function to calculate objective value of the cycle
 int TSP::calculate_objective(const std::vector<int>& c1, const std::vector<int>& c2)
@@ -193,7 +217,6 @@ int TSP::calculate_objective(const std::vector<int>& c1, const std::vector<int>&
     return objective_value;
 
 }
-
 
 // Temporary solution to the problem of duplicate vertices in the cycle
 // Function to delete duplicate vertices in the cycle

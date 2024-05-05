@@ -1,6 +1,6 @@
 #!/bin/bash
 
-declare -a ALGO_TYPES=("nearest" "expansion" "regret" "local" "random_walk" "multiple_search" "ils1" "ils2")
+declare -a ALGO_TYPES=("nearest" "expansion" "regret" "local" "random_walk" "msls" "ils1" "ils2")
 declare -a MOVEMENTS_TYPES=("edge" "vertex")
 declare -a STEEPEST=("0" "1") # greedy - 0 / steepest - 1
 declare -a INPUT_DATA=("random" "regret")
