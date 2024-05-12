@@ -105,7 +105,7 @@ auto TSP::iterative_local_search_one() -> std::tuple<std::vector<int>, std::vect
 
     //Generate the initial solution x
     if (params.input_data == "random") {
-        std::tie(cycle_x1, cycle_x2) = generate_random_cycles(100);
+        std::tie(cycle_x1, cycle_x2) = generate_random_cycles(200);
 
     }
     else if(params.input_data == "regret") {
@@ -153,7 +153,7 @@ auto TSP::perturbation_one(std::vector<int> &c1, std::vector<int> &c2) -> std::t
     // Randomly select the number of vertices to be replaced
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<int> num_vertices_dist(1, c1.size() / 8);
+    std::uniform_int_distribution<int> num_vertices_dist(10, c1.size() / 8);
     int num_vertices = num_vertices_dist(gen);
 
     // Randomly select the vertices to be replaced
@@ -183,14 +183,16 @@ auto TSP::perturbation_one(std::vector<int> &c1, std::vector<int> &c2) -> std::t
         int idx_i = std::find(num_cycle_i.begin(), num_cycle_i.end(), vertices[i]) - num_cycle_i.begin();
         int idx_j = std::find(num_cycle_j.begin(), num_cycle_j.end(), j) - num_cycle_j.begin();
 
+
         if (vertices[i] != j){
             // Check if the selected vertex is in the same num_cycle_j
-            if (std::find(num_cycle_j.begin(), num_cycle_j.end(), j) != num_cycle_j.end() && std::find(num_cycle_j.begin(), num_cycle_j.end(), vertices[i]) != num_cycle_j.end()) {
+            //if (std::find(num_cycle_j.begin(), num_cycle_j.end(), j) != num_cycle_j.end() && std::find(num_cycle_j.begin(), num_cycle_j.end(), vertices[i]) != num_cycle_j.end()) {
+            if (num_cycle_i == num_cycle_j) {
                 //Update the num_cycle_j (inner class)
                 if (movement_type == 0){ // edge
-                    std::reverse(num_cycle_j.begin() + idx_i, num_cycle_j.begin() + idx_j + 1);
+                    std::reverse(num_cycle_i.begin() + idx_i, num_cycle_i.begin() + idx_j + 1);
                 } else { // vertex
-                    std::swap(num_cycle_j[idx_i], num_cycle_j[idx_j]);
+                    std::swap(num_cycle_i[idx_i], num_cycle_i[idx_j]);
                 }
             }
             else //Update the cycles(inter class)
@@ -283,7 +285,7 @@ auto TSP::iterative_local_search_two() -> std::tuple<std::vector<int>, std::vect
 
 auto TSP::destroy_perturbation(std::vector<int> &c1, std::vector<int> &c2) -> std::tuple<std::vector<int>, std::vector<int>>
 {
-    float coef = 0.3;
+    float coef = 0.5;
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<int> dist(0, c1.size() - 1);
