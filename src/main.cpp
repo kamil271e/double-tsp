@@ -35,6 +35,8 @@ AlgType choose_algo(std::string algo){
         return AlgType::ils1;
     } else if ( algo == "ils2"){
         return AlgType::ils2;
+    }else if ( algo == "hea"){
+        return AlgType::hea;
     }else {
         std::cerr << "Invalid algorithm type. Please choose from [nearest, expansion, regret, local]" << std::endl;
         exit(1);
@@ -78,7 +80,7 @@ int main(int argc, char* argv[]){
         generate_cycles(tsp);
         return 0;
     }else if (argc < 6){
-        std::cerr << "Usage: " << argv[0] << " <instance_path> <algotype> [nearest, expansion, regret, local, msls, ils1, ils2 ]"
+        std::cerr << "Usage: " << argv[0] << " <instance_path> <algotype> [nearest, expansion, regret, local, msls, ils1, ils2, hea ]"
         << " <input_data> [random, regret] <movements_type> [inner, inter] <greedy/steepest> [0, 1]" << std::endl;
         return 1;
     }

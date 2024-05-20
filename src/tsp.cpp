@@ -27,6 +27,8 @@ auto TSP::solve() -> std::tuple<std::vector<int>, std::vector<int>>{
             return iterative_local_search_one();
         case AlgType::ils2:
             return iterative_local_search_two();
+        case AlgType::hea:
+            return hybrid_evolution_algo();
         default:
             // Handle unsupported algorithm type
             break;

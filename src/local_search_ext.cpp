@@ -267,7 +267,7 @@ auto TSP::iterative_local_search_two() -> std::tuple<std::vector<int>, std::vect
         //I'm not sure about this line, as I don't understand what the option means 
         std::tie(cycle_y1, cycle_y2) = local_search(cycle_y1, cycle_y2);
 
-        // If f(y) > f(x) then x := y
+        // If f(y) < f(x) then x := y
         if (calculate_objective(cycle_y1, cycle_y2) < calculate_objective(cycle_x1, cycle_x2))
         {
             cycle_x1 = cycle_y1;

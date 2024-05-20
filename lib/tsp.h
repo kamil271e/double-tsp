@@ -30,7 +30,8 @@ enum class AlgType {
     random_walk,
     multiple_local_search,
     ils1,
-    ils2
+    ils2,
+    hea
 };
 
 struct LocalSearchParams {
@@ -40,6 +41,15 @@ struct LocalSearchParams {
     int steepest; // greedy(0), steepest(1)
     int num_starts = 100; // number of starts for multiple local search
 };
+
+// Hash function for pairs (to use pair as key in unordered_set)
+struct pair_hash {
+    template <class T1, class T2>
+    std::size_t operator() (const std::pair<T1, T2>& pair) const {
+        return std::hash<T1>()(pair.first) ^ std::hash<T2>()(pair.second);
+    }
+};
+
 
 class TSP{
 public:
@@ -92,7 +102,7 @@ private:
     // int get_objective_value(std::vector<int>);                                          // inter class
     void update_cycle(const std::vector<int>&, std::vector<int>&);                      // inner class
     void update_cycles(std::vector<int>);                                               // inter class
-    // void random_walk_inner(std::vector<int>, int);
+    // void random_walk_inner(std::vector<int>, int) ;
     // void random_walk_inter(int);
     void apply_movement(const std::vector<int> &, int );
     void main_search(bool, bool);
@@ -111,6 +121,16 @@ private:
 
     auto destroy_perturbation(std::vector<int> &, std::vector<int> &) -> std::tuple<std::vector<int>, std::vector<int>>;
     auto repair_perturbation(std::vector<int> &, std::vector<int> &) -> std::tuple<std::vector<int>, std::vector<int>>;
+
+
+    // HEA
+    auto hybrid_evolution_algo() -> std::tuple<std::vector<int>, std::vector<int>>;
+    auto select_two_parents(const std::vector<std::tuple<std::vector<int>, std::vector<int>>>) -> std::pair<int, int>;
+    auto recombine(const std::vector<int>& , const std::vector<int>& , std::vector<int>& ) -> std::vector<int>;
+    std::unordered_set<std::pair<int, int>, pair_hash> findEdges(const std::vector<int>& );
+    void remove_edges(std::vector<int>& , const std::unordered_set<std::pair<int, int>, pair_hash>&);
+    void remove_isolated_vertices(std::vector<int>&, const std::unordered_set<int>& );
+
 
 };
 #endif // TSP_H
