@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "../lib/tsp.h"
 
 
@@ -186,13 +188,30 @@ auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>>
     }else{
         vertex = true;
     }
-    auto start_time_local = std::chrono::high_resolution_clock::now();
+    //auto start_time_local = std::chrono::high_resolution_clock::now();
 
     main_search(params.steepest, vertex);
 
-    auto end_time_local = std::chrono::high_resolution_clock::now();
-    auto duration_local = std::chrono::duration_cast<std::chrono::milliseconds>(end_time_local - start_time_local).count();
-    save_time(duration_local, params, "local");
+    //auto end_time_local = std::chrono::high_resolution_clock::now();
+    //auto duration_local = std::chrono::duration_cast<std::chrono::milliseconds>(end_time_local - start_time_local).count();
+    //save_time(duration_local, params, "local");
+
+    return {cycle1, cycle2};
+
+}
+
+auto TSP::local_search(std::vector<int> c1, std::vector<int> c2) -> std::tuple<std::vector<int>, std::vector<int>>
+{
+    cycle1 = std::move(c1);
+    cycle2 = std::move(c2);
+    bool vertex;
+    if (params.movements_type == "edge"){
+        vertex = false;
+    }else{
+        vertex = true;
+    }
+
+    main_search(params.steepest, vertex);
 
     return {cycle1, cycle2};
 

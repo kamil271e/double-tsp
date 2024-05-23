@@ -121,8 +121,27 @@ def choose_best_local():
             plot_name = cycles_file[:-4]
             visualize_tsp_cycles(f'{instance}.tsp', cycles, plot_name, title)
 
-# Eksperymenty z random walk
-# ------------------------------------------------------------------------------------------------
+
+def choose_best_local_ext():
+    for length_file in os.listdir(CYCLES_DIR):
+        if length_file.endswith(".txt") and length_file.startswith('L'):
+            parts = length_file.split("_")
+            algo, start_type, movement_type, greedy_or_steepest, instance = parts[1], parts[2], parts[3], parts[4], parts[5].split(".")[0]
+            path = os.path.join(CYCLES_DIR, length_file)
+
+            data = np.loadtxt(path)
+            idx = np.argmin(data)
+
+            cycles_file = length_file[2:] # no "L_" prefix
+            cycles = read_lines(cycles_file, 2*idx)
+            title = rf'{cycles_file[:-4]}: $\bf{{{int(np.min(data))}}}$'
+            plot_name = cycles_file[:-4]
+            visualize_tsp_cycles(f'{instance}.tsp', cycles, plot_name, title)
+
+
+# Random Walk Experiments
+################################################################################
+
 def choose_best_random_walk():
     for length_file in os.listdir(CYCLES_DIR):
         if length_file.endswith(".txt") and length_file.startswith('L'):
@@ -141,7 +160,10 @@ def choose_best_random_walk():
             title = rf'{cycles_file}: $\bf{{{int(np.min(data))}}}$'
             plot_name = cycles_file
             visualize_tsp_cycles(f'{instance}.tsp', cycles, plot_name, title)
-#------------------------------------------------------------------------------------------------
+
+################################################################################
+
+
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python generate_visualizations.py <greedy/local>")
@@ -152,5 +174,7 @@ if __name__ == "__main__":
             choose_best_local()
         elif sys.argv[1] == "random_walk":
             choose_best_random_walk()
+        elif sys.argv[1] == "local_ext":
+            choose_best_local_ext()
         else:
             print("Invalid argument. Choose between 'greedy' and 'local'")

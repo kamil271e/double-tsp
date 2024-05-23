@@ -128,6 +128,11 @@ auto TSP::find_nearest_expansion(int first, int last, const std::vector<bool>& v
 
 
 auto TSP::find_greedy_cycles_regret() -> std::tuple<std::vector<int>, std::vector<int>> {
+    if (!cycle1.empty() && !cycle2.empty()) {
+        cycle1.clear();
+        cycle2.clear();
+        visited = std::vector<bool>(dist_matrix.x_coord.size(), false);
+    }
     auto start = choose_starting_vertices();
     append_vertex(start.first, cycle1);
     append_vertex(start.second, cycle2);
@@ -192,3 +197,30 @@ double TSP::get_expansion_cost(int first, int last, int candidate){
     return dist_matrix.dist_matrix[first][candidate] + dist_matrix.dist_matrix[last][candidate] - dist_matrix.dist_matrix[first][last];
 }
 
+auto TSP::find_greedy_cycles_regret_from_incomplete(std::vector<int> &c1, std::vector<int> &c2) -> std::tuple<std::vector<int>, std::vector<int>> {
+    std::map<int, std::pair<int, double>> regrets;
+    visited = std::vector<bool>(dist_matrix.x_coord.size(), false);
+    for (int vertex : c1) visited[vertex] = true;
+    for (int vertex : c2) visited[vertex] = true;
+    while (c1.size() + c2.size() < dist_matrix.x_coord.size()) {
+        std::vector<int>& cycle = (c1.size() <= c2.size()) ? c1 : c2;
+        regrets.clear();
+        for (size_t i = 0; i < dist_matrix.x_coord.size(); ++i) {
+            if (!visited[i]) {
+                regrets[i] = get_2regret(i, cycle);
+            }
+        }
+
+        int candidate = -1;
+        double max_regret = -std::numeric_limits<double>::infinity();
+        for (const auto& r : regrets) {
+            if (r.second.second > max_regret) {
+                max_regret = r.second.second;
+                candidate = r.first;
+            }
+        }
+        insert_vertex(candidate, (regrets[candidate].first + 1) % cycle.size(), cycle);
+    }
+
+    return {c1, c2};
+}
