@@ -3,3 +3,5 @@ Assorted heuristics for solving a modified Traveling Salesperson Problem (TSP) c
 
 - ![Greedy](greedy.md)
 - ![Local search](local_search.md)
+- Local search optimizations
+- Local search extensions
