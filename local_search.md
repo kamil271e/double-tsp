@@ -211,4 +211,4 @@ Regret-inter-steepest: <br>
 
 
 ## Conclusions
-According to the assumptions, all algorithm variants obtain better results than random wandering. It is also natural that the cycle lengths obtained after starting from a 2-gal-based solution are significantly smaller than those that started with random cycles. The same is true for execution times - algorithms that start their search from a ready solution find the local optimum faster.
+According to the assumptions, all algorithm variants obtain better results than random wandering. It is also natural that the cycle lengths obtained after starting from a 2-regret-based solution are significantly smaller than those that started with random cycles. The same is true for execution times - algorithms that start their search from a ready solution find the local optimum faster.
