@@ -152,10 +152,7 @@ class TSP {
 				   std::vector<int> &) -> std::vector<int>;
 	std::unordered_set<std::pair<int, int>, pair_hash>
 	findEdges(const std::vector<int> &);
-	void
-	remove_edges(std::vector<int> &,
-				 const std::unordered_set<std::pair<int, int>, pair_hash> &);
-	void remove_isolated_vertices(std::vector<int> &,
-								  const std::unordered_set<int> &);
+	
+    auto remove_edges(std::vector<int>& , const std::unordered_set<std::pair<int, int>, pair_hash>&) -> std::vector<std::vector<int>> ;
 };
 #endif // TSP_H

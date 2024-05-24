@@ -73,22 +73,14 @@ auto TSP::recombine(const std::vector<int> &parent1,
 	auto edges1 = findEdges(parent1);
 	auto edges2 = findEdges(parent2);
 
-	// Remove edges not present in both parents
-	std::cout << child1.size() << std::endl;
-	remove_edges(child1, edges2);
-	std::cout << child1.size() << std::endl;
-	std::cout << "-----------------" << std::endl;
+	// Merge the edges of both parents in a single set other_edges
+    std::unordered_set<std::pair<int, int>, pair_hash> edges;
+    edges.insert(edges1.begin(), edges1.end());
+    edges.insert(edges2.begin(), edges2.end());
 
-	// Remove isolated vertices
-	std::unordered_set<int> vertices1(child1.begin(), child1.end());
-	std::unordered_set<int> vertices2(child2.begin(), child2.end());
+    // Remove edges from the other cycle
+    auto paths = remove_edges(other_cycle, edges);
 
-	remove_isolated_vertices(child1, vertices2);
-
-	// Repair the solutions using the regret heuristic method
-	auto repairedCycles =
-		find_greedy_cycles_regret_from_incomplete(child1, other_cycle);
-	child1 = std::get<0>(repairedCycles);
 
 	return child1;
 }
@@ -107,34 +99,28 @@ TSP::findEdges(const std::vector<int> &cycle) {
 	return edges;
 }
 
-// Function to remove edges not present in both cycles
-void TSP::remove_edges(
-	std::vector<int> &cycle,
-	const std::unordered_set<std::pair<int, int>, pair_hash> &other_edges) {
-	for (auto it = cycle.begin(); it != cycle.end();) {
-		int from = *it;
-		int to =
-			*(std::next(it) != cycle.end() ? std::next(it) : cycle.begin());
-		if (from > to)
-			std::swap(from, to);
-		if (other_edges.find({from, to}) == other_edges.end()) {
-			it = cycle.erase(it);
-			if (it == cycle.end())
-				it = cycle.begin();
-		} else {
-			++it;
-		}
-	}
-}
+auto TSP::remove_edges(std::vector<int>& cycle, const std::unordered_set<std::pair<int, int>, pair_hash>& other_edges) -> std::vector<std::vector<int>> {
+    std::vector<std::vector<int>> paths;
+    std::vector<int> current_path;
 
-// Function to remove isolated vertices from the cycle
-void TSP::remove_isolated_vertices(std::vector<int> &cycle,
-								   const std::unordered_set<int> &vertices) {
-	for (auto it = cycle.begin(); it != cycle.end();) {
-		if (vertices.find(*it) == vertices.end()) {
-			it = cycle.erase(it);
-		} else {
-			++it;
-		}
-	}
+    for (size_t i = 0; i < cycle.size(); ++i) {
+        int from = cycle[i];
+        int after = cycle[(i + 1) % cycle.size()];
+        if ( (other_edges.find({from, after}) == other_edges.end() && other_edges.find({after, from}) == other_edges.end())) {
+            current_path.push_back(from);
+            paths.push_back(current_path);
+            current_path.clear();
+        }
+        else {
+            current_path.push_back(from);
+        }
+    }
+    // One more check - if last element does have an edge with the first element - add current path to first path
+    if (other_edges.find({cycle.back(), cycle.front()}) != other_edges.end() || other_edges.find({cycle.front(), cycle.back()}) != other_edges.end()) {
+        paths[0].insert(paths[0].end(), current_path.begin(), current_path.end());
+    }
+    else {
+        paths.push_back(current_path);
+    }
+    return paths;
 }
