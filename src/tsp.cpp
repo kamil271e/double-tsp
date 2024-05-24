@@ -225,16 +225,3 @@ int TSP::calculate_objective(const std::vector<int> &c1,
 
 	return objective_value;
 }
-
-// Temporary solution to the problem of duplicate vertices in the cycle
-// Function to delete duplicate vertices in the cycle
-auto TSP::delete_duplicates(const std::vector<int> &cycle) -> std::vector<int> {
-	std::vector<int> new_cycle;
-	for (int i = 0; i < cycle.size(); ++i) {
-		if (std::find(new_cycle.begin(), new_cycle.end(), cycle[i]) ==
-			new_cycle.end()) {
-			new_cycle.push_back(cycle[i]);
-		}
-	}
-	return new_cycle;
-}

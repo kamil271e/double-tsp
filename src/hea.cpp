@@ -74,16 +74,17 @@ auto TSP::recombine(const std::vector<int> &parent1,
 	auto edges2 = findEdges(parent2);
 
 	// Remove edges not present in both parents
-	std::cout << child1.size() << std::endl;
+    std::cout << "child1: " << child1.size() << std::endl;
 	remove_edges(child1, edges2);
-	std::cout << child1.size() << std::endl;
-	std::cout << "-----------------" << std::endl;
+    std::cout << "child1: " << child1.size() << std::endl;
 
 	// Remove isolated vertices
 	std::unordered_set<int> vertices1(child1.begin(), child1.end());
 	std::unordered_set<int> vertices2(child2.begin(), child2.end());
 
+    std::cout << "vertices1: " << child1.size() << std::endl;
 	remove_isolated_vertices(child1, vertices2);
+    std::cout << "vertices1: " << child1.size() << std::endl;
 
 	// Repair the solutions using the regret heuristic method
 	auto repairedCycles =
@@ -131,10 +132,12 @@ void TSP::remove_edges(
 void TSP::remove_isolated_vertices(std::vector<int> &cycle,
 								   const std::unordered_set<int> &vertices) {
 	for (auto it = cycle.begin(); it != cycle.end();) {
-		if (vertices.find(*it) == vertices.end()) {
+		std::cout << *it << std::endl;
+        if (vertices.find(*it) == vertices.end()) {
 			it = cycle.erase(it);
 		} else {
 			++it;
 		}
 	}
 }
+

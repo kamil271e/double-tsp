@@ -241,3 +241,81 @@ auto TSP::find_greedy_cycles_regret_from_incomplete(std::vector<int> &c1,
 
 	return {c1, c2};
 }
+
+auto TSP::find_greedy_cycles_from_incomplete(std::vector<int> &c1, std::vector<int> &c2) -> std::tuple<std::vector<int>, std::vector<int>> {
+    // Greedy cycles expansion approach
+    visited = std::vector<bool>(dist_matrix.x_coord.size(), false);
+    for (int vertex : c1)
+        visited[vertex] = true;
+    for (int vertex : c2)
+        visited[vertex] = true;
+    while (c1.size() + c2.size() < dist_matrix.x_coord.size()) {
+        std::vector<int> &cycle =
+                (c1.size() <= c2.size()) ? c1 : c2;
+        double min_length = std::numeric_limits<double>::max();
+        int best_candidate, best_idx = -1;
+
+        for (size_t i = 0; i < cycle.size(); ++i) {
+            int current = cycle[i];
+            int next = cycle[(i + 1) % cycle.size()];
+            auto [nearest, length] =
+                    find_nearest_expansion(current, next, visited);
+            if (length < min_length) {
+                min_length = length;
+                best_candidate = nearest;
+                best_idx = i;
+            }
+        }
+
+        insert_vertex(best_candidate, (best_idx + 1) % cycle.size(), cycle);
+    }
+
+    return {c1, c2};
+}
+
+auto TSP::find_greedy_cycles_nearest_from_incomplete(std::vector<int> &c1, std::vector<int> &c2) -> std::tuple<std::vector<int>, std::vector<int>> {
+    visited = std::vector<bool>(dist_matrix.x_coord.size(), false);
+    for (int vertex : c1)
+        visited[vertex] = true;
+    for (int vertex : c2)
+        visited[vertex] = true;
+
+    int current_last_vertex1 = c1.back();
+    int current_last_vertex2 = c2.back();
+    int current_first_vertex1 = c1.front();
+    int current_first_vertex2 = c2.front();
+
+    while (c1.size() + c2.size() < dist_matrix.x_coord.size()) {
+        auto nearest_neighbor_info1 = find_nearest_neighbor(
+                current_last_vertex1, current_first_vertex1, visited);
+        auto nearest_neighbor_info2 = find_nearest_neighbor(
+                current_last_vertex2, current_first_vertex2, visited);
+
+        int nearest_neighbor1 = nearest_neighbor_info1.first;
+        int nearest_neighbor2 = nearest_neighbor_info2.first;
+        int vertex_type1 = nearest_neighbor_info1.second;
+        int vertex_type2 = nearest_neighbor_info2.second;
+
+        std::vector<int> &cycle =
+                (c1.size() <= c2.size()) ? c1 : c2;
+
+        if (c1.size() <= c2.size()) {
+            if (vertex_type1 == 0) {
+                append_vertex(nearest_neighbor1, cycle);
+                current_last_vertex1 = nearest_neighbor1;
+            } else {
+                insert_vertex(nearest_neighbor1, 0, cycle);
+                current_first_vertex1 = nearest_neighbor1;
+            }
+        } else {
+            if (vertex_type2 == 0) {
+                append_vertex(nearest_neighbor2, cycle);
+                current_last_vertex2 = nearest_neighbor2;
+            } else {
+                insert_vertex(nearest_neighbor2, 0, cycle);
+                current_first_vertex2 = nearest_neighbor2;
+            }
+        }
+    }
+    return {c1, c2};
+}

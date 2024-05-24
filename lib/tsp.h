@@ -95,6 +95,8 @@ class TSP {
 	std::tuple<std::vector<int>, std::vector<int>>
 	find_greedy_cycles_regret_from_incomplete(std::vector<int> &,
 											  std::vector<int> &);
+    std::tuple<std::vector<int>, std::vector<int>> find_greedy_cycles_from_incomplete(std::vector<int> &, std::vector<int> &);
+    std::tuple<std::vector<int>, std::vector<int>> find_greedy_cycles_nearest_from_incomplete(std::vector<int> &, std::vector<int> &);
 
 	// LOCAL SEARCH
 	auto local_search() -> std::tuple<std::vector<int>, std::vector<int>>;
@@ -128,7 +130,6 @@ class TSP {
 		-> std::tuple<std::vector<int>, std::vector<int>>;
 	int calculate_objective(const std::vector<int> &, const std::vector<int> &);
 	// Temporary solution to the problem of duplicate vertices in the cycle
-	auto delete_duplicates(const std::vector<int> &) -> std::vector<int>;
 	auto iterative_local_search_one()
 		-> std::tuple<std::vector<int>, std::vector<int>>;
 	auto iterative_local_search_two()

@@ -355,6 +355,8 @@ auto TSP::destroy_perturbation(std::vector<int> &c1, std::vector<int> &c2)
 
 auto TSP::repair_perturbation(std::vector<int> &c1, std::vector<int> &c2)
 	-> std::tuple<std::vector<int>, std::vector<int>> {
-	find_greedy_cycles_regret_from_incomplete(c1, c2);
-	return {c1, c2};
+    // find_greedy_cycles_regret_from_incomplete(c1, c2);  // REGRET
+    // find_greedy_cycles_from_incomplete(c1, c2); // GREEDY CYCLES
+    find_greedy_cycles_nearest_from_incomplete(c1, c2); // NEAREST
+    return {c1, c2};
 }
