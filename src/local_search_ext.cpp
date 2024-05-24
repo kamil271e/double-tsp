@@ -113,7 +113,8 @@ auto TSP::iterative_local_search_one()
 		std::tie(cycle_x1, cycle_x2) = generate_random_cycles(200);
 
 	} else if (params.input_data == "regret") {
-		std::tie(cycle_x1, cycle_x2) = find_greedy_cycles_regret();
+//		std::tie(cycle_x1, cycle_x2) = find_greedy_cycles_regret();
+        std::tie(cycle_x1, cycle_x2) = find_greedy_cycles_nearest();
 	}
 
 	// Find average value of MSLS time
@@ -262,7 +263,8 @@ auto TSP::iterative_local_search_two()
 		std::tie(cycle_x1, cycle_x2) = generate_random_cycles(100);
 
 	} else if (params.input_data == "regret") {
-		std::tie(cycle_x1, cycle_x2) = find_greedy_cycles_regret();
+//		std::tie(cycle_x1, cycle_x2) = find_greedy_cycles_regret();
+        std::tie(cycle_x1, cycle_x2) = find_greedy_cycles_nearest();
 	}
 
 	// Find avarage value of MSLS time

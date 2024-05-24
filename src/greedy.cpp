@@ -2,6 +2,11 @@
 
 auto TSP::find_greedy_cycles_nearest()
 	-> std::tuple<std::vector<int>, std::vector<int>> {
+    if (!cycle1.empty() && !cycle2.empty()) {
+        cycle1.clear();
+        cycle2.clear();
+        visited = std::vector<bool>(dist_matrix.x_coord.size(), false);
+    }
 	auto start = choose_starting_vertices();
 	int current_last_vertex1 = start.first;
 	int current_last_vertex2 = start.second;
