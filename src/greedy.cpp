@@ -285,36 +285,25 @@ auto TSP::find_greedy_cycles_nearest_from_incomplete(std::vector<int> &c1, std::
     int current_first_vertex1 = c1.front();
     int current_first_vertex2 = c2.front();
 
-    while (c1.size() + c2.size() < dist_matrix.x_coord.size()) {
-        auto nearest_neighbor_info1 = find_nearest_neighbor(
-                current_last_vertex1, current_first_vertex1, visited);
-        auto nearest_neighbor_info2 = find_nearest_neighbor(
-                current_last_vertex2, current_first_vertex2, visited);
+    auto handle_nearest_neighbor = [&](int &current_last_vertex, int &current_first_vertex, std::vector<int> &cycle) {
+        auto nearest_neighbor_info = find_nearest_neighbor(current_last_vertex, current_first_vertex, visited);
+        int nearest_neighbor = nearest_neighbor_info.first;
+        int vertex_type = nearest_neighbor_info.second;
 
-        int nearest_neighbor1 = nearest_neighbor_info1.first;
-        int nearest_neighbor2 = nearest_neighbor_info2.first;
-        int vertex_type1 = nearest_neighbor_info1.second;
-        int vertex_type2 = nearest_neighbor_info2.second;
-
-        std::vector<int> &cycle =
-                (c1.size() <= c2.size()) ? c1 : c2;
-
-        if (c1.size() <= c2.size()) {
-            if (vertex_type1 == 0) {
-                append_vertex(nearest_neighbor1, cycle);
-                current_last_vertex1 = nearest_neighbor1;
-            } else {
-                insert_vertex(nearest_neighbor1, 0, cycle);
-                current_first_vertex1 = nearest_neighbor1;
-            }
+        if (vertex_type == 0) {
+            append_vertex(nearest_neighbor, cycle);
+            current_last_vertex = nearest_neighbor;
         } else {
-            if (vertex_type2 == 0) {
-                append_vertex(nearest_neighbor2, cycle);
-                current_last_vertex2 = nearest_neighbor2;
-            } else {
-                insert_vertex(nearest_neighbor2, 0, cycle);
-                current_first_vertex2 = nearest_neighbor2;
-            }
+            insert_vertex(nearest_neighbor, 0, cycle);
+            current_first_vertex = nearest_neighbor;
+        }
+    };
+
+    while (c1.size() + c2.size() < dist_matrix.x_coord.size()) {
+        if (c1.size() <= c2.size()) {
+            handle_nearest_neighbor(current_last_vertex1, current_first_vertex1, c1);
+        } else {
+            handle_nearest_neighbor(current_last_vertex2, current_first_vertex2, c2);
         }
     }
     return {c1, c2};
