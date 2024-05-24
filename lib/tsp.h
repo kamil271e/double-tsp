@@ -148,11 +148,10 @@ class TSP {
 	auto select_two_parents(
 		const std::vector<std::tuple<std::vector<int>, std::vector<int>>>)
 		-> std::pair<int, int>;
-	auto recombine(const std::vector<int> &, const std::vector<int> &,
-				   std::vector<int> &) -> std::vector<int>;
+
 	std::unordered_set<std::pair<int, int>, pair_hash>
 	findEdges(const std::vector<int> &);
 	
-    auto remove_edges(std::vector<int>& , const std::unordered_set<std::pair<int, int>, pair_hash>&) -> std::vector<std::vector<int>> ;
+    auto remove_edges(std::vector<int>& , const std::unordered_set<std::pair<int, int>, pair_hash>&, std::map<int, std::pair<int, int>>&) -> std::vector<std::vector<int>> ;
 };
 #endif // TSP_H

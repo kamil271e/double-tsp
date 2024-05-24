@@ -8,8 +8,8 @@ auto TSP::hybrid_evolution_algo()
 	bool using_local_search = true;
 	std::vector<std::tuple<std::vector<int>, std::vector<int>>> population;
 	for (int i = 0; i < 20; i++) {
-		auto [cycle1, cycle2] = local_search();
-		population.push_back({cycle1, cycle2});
+		auto [c1, c2] = local_search();
+		population.push_back({c1, c2});
 	}
 
 	// Ensure no duplicate solutions exist in the population.
@@ -19,23 +19,37 @@ auto TSP::hybrid_evolution_algo()
 
 	auto avg_time = calculateAverageMSLStime();
 
-	// Selection
-	auto [parent1, parent2] = select_two_parents(population);
+	// TODO: put it in separate function:
 
-	// Recombination
-	auto parent1_cycle1 = std::get<0>(population[parent1]);
-	auto parent1_cycle2 = std::get<1>(population[parent1]);
+    // while (time < avg_time): ...
 
-	auto parent2_cycle1 = std::get<0>(population[parent2]);
-	auto parent2_cycle2 = std::get<1>(population[parent2]);
+        auto [parent1, parent2] = select_two_parents(population);
+        auto& [parent1_cycle1, parent1_cycle2] = population[parent1];
+        auto& [parent2_cycle1, parent2_cycle2] = population[parent2];
 
-	// Recombination cycle1
-	auto child1 = recombine(parent1_cycle1, parent2_cycle1, parent1_cycle2);
+        auto edges1 = findEdges(parent2_cycle1);
+        auto edges2 = findEdges(parent2_cycle2);
+        std::unordered_set<std::pair<int, int>, pair_hash> edges;
+        edges.insert(edges1.begin(), edges1.end());
+        edges.insert(edges2.begin(), edges2.end());
 
-	// Recombination cycle2
-	auto child2 = recombine(parent1_cycle2, parent2_cycle2, parent2_cycle1);
+        // inside remove_edges() we need to fill visited_map properly:
+        // visited_map[vertex] = {free/path_idx, first/last}
 
-	return {child1, child2};
+        std::map<int, std::pair<int, int>> visited_map;
+        auto paths1 = remove_edges(parent1_cycle1, edges, visited_map);
+        auto paths2 = remove_edges(parent1_cycle2, edges, visited_map);
+
+        // TODO implement reconstruction:
+        // solution = reconstruction(paths1, paths2, visited_map);
+
+        // if worst(population) < current solution -> replace worst with current solution
+
+    // end while;
+
+    // return best_solution;
+
+    return {cycle1, cycle2};
 }
 
 // Select two different parent solutions uniformly at random.
@@ -55,35 +69,6 @@ auto TSP::select_two_parents(
 	return std::make_pair(parent1, parent2);
 }
 
-//// Recombination cycle1
-// auto child1 = recombine(parent1_cycle1, parent2_cycle1, parent1_cycle2);
-//
-//// Recombination cycle2
-// auto child2 = recombine(parent1_cycle2, parent2_cycle2, parent2_cycle1);
-
-// Recombination Operator
-auto TSP::recombine(const std::vector<int> &parent1,
-					const std::vector<int> &parent2,
-					std::vector<int> &other_cycle) -> std::vector<int> {
-	// Initialize child cycles
-	std::vector<int> child1 = parent1;
-	std::vector<int> child2 = parent2;
-
-	// Find edges in both parents
-	auto edges1 = findEdges(parent1);
-	auto edges2 = findEdges(parent2);
-
-	// Merge the edges of both parents in a single set other_edges
-    std::unordered_set<std::pair<int, int>, pair_hash> edges;
-    edges.insert(edges1.begin(), edges1.end());
-    edges.insert(edges2.begin(), edges2.end());
-
-    // Remove edges from the other cycle
-    auto paths = remove_edges(other_cycle, edges);
-
-
-	return child1;
-}
 
 // Helper function to find edges in a cycle
 std::unordered_set<std::pair<int, int>, pair_hash>
@@ -99,7 +84,7 @@ TSP::findEdges(const std::vector<int> &cycle) {
 	return edges;
 }
 
-auto TSP::remove_edges(std::vector<int>& cycle, const std::unordered_set<std::pair<int, int>, pair_hash>& other_edges) -> std::vector<std::vector<int>> {
+auto TSP::remove_edges(std::vector<int>& cycle, const std::unordered_set<std::pair<int, int>, pair_hash>& other_edges, std::map<int, std::pair<int, int>>& visited_map) -> std::vector<std::vector<int>> {
     std::vector<std::vector<int>> paths;
     std::vector<int> current_path;
 
@@ -108,11 +93,13 @@ auto TSP::remove_edges(std::vector<int>& cycle, const std::unordered_set<std::pa
         int after = cycle[(i + 1) % cycle.size()];
         if ( (other_edges.find({from, after}) == other_edges.end() && other_edges.find({after, from}) == other_edges.end())) {
             current_path.push_back(from);
+            visited_map[from] = {-1, 1}; // right element of path - set as free TODO: still probably need info about with path does this vertex belong to
             paths.push_back(current_path);
             current_path.clear();
         }
         else {
             current_path.push_back(from);
+            visited_map[from] = {paths.size(), 0}; // regular ve
         }
     }
     // One more check - if last element does have an edge with the first element - add current path to first path
