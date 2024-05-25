@@ -1,5 +1,16 @@
 #include "../lib/tsp.h"
 
+enum available {
+    NOT=-2,
+    FREE=-1,
+};
+
+enum side {
+    LEFT=-1,
+    RIGHT=1
+};
+
+
 auto TSP::hybrid_evolution_algo()
 	-> std::tuple<std::vector<int>, std::vector<int>> {
 	// Initialization
@@ -34,7 +45,6 @@ auto TSP::hybrid_evolution_algo()
         edges.insert(edges2.begin(), edges2.end());
 
         // inside remove_edges() we need to fill visited_map properly:
-        // visited_map[vertex] = {free/path_idx, first/last}
 
         std::map<int, std::pair<int, int>> visited_map;
         auto paths1 = remove_edges(parent1_cycle1, edges, visited_map);
@@ -84,30 +94,59 @@ TSP::findEdges(const std::vector<int> &cycle) {
 	return edges;
 }
 
-auto TSP::remove_edges(std::vector<int>& cycle, const std::unordered_set<std::pair<int, int>, pair_hash>& other_edges, std::map<int, std::pair<int, int>>& visited_map) -> std::vector<std::vector<int>> {
+auto remove_edges(std::vector<int>& cycle, const std::unordered_set<std::pair<int, int>, pair_hash>& other_edges, std::map<int, std::pair<int, int>>& visited_map) -> std::vector<std::vector<int>> {
     std::vector<std::vector<int>> paths;
     std::vector<int> current_path;
+    // visited_map[vertex] = {free / not_available / path_idx, first/last}
+    bool new_path = true;
 
     for (size_t i = 0; i < cycle.size(); ++i) {
         int from = cycle[i];
         int after = cycle[(i + 1) % cycle.size()];
         if ( (other_edges.find({from, after}) == other_edges.end() && other_edges.find({after, from}) == other_edges.end())) {
             current_path.push_back(from);
-            visited_map[from] = {-1, 1}; // right element of path - set as free TODO: still probably need info about with path does this vertex belong to
-            paths.push_back(current_path);
+            if (current_path.size() == 1){
+                // check if it has connection with previous
+                // if so add it as a one-element path: at the end it will be merged with the path from the end
+                // otherwise set is as a isolated vertex
+                int previous = cycle[(i - 1 + cycle.size()) % cycle.size()];
+                if (other_edges.find({previous, from}) == other_edges.end() && other_edges.find({from, previous}) == other_edges.end()){ // no edge
+                    visited_map[from] = {available(FREE), 0}; // isolated vertex
+
+                }else{
+                    visited_map[from] = {paths.size(), side(RIGHT)}; // right element of path - available
+                    paths.push_back(current_path);
+                }
+
+            } else{
+                visited_map[from] = {paths.size(), side(RIGHT)}; // right element of path - available
+                paths.push_back(current_path);
+            }
             current_path.clear();
+            new_path = true;
         }
-        else {
+        else { // edge {from, after} exists
             current_path.push_back(from);
-            visited_map[from] = {paths.size(), 0}; // regular ve
+            if (new_path){
+                visited_map[from] = {paths.size(), side(LEFT)};
+                new_path = false;
+            } else{
+                visited_map[from] = {available(NOT), 0}; // regular element inside a path - not left nor right: initialized as not available
+            }
         }
     }
-    // One more check - if last element does have an edge with the first element - add current path to first path
+    // One more check - if last element does have an edge with the first element - add current path to first path; and adjust visited_map accordingly
     if (other_edges.find({cycle.back(), cycle.front()}) != other_edges.end() || other_edges.find({cycle.front(), cycle.back()}) != other_edges.end()) {
-        paths[0].insert(paths[0].end(), current_path.begin(), current_path.end());
+        visited_map[paths[0].front()] = {available(NOT), 0}; // first element of old first path now would be somewhere in the middle - not available
+        paths[0].insert(paths[0].begin(), current_path.begin(), current_path.end());
+        visited_map[paths[0].front()] = {0, side(LEFT)};
+        visited_map[paths[0].back()] = {0, side(RIGHT)};
     }
     else {
-        paths.push_back(current_path);
+        if (!current_path.empty()){
+            visited_map[current_path.back()] = {paths.size(), side(RIGHT)};
+            paths.push_back(current_path);
+        }
     }
     return paths;
 }
