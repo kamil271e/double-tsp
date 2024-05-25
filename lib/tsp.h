@@ -33,6 +33,16 @@ enum class AlgType {
 	hea
 };
 
+enum available {
+    NOT=-2,
+    FREE=-1,
+};
+
+enum side {
+    LEFT=-1,
+    RIGHT=1
+};
+
 struct LocalSearchParams {
 	std::string input_data;		// random, regret
 	std::string movements_type; // vertex, edge
@@ -97,6 +107,7 @@ class TSP {
 											  std::vector<int> &);
     std::tuple<std::vector<int>, std::vector<int>> find_greedy_cycles_from_incomplete(std::vector<int> &, std::vector<int> &);
     std::tuple<std::vector<int>, std::vector<int>> find_greedy_cycles_nearest_from_incomplete(std::vector<int> &, std::vector<int> &);
+    std::vector<int> find_from_incomplete_degenerated_inner(std::vector<std::vector<int>> &, std::map<int, std::pair<int, int>>&);
     std::tuple<std::vector<int>, std::vector<int>> find_from_incomplete_degenerated(std::vector<std::vector<int>> &, std::vector<std::vector<int>> &, std::map<int, std::pair<int, int>>&, std::map<int, std::pair<int, int>>&);
 
 

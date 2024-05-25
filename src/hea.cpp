@@ -1,16 +1,5 @@
 #include "../lib/tsp.h"
 
-enum available {
-    NOT=-2,
-    FREE=-1,
-};
-
-enum side {
-    LEFT=-1,
-    RIGHT=1
-};
-
-
 auto TSP::hybrid_evolution_algo()
 	-> std::tuple<std::vector<int>, std::vector<int>> {
 	// Initialization
@@ -50,11 +39,11 @@ auto TSP::hybrid_evolution_algo()
         auto paths2 = remove_edges(parent1_cycle2, edges, visited_map2);
 
         // TODO implement reconstruction:
-        // POMYSL: mozemy pozwalac zeby jeden cykl byl wiekszy od drugiego w jakims stopniu - ale nie bardzo?
-        // tylko co gdy bedziemy utrzymywali srednio na takim samym poziomie dlugosci pathów? a na koncu trzeba bedzie dodac jakis wielki - np 33, 33, 34?
-        // chyba ze sprobujemy per cykl to robic bez ruchow miedzy klasowych ale to jest raczej glupie
+        // Narazie bez ruchów między klasowych
 
-        auto [c1, c2] = find_from_incomplete_degenerated(paths1, paths2, visited_map1, visited_map2);
+        auto c1 = find_from_incomplete_degenerated_inner(paths1, visited_map1);
+        auto c2 = find_from_incomplete_degenerated_inner(paths2, visited_map2);
+        auto solution = {c1, c2};
 
         // solution = reconstruction(paths1, paths2, visited_map1, visited_map2);
         // if worst(population) < current solution -> replace worst with current solution

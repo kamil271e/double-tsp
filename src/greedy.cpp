@@ -320,3 +320,45 @@ auto TSP::find_from_incomplete_degenerated(std::vector<std::vector<int>> &p1, st
     // TODO
     return {p1.front(), p2.front()};
 }
+
+auto TSP::find_from_incomplete_degenerated_inner(std::vector<std::vector<int>> &paths, std::map<int, std::pair<int, int>> &visited_map) -> std::vector<int> {
+    // look for vertices: check its value in visited_map and based on it something
+
+    int solution_idx = -1;
+
+    while(solution_idx == -1){
+        for (int i = 0; i < paths.size(); i++){
+            if (paths[i].size() >= dist_matrix.x_coord.size() / 2){
+                solution_idx = i;
+                break;
+            }
+            if (paths[i].empty()) continue;
+
+            int current_last_vertex = paths[i].back();
+            int current_first_vertex = paths[i].front();
+
+            double min_distance_last = std::numeric_limits<double>::max();
+            double min_distance_first = std::numeric_limits<double>::max();
+            int nearest_neighbor_last = -1;
+            int nearest_neighbor_first = -1;
+
+            for (size_t j = 0; j < dist_matrix.x_coord.size(); ++j) {
+                // TODO: distinct vertex values with indices man
+                // visited_map[vertex] = {free / not_available / path_idx, first/last}
+                if (visited_map[j].first != i and visited_map[j].first != available(NOT)){
+                    if (visited_map[j].second == -1){ // isolated - TODO: use enum
+                        // TODO
+                    }else{
+                        if (visited_map[j].second == side(RIGHT)){
+                            // TODO
+                        } else { // LEFT
+                            // TODO
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return paths[solution_idx];
+}
