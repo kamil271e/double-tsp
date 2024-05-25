@@ -47,11 +47,11 @@ else
 fi
 
 # N: no. of iterations
-N=10
+N=3
 cycles_len_file="../cycles/L_${algotype}_${input_data}_${movements_type}_${_steepest}_${instance_path::-4}.txt"
 cycles_file="../cycles/${algotype}_${input_data}_${movements_type}_${_steepest}_${instance_path::-4}.txt"
 
-g++ -o main.out main.cpp matrix.cpp tsp.cpp greedy.cpp local_search.cpp local_search_ext.cpp
+g++ -o main.out main.cpp matrix.cpp tsp.cpp greedy.cpp local_search.cpp local_search_ext.cpp hea.cpp
 
 for ((i=1; i<=$N; i++)); do
     cpp_output=$(./main.out "$instance_path" "$algotype" "$input_data" "$movements_type" "$steepest")

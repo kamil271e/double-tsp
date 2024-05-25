@@ -71,7 +71,8 @@ auto TSP::multiple_local_search()
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
 						end_time - start_time)
 						.count();
-	save_time(duration, params, "msls");
+	save_data("T",duration, params, "msls");
+	save_data("I", params.num_starts, params, "msls");
 
 	// has_duplicates(best_cycle1, best_cycle2);
 	// std::cout << "LEN: " << calculate_objective(best_cycle1, best_cycle2) <<
@@ -124,7 +125,10 @@ auto TSP::iterative_local_search_one()
 	// x := Local search (x)
 	std::tie(cycle_x1, cycle_x2) = local_search(cycle_x1, cycle_x2);
 	// Create loop, where avg_time is the stop condition
+
+	long number_of_iteration = 0;
 	while (std::chrono::steady_clock::now() < avg_time) {
+		++number_of_iteration;
 		// y := x
 		cycle_y1 = cycle_x1;
 		cycle_y2 = cycle_x2;
@@ -147,7 +151,8 @@ auto TSP::iterative_local_search_one()
 	auto operating_time = std::chrono::duration_cast<std::chrono::milliseconds>(
 							  end_time - start_time)
 							  .count();
-	save_time(operating_time, params, "ils1");
+	save_data("T",operating_time, params, "ils1");
+	save_data("I", number_of_iteration, params, "ils1");
 	// std::cout << "LEN: " << calculate_objective(cycle_x1, cycle_x2) <<
 	// std::endl;
 	return {cycle_x1, cycle_x2};
@@ -275,7 +280,10 @@ auto TSP::iterative_local_search_two()
 	std::tie(cycle_x1, cycle_x2) = local_search(cycle_x1, cycle_x2);
 	// Create loop, where avg_time is the stop condition
 
+	long number_of_iteration = 0;
 	while (std::chrono::steady_clock::now() < avg_time) {
+		++number_of_iteration;
+
 		// y := x
 		cycle_y1 = cycle_x1;
 		cycle_y2 = cycle_x2;
@@ -300,7 +308,8 @@ auto TSP::iterative_local_search_two()
 	auto operating_time = std::chrono::duration_cast<std::chrono::milliseconds>(
 							  end_time - start_time)
 							  .count();
-	save_time(operating_time, params, "ils2");
+	save_data("T", operating_time, params, "ils2");
+	save_data("I", number_of_iteration, params, "ils2");
 
 	return {cycle_x1, cycle_x2};
 }

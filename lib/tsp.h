@@ -76,8 +76,11 @@ class TSP {
 	void append_vertex(int, std::vector<int> &);
 	void insert_vertex(int, int, std::vector<int> &);
 	void log_build_process();
-	void save_time(long, struct LocalSearchParams,
-				   std::string); // TODO make more generic ;-;
+	// void save_time(long, struct LocalSearchParams,
+	// 			   std::string); // TODO make more generic ;-;
+
+	void save_data(const std::string&, long , struct LocalSearchParams, std::string);
+
 
 	// GREEDY
 	auto find_greedy_cycles_nearest()
@@ -154,5 +157,6 @@ class TSP {
 	findEdges(const std::vector<int> &);
 	
     auto remove_edges(std::vector<int>& , const std::unordered_set<std::pair<int, int>, pair_hash>&) -> std::vector<std::vector<int>> ;
+    auto calculateObjectiveValue(const std::vector<std::tuple<std::vector<int>, std::vector<int>>>&) -> std::vector<int>;
 };
 #endif // TSP_H
