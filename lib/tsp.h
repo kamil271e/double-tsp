@@ -97,6 +97,8 @@ class TSP {
 											  std::vector<int> &);
     std::tuple<std::vector<int>, std::vector<int>> find_greedy_cycles_from_incomplete(std::vector<int> &, std::vector<int> &);
     std::tuple<std::vector<int>, std::vector<int>> find_greedy_cycles_nearest_from_incomplete(std::vector<int> &, std::vector<int> &);
+    std::tuple<std::vector<int>, std::vector<int>> find_from_incomplete_degenerated(std::vector<std::vector<int>> &, std::vector<std::vector<int>> &, std::map<int, std::pair<int, int>>&, std::map<int, std::pair<int, int>>&);
+
 
 	// LOCAL SEARCH
 	auto local_search() -> std::tuple<std::vector<int>, std::vector<int>>;

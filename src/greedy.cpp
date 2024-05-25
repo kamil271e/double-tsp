@@ -313,3 +313,10 @@ auto TSP::find_greedy_cycles_nearest_from_incomplete(std::vector<int> &c1, std::
     }
     return {c1, c2};
 }
+
+auto TSP::find_from_incomplete_degenerated(std::vector<std::vector<int>> &p1, std::vector<std::vector<int>> &p2,
+                                           std::map<int, std::pair<int, int>> &m1, std::map<int, std::pair<int, int>> &m2) ->   std::tuple<std::vector<int>, std::vector<int>> {
+    // Nearest neighbor approach
+    // TODO
+    return {p1.front(), p2.front()};
+}

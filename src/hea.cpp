@@ -44,15 +44,19 @@ auto TSP::hybrid_evolution_algo()
         edges.insert(edges1.begin(), edges1.end());
         edges.insert(edges2.begin(), edges2.end());
 
-        // inside remove_edges() we need to fill visited_map properly:
-
-        std::map<int, std::pair<int, int>> visited_map;
-        auto paths1 = remove_edges(parent1_cycle1, edges, visited_map);
-        auto paths2 = remove_edges(parent1_cycle2, edges, visited_map);
+        std::map<int, std::pair<int, int>> visited_map1;
+        std::map<int, std::pair<int, int>> visited_map2;
+        auto paths1 = remove_edges(parent1_cycle1, edges, visited_map1); // czy przy tej logice 2 roznie visited_map potrzebne
+        auto paths2 = remove_edges(parent1_cycle2, edges, visited_map2);
 
         // TODO implement reconstruction:
-        // solution = reconstruction(paths1, paths2, visited_map);
+        // POMYSL: mozemy pozwalac zeby jeden cykl byl wiekszy od drugiego w jakims stopniu - ale nie bardzo?
+        // tylko co gdy bedziemy utrzymywali srednio na takim samym poziomie dlugosci pathów? a na koncu trzeba bedzie dodac jakis wielki - np 33, 33, 34?
+        // chyba ze sprobujemy per cykl to robic bez ruchow miedzy klasowych ale to jest raczej glupie
 
+        auto [c1, c2] = find_from_incomplete_degenerated(paths1, paths2, visited_map1, visited_map2);
+
+        // solution = reconstruction(paths1, paths2, visited_map1, visited_map2);
         // if worst(population) < current solution -> replace worst with current solution
 
     // end while;
@@ -87,7 +91,7 @@ TSP::findEdges(const std::vector<int> &cycle) {
 		int from = cycle[i];
 		int to = cycle[(i + 1) % cycle.size()];
 		if (from > to)
-			std::swap(from, to); // Ensure consistent ordering
+			std::swap(from, to); // Ensure consistent ordering // TODO: not needed - we do double checks in remove edges: {a,b} and {b,a}
 		edges.emplace(from, to);
 	}
 	return edges;
