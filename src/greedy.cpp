@@ -321,43 +321,125 @@ auto TSP::find_from_incomplete_degenerated(std::vector<std::vector<int>> &p1, st
     return {p1.front(), p2.front()};
 }
 
-auto TSP::find_from_incomplete_degenerated_inner(std::vector<std::vector<int>> &paths, std::map<int, std::pair<int, int>> &visited_map) -> std::vector<int> {
-    // look for vertices: check its value in visited_map and based on it something
+auto TSP::find_neighbour(int current_last_vertex, int current_first_vertex, int j) -> std::pair<int, int>{
+    double min_distance_last = std::numeric_limits<double>::max();
+    double min_distance_first = std::numeric_limits<double>::max();
+    int nearest_neighbor_last = -1;
+    int nearest_neighbor_first = -1;
+    double distance_last = dist_matrix.dist_matrix[current_last_vertex][j];
+    double distance_first = dist_matrix.dist_matrix[current_first_vertex][j];
+    if (distance_last < min_distance_last){
+        min_distance_last = distance_last;
+        nearest_neighbor_last = j;
+    }
+    if (distance_first < min_distance_first){
+        min_distance_first = distance_first;
+        nearest_neighbor_first = j;
+    }
+    if (min_distance_last < min_distance_first){
+        return {nearest_neighbor_last, 1};
+    } else {
+        return {nearest_neighbor_first, 0};
+    }
+}
 
+
+auto TSP::find_from_incomplete_degenerated_inner(std::vector<std::vector<int>> &paths, std::map<int, std::pair<int, int>> &visited_map) -> std::vector<int> {
     int solution_idx = -1;
 
     while(solution_idx == -1){
         for (int i = 0; i < paths.size(); i++){
-            if (paths[i].size() >= dist_matrix.x_coord.size() / 2){
+            if (paths[i].size() >= dist_matrix.x_coord.size() / 2){ // reconstruction finished
                 solution_idx = i;
                 break;
             }
-            if (paths[i].empty()) continue;
+            if (paths[i].empty()) continue; // empty path - ignore
 
             int current_last_vertex = paths[i].back();
             int current_first_vertex = paths[i].front();
-
             double min_distance_last = std::numeric_limits<double>::max();
             double min_distance_first = std::numeric_limits<double>::max();
             int nearest_neighbor_last = -1;
             int nearest_neighbor_first = -1;
 
-            for (size_t j = 0; j < dist_matrix.x_coord.size(); ++j) {
-                // TODO: distinct vertex values with indices man
+            for (int j = 0; j < dist_matrix.x_coord.size(); ++j) {
                 // visited_map[vertex] = {free / not_available / path_idx, first/last}
                 if (visited_map[j].first != i and visited_map[j].first != available(NOT)){
-                    if (visited_map[j].second == -1){ // isolated - TODO: use enum
-                        // TODO
-                    }else{
-                        if (visited_map[j].second == side(RIGHT)){
-                            // TODO
-                        } else { // LEFT
-                            // TODO
+                    if (j != current_last_vertex) {
+                        double distance = dist_matrix.dist_matrix[current_last_vertex][j];
+
+                        if (distance < min_distance_last) {
+                            min_distance_last = distance;
+                            nearest_neighbor_last = j;
                         }
                     }
+
+                    if (j != current_first_vertex) {
+                        double distance = dist_matrix.dist_matrix[current_first_vertex][j];
+                        if (distance < min_distance_first) {
+                            min_distance_first = distance;
+                            nearest_neighbor_first = j;
+                        }
+                    }
+                    // look for nearest neighbor from start and end
+                    // decide which one
+                    // and after based on vertex characteristics decide what to do
+                }
+            }
+            int best_vertex = -1;
+            int which_side = 0;
+            if (min_distance_last < min_distance_first){
+                best_vertex = nearest_neighbor_last;
+                which_side = side(RIGHT);
+            } else {
+                best_vertex = nearest_neighbor_first;
+                which_side = side(LEFT);
+            }
+
+            int j = best_vertex;
+            if (visited_map[j].first == available(FREE)){ // isolated vertex
+                // auto [vertex, where] = find_neighbour(current_last_vertex, current_first_vertex, j);
+                if (which_side == side(RIGHT)){
+                    visited_map[current_last_vertex] = {available(NOT), 0};
+                    visited_map[j] = {i, side(RIGHT)};
+                    paths[i].push_back(j);
+                }else { // left
+                    visited_map[current_first_vertex] = {available(NOT), 0};
+                    visited_map[j] = {i, side(LEFT)};
+                    paths[i].insert(paths[i].begin(), j);
+                }
+            }else{
+                if (visited_map[j].second == side(RIGHT)){ // merge paths from the RIGHT
+                    // TODO
+                    visited_map[j] = {available(NOT), 0};
+                    if (which_side == side(RIGHT)){
+                        visited_map[current_last_vertex] = {available(NOT), 0};
+                        // do prawej strony path[i] dodajemy od prawej strony path j-tego vertexa
+                        std::reverse(paths[visited_map[j].first].begin(), paths[visited_map[j].first].end());
+                        paths[i].insert(paths[i].begin(), paths[visited_map[j].first].begin(), paths[visited_map[j].first].end());
+                        paths[visited_map[j].first].clear();
+
+                        visited_map[paths[visited_map[j].first].back()] = {available(NOT), 0};
+
+                    }else{ // left
+                        visited_map[current_first_vertex] = {available(NOT), 0};
+                        // do prawej strony path[i] dodajemy od lewej strony path j-tego vertexa
+                        paths[i].insert(paths[i].begin(), paths[visited_map[j].first].begin(), paths[visited_map[j].first].end());
+                        paths[visited_map[j].first].clear();
+                    }
+                    // insert to path[i] paths[visited_map[j].first]
+
+                } else { // merge paths to the LEFT
+                    visited_map[current_first_vertex] = {available(NOT), 0};
+                    visited_map[j] = {available(NOT), 0};
+
+                    // TODO
                 }
             }
         }
+
+
+
     }
 
     return paths[solution_idx];

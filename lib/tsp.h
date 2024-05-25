@@ -109,7 +109,7 @@ class TSP {
     std::tuple<std::vector<int>, std::vector<int>> find_greedy_cycles_nearest_from_incomplete(std::vector<int> &, std::vector<int> &);
     std::vector<int> find_from_incomplete_degenerated_inner(std::vector<std::vector<int>> &, std::map<int, std::pair<int, int>>&);
     std::tuple<std::vector<int>, std::vector<int>> find_from_incomplete_degenerated(std::vector<std::vector<int>> &, std::vector<std::vector<int>> &, std::map<int, std::pair<int, int>>&, std::map<int, std::pair<int, int>>&);
-
+    std::pair<int,int> find_neighbour(int, int, int);
 
 	// LOCAL SEARCH
 	auto local_search() -> std::tuple<std::vector<int>, std::vector<int>>;
