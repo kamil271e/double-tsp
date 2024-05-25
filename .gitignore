@@ -16,3 +16,4 @@ venv
 .idea
 cmake-build-debug/
 *.zip
+imo

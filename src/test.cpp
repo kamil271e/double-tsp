@@ -1,4 +1,14 @@
-#include "../lib/tsp.h"
+#include <iostream>
+#include <unordered_set>
+#include <vector>
+
+#include <unordered_set>
+#include <vector>
+#include <tuple>
+#include <algorithm> // for std::swap
+#include <unordered_map>
+#include <map>
+
 
 enum available {
     NOT=-2,
@@ -10,94 +20,20 @@ enum side {
     RIGHT=1
 };
 
+struct pair_hash {
+    template <class T1, class T2>
+    std::size_t operator()(const std::pair<T1, T2>& pair) const {
+        return std::hash<T1>()(pair.first) ^ std::hash<T2>()(pair.second);
+    }
+};
 
-auto TSP::hybrid_evolution_algo()
-	-> std::tuple<std::vector<int>, std::vector<int>> {
-	// Initialization
-	// Generate an initial population of 20 solutions using local search
-	// methods.
-	bool using_local_search = true;
-	std::vector<std::tuple<std::vector<int>, std::vector<int>>> population;
-	for (int i = 0; i < 20; i++) {
-		auto [c1, c2] = local_search();
-		population.push_back({c1, c2});
-	}
-
-	// Ensure no duplicate solutions exist in the population.
-	std::sort(population.begin(), population.end());
-	population.erase(std::unique(population.begin(), population.end()),
-					 population.end());
-
-	auto avg_time = calculateAverageMSLStime();
-
-	// TODO: put it in separate function:
-
-    // while (time < avg_time): ...
-
-        auto [parent1, parent2] = select_two_parents(population);
-        auto& [parent1_cycle1, parent1_cycle2] = population[parent1];
-        auto& [parent2_cycle1, parent2_cycle2] = population[parent2];
-
-        auto edges1 = findEdges(parent2_cycle1);
-        auto edges2 = findEdges(parent2_cycle2);
-        std::unordered_set<std::pair<int, int>, pair_hash> edges;
-        edges.insert(edges1.begin(), edges1.end());
-        edges.insert(edges2.begin(), edges2.end());
-
-        // inside remove_edges() we need to fill visited_map properly:
-
-        std::map<int, std::pair<int, int>> visited_map;
-        auto paths1 = remove_edges(parent1_cycle1, edges, visited_map);
-        auto paths2 = remove_edges(parent1_cycle2, edges, visited_map);
-
-        // TODO implement reconstruction:
-        // solution = reconstruction(paths1, paths2, visited_map);
-
-        // if worst(population) < current solution -> replace worst with current solution
-
-    // end while;
-
-    // return best_solution;
-
-    return {cycle1, cycle2};
-}
-
-// Select two different parent solutions uniformly at random.
-auto TSP::select_two_parents(
-	const std::vector<std::tuple<std::vector<int>, std::vector<int>>>
-		population) -> std::pair<int, int> {
-	std::random_device rd;
-	std::mt19937 gen(rd());
-	std::uniform_int_distribution<int> dist(0, population.size() - 1);
-
-	int parent1 = dist(gen);
-	int parent2 = dist(gen);
-	while (parent1 == parent2) {
-		parent2 = dist(gen);
-	}
-
-	return std::make_pair(parent1, parent2);
-}
-
-// Helper function to find edges in a cycle
-std::unordered_set<std::pair<int, int>, pair_hash>
-TSP::findEdges(const std::vector<int> &cycle) {
-	std::unordered_set<std::pair<int, int>, pair_hash> edges;
-	for (size_t i = 0; i < cycle.size(); ++i) {
-		int from = cycle[i];
-		int to = cycle[(i + 1) % cycle.size()];
-		if (from > to)
-			std::swap(from, to); // Ensure consistent ordering
-		edges.emplace(from, to);
-	}
-	return edges;
-}
 
 auto remove_edges(std::vector<int>& cycle, const std::unordered_set<std::pair<int, int>, pair_hash>& other_edges, std::map<int, std::pair<int, int>>& visited_map) -> std::vector<std::vector<int>> {
     std::vector<std::vector<int>> paths;
     std::vector<int> current_path;
     // visited_map[vertex] = {free / not_available / path_idx, first/last}
     bool new_path = true;
+
     for (size_t i = 0; i < cycle.size(); ++i) {
         int from = cycle[i];
         int after = cycle[(i + 1) % cycle.size()];
@@ -141,10 +77,43 @@ auto remove_edges(std::vector<int>& cycle, const std::unordered_set<std::pair<in
         visited_map[paths[0].back()] = {0, side(RIGHT)};
     }
     else {
-        if (!current_path.empty()){
+        if (current_path.size() > 0){
             visited_map[current_path.back()] = {paths.size(), side(RIGHT)};
             paths.push_back(current_path);
         }
     }
     return paths;
+}
+
+
+
+int main() {
+    std::map<int, std::pair<int, int>> visited_map;
+    std::vector<int> cycle = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+    std::unordered_set<std::pair<int, int>, pair_hash> other_edges =  {
+//            {1,2},
+            {2,3},
+//            {3,4},
+            {4,5},
+            {5,6},
+//            {6,7},
+            {7,8},
+            {8,9},
+//            {9,1},
+    };
+    std::vector<std::vector<int>> paths = remove_edges(cycle, other_edges, visited_map);
+
+    for (const auto& path : paths) {
+        for (int vertex : path) {
+            std::cout << vertex << " ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << "MAP" << std::endl;
+
+    for (const auto& [vertex, info] : visited_map) {
+        std::cout << vertex << " " << info.first << " " << info.second << std::endl;
+    }
+
+    return 0;
 }
