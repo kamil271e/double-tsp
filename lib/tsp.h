@@ -36,6 +36,7 @@ enum class AlgType {
 enum available {
     NOT=-2,
     FREE=-1,
+    // other number is current path idx
 };
 
 enum side {

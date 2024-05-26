@@ -374,7 +374,7 @@ auto TSP::find_from_incomplete_degenerated_inner(std::vector<std::vector<int>> &
             for (int j = 0; j < dist_matrix.x_coord.size(); ++j) {
                 // visited_map[vertex] = {free / not_available / path_idx, first/last}
 				//If the vertex not in the current path and not visited(free)
-                if (visited_map[j].first != i and visited_map[j].first != available(NOT)){
+                if (visited_map.find(j) != visited_map.end() && visited_map[j].first != i && visited_map[j].first != available(NOT)){
 
 						// Get the distance between the last vertex and the current vertex, if it is smaller than the current minimum distance
                         double distance_last = dist_matrix.dist_matrix[current_last_vertex][j];
@@ -416,12 +416,16 @@ auto TSP::find_from_incomplete_degenerated_inner(std::vector<std::vector<int>> &
 			
             int j = best_vertex; // change the name for better readability
 
-			// Print the best vertex
-			std::cout << "Current right vertex: " << current_last_vertex << std::endl;
-			std::cout << "Current left vertex: " << current_first_vertex << std::endl;
-			std::cout << "Neigbour Vertex: " << j << " Index in paths list: " << visited_map[j].first << std::endl;
-			std::cout << "Which Side(1 = Right| -1 = Left): " << which_side << std::endl;
-			std::cout << std::endl;
+            // Print the best vertex
+            std::cout << "Current left vertex: " << current_first_vertex << std::endl;
+            std::cout << "Current right vertex: " << current_last_vertex << std::endl;
+            std::cout << "Best Vertex: " << j << std::endl;
+            std::cout << "J Availability: (-2 = NOT | -1 = FREE | path_idx): " << visited_map[j].first << std::endl;
+            std::cout << "Which Side I (-1 = Left | 1 = Right): " << which_side << std::endl;
+            std::cout << "Which Side J (-1 = Left | 1 = Right): " << visited_map[j].second << std::endl;
+            std::cout << "PATH(I): " << i << std::endl;
+            std::cout << "PATH(J): " << visited_map[j].first << std::endl;
+            std::cout << std::endl;
 
 
 			//Print the current path
@@ -464,12 +468,16 @@ auto TSP::find_from_incomplete_degenerated_inner(std::vector<std::vector<int>> &
 
 				// If the vertex is on the right side
                 if (visited_map[j].second == side(RIGHT)){ // merge paths from the RIGHT; j from RIGHT
-					visited_map[j] = {available(NOT), 0}; // change status of the vertex to NOT available
+					//visited_map[j] = {available(NOT), 0}; // change status of the vertex to NOT available
 
                     // TODO j-ty z prawej strony:
 					if (which_side  == side(RIGHT)) { // Unusual case, because the vertex is on the right side 
 						std::cout << "i RIGHT j RIGHT " << std::endl;
-
+                        std::cout << "Neighbour path: ";
+                        for (int vertex : paths[visited_map[j].first]){
+                            std::cout << vertex << " ";
+                        }
+                        std::cout << std::endl;
                         // j from RIGHT and i from RIGHT: paths[i] = merged(paths[i], std::reversed(paths[j]))
 						visited_map[current_last_vertex] = {available(NOT), 0}; // change status of the current_last_vertex to NOT available, because it will be merged with the path from the end
 
@@ -486,7 +494,11 @@ auto TSP::find_from_incomplete_degenerated_inner(std::vector<std::vector<int>> &
 
                     } else { // left		
 						std::cout << "i LEFT j RIGHT " << std::endl;
-
+                        std::cout << "Neighbour path: ";
+                        for (int vertex : paths[visited_map[j].first]){
+                            std::cout << vertex << " ";
+                        }
+                        std::cout << std::endl;
                         // j from RIGHT i from LEFT: paths[i] = merged(paths[j], paths[i])
                         visited_map[current_first_vertex] = {available(NOT), 0};
 
@@ -531,7 +543,11 @@ auto TSP::find_from_incomplete_degenerated_inner(std::vector<std::vector<int>> &
 						
                     } else { // left
 						std::cout << "i LEFT j LEFT " << std::endl;
-
+                        std::cout << "Neighbour path: ";
+                        for (int vertex : paths[visited_map[j].first]){
+                            std::cout << vertex << " ";
+                        }
+                        std::cout << std::endl;
                         // j from LEFT i from LEFT: paths[i] = merged(std::reversed(paths[j]), paths[i])
                         visited_map[current_first_vertex] = {available(NOT), 0};
                         //visited_map[visited_map[j].first] = {available(NOT), 0};
