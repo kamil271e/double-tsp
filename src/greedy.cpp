@@ -353,17 +353,12 @@ auto TSP::find_from_incomplete_degenerated_inner(std::vector<std::vector<int>> &
 		// Iterate over all paths
         for (int i = 0; i < paths.size(); i++){
 
-
 			// If the path is already complete, break the loop
             if (paths[i].size() >= 100){ // reconstruction finished
                 solution_idx = i;
                 break;
             }
             if (paths[i].empty()) continue; // empty path - ignore
-
-			
-
-
 
 			// Get the last and first vertex of the current path
             int current_last_vertex = paths[i].back();
@@ -424,7 +419,7 @@ auto TSP::find_from_incomplete_degenerated_inner(std::vector<std::vector<int>> &
 			// Print the best vertex
 			std::cout << "Current right vertex: " << current_last_vertex << std::endl;
 			std::cout << "Current left vertex: " << current_first_vertex << std::endl;
-			std::cout << "Best Vertex: " << j << std::endl;
+			std::cout << "Neigbour Vertex: " << j << " Index in paths list: " << visited_map[j].first << std::endl;
 			std::cout << "Which Side(1 = Right| -1 = Left): " << which_side << std::endl;
 			std::cout << std::endl;
 
@@ -437,15 +432,16 @@ auto TSP::find_from_incomplete_degenerated_inner(std::vector<std::vector<int>> &
 			std::cout << std::endl;
 
 			// print the  paths[visited_map[j].first]
-			std::cout << "Neighbour path: ";
-			for (int vertex : paths[visited_map[j].first]){
-				std::cout << vertex << " ";
-			}
-			std::cout << std::endl;
+			// std::cout << "Neighbour path: ";
+			// for (int vertex : paths[visited_map[j].first]){
+			// 	std::cout << vertex << " ";
+			// }
+			// std::cout << std::endl;
 
 			// If the vertex is isolated, add it to the path
             if (visited_map[j].first == available(FREE)){ // isolated vertex
                 // auto [vertex, where] = find_neighbour(current_last_vertex, current_first_vertex, j);
+				std::cout << "FREE" << std::endl;
 
 				// If the vertex is on the right side, add it to the end of the path
                 if (which_side == side(RIGHT)){
@@ -463,18 +459,25 @@ auto TSP::find_from_incomplete_degenerated_inner(std::vector<std::vector<int>> &
                     paths[i].insert(paths[i].begin(), j);
                 }
 
-
-
 			// If the vertex is already in a path
             }else{
+
+
 				// If the vertex is on the right side
                 if (visited_map[j].second == side(RIGHT)){ // merge paths from the RIGHT; j from RIGHT
+					visited_map[j] = {available(NOT), 0}; // change status of the vertex to NOT available
+
                     // TODO j-ty z prawej strony:
-                    visited_map[j] = {available(NOT), 0};
-					if (which_side  == side(RIGHT)) {
+                    //visited_map[j] = {available(NOT), 0};
+					if (which_side  == side(RIGHT)) { // Unusual case, because the vertex is on the right side 
+						std::cout << "i RIGHT j RIGHT " << std::endl;
+
                         // j from RIGHT and i from RIGHT: paths[i] = merged(paths[i], std::reversed(paths[j]))
-                        visited_map[current_last_vertex] = {available(NOT), 0}; // change status of the current_last_vertex to NOT available, because it will be merged with the path from the end
+
+						visited_map[current_last_vertex] = {available(NOT), 0}; // change status of the current_last_vertex to NOT available, because it will be merged with the path from the end
                         //visited_map[visited_map[j].first] = {available(NOT), 0}; // ??? 
+						visited_map[j] = {available(NOT), 0}; // change status of the vertex to NOT available
+
 
 						// Reverse the path and merge it with the current path
                         std::reverse(paths[visited_map[j].first].begin(), paths[visited_map[j].first].end()); //????
@@ -486,32 +489,58 @@ auto TSP::find_from_incomplete_degenerated_inner(std::vector<std::vector<int>> &
 						// Delete the path
                         paths[visited_map[j].first].clear();
 
-                    } else { // left
+                    } else { // left		
+						std::cout << "i LEFT j RIGHT " << std::endl;
+
+
+
                         // j from RIGHT i from LEFT: paths[i] = merged(paths[j], paths[i])
                         visited_map[current_first_vertex] = {available(NOT), 0};
+						visited_map[j] = {available(NOT), 0}; // change status of the vertex to NOT available
+
                         //visited_map[visited_map[j].first] = {available(NOT), 0};// ???
                         
 						std::vector<int> tmp = paths[i];
                         paths[i].clear();
                         paths[i].insert(paths[i].end(), paths[visited_map[j].first].begin(), paths[visited_map[j].first].end());
                         paths[i].insert(paths[i].end(), tmp.begin(), tmp.end()); 
+
+
+						visited_map[paths[i].front()] = {i, side(LEFT)};
+
                         paths[visited_map[j].first].clear();
                     }
                 } else { // merge paths to the LEFT
+
+
+					// TODO j-ty z lewej strony:
                     if (which_side == side(RIGHT)){
+						std::cout << "i RIGHT j LEFT " << std::endl;
+
+						// Print the  neighbour path
+						std::cout << "Neighbour path: ";
+						for (int vertex : paths[visited_map[j].first]){
+							std::cout << vertex << " ";
+						}
+						std::cout << std::endl;
+
                         // j from LEFT i from RIGHT: paths[i] = merged(paths[i], paths[j])
                         visited_map[current_last_vertex] = {available(NOT), 0};
-                        //visited_map[visited_map[j].first] = {available(NOT), 0}; // ???
+						visited_map[j] = {available(NOT), 0};
+                       
+                        paths[i].insert(paths[i].end(), paths[visited_map[j].first].begin(), paths[visited_map[j].first].end());						
+						
+						visited_map[paths[i].back()] = {i, side(RIGHT)};
+						//visited_map[paths[i].front()] = {i, side(LEFT)};
 
-                        std::vector<int> tmp = paths[i];
-                        paths[i].clear();
-                        paths[i].insert(paths[i].end(), paths[visited_map[j].first].begin(), paths[visited_map[j].first].end());
-                        paths[i].insert(paths[i].end(), tmp.begin(), tmp.end());
                         paths[visited_map[j].first].clear();
-
+						
                     } else { // left
+						std::cout << "i LEFT j LEFT " << std::endl;
+
                         // j from LEFT i from LEFT: paths[i] = merged(std::reversed(paths[j]), paths[i])
                         visited_map[current_first_vertex] = {available(NOT), 0};
+						visited_map[j] = {available(NOT), 0};
                         //visited_map[visited_map[j].first] = {available(NOT), 0};
 
                         std::reverse(paths[visited_map[j].first].begin(), paths[visited_map[j].first].end());
