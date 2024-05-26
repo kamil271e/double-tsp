@@ -462,21 +462,16 @@ auto TSP::find_from_incomplete_degenerated_inner(std::vector<std::vector<int>> &
 			// If the vertex is already in a path
             }else{
 
-
 				// If the vertex is on the right side
                 if (visited_map[j].second == side(RIGHT)){ // merge paths from the RIGHT; j from RIGHT
 					visited_map[j] = {available(NOT), 0}; // change status of the vertex to NOT available
 
                     // TODO j-ty z prawej strony:
-                    //visited_map[j] = {available(NOT), 0};
 					if (which_side  == side(RIGHT)) { // Unusual case, because the vertex is on the right side 
 						std::cout << "i RIGHT j RIGHT " << std::endl;
 
                         // j from RIGHT and i from RIGHT: paths[i] = merged(paths[i], std::reversed(paths[j]))
-
 						visited_map[current_last_vertex] = {available(NOT), 0}; // change status of the current_last_vertex to NOT available, because it will be merged with the path from the end
-                        //visited_map[visited_map[j].first] = {available(NOT), 0}; // ??? 
-						visited_map[j] = {available(NOT), 0}; // change status of the vertex to NOT available
 
 
 						// Reverse the path and merge it with the current path
@@ -486,17 +481,14 @@ auto TSP::find_from_incomplete_degenerated_inner(std::vector<std::vector<int>> &
 
 						// Update the visited_map
                         visited_map[paths[i].back()] = {i, side(RIGHT)};
-						// Delete the path
+						visited_map[j] = {available(NOT), 0}; // change status of the vertex to NOT available
                         paths[visited_map[j].first].clear();
 
                     } else { // left		
 						std::cout << "i LEFT j RIGHT " << std::endl;
 
-
-
                         // j from RIGHT i from LEFT: paths[i] = merged(paths[j], paths[i])
                         visited_map[current_first_vertex] = {available(NOT), 0};
-						visited_map[j] = {available(NOT), 0}; // change status of the vertex to NOT available
 
                         //visited_map[visited_map[j].first] = {available(NOT), 0};// ???
                         
@@ -508,6 +500,7 @@ auto TSP::find_from_incomplete_degenerated_inner(std::vector<std::vector<int>> &
 
 						visited_map[paths[i].front()] = {i, side(LEFT)};
 
+						visited_map[j] = {available(NOT), 0}; // change status of the vertex to NOT available
                         paths[visited_map[j].first].clear();
                     }
                 } else { // merge paths to the LEFT
@@ -526,13 +519,14 @@ auto TSP::find_from_incomplete_degenerated_inner(std::vector<std::vector<int>> &
 
                         // j from LEFT i from RIGHT: paths[i] = merged(paths[i], paths[j])
                         visited_map[current_last_vertex] = {available(NOT), 0};
-						visited_map[j] = {available(NOT), 0};
+
                        
                         paths[i].insert(paths[i].end(), paths[visited_map[j].first].begin(), paths[visited_map[j].first].end());						
-						
-						visited_map[paths[i].back()] = {i, side(RIGHT)};
-						//visited_map[paths[i].front()] = {i, side(LEFT)};
+						std::cout << "I'm here!" << std::endl;
 
+						visited_map[paths[i].back()] = {i, side(RIGHT)};
+						
+						visited_map[j] = {available(NOT), 0};
                         paths[visited_map[j].first].clear();
 						
                     } else { // left
@@ -540,7 +534,6 @@ auto TSP::find_from_incomplete_degenerated_inner(std::vector<std::vector<int>> &
 
                         // j from LEFT i from LEFT: paths[i] = merged(std::reversed(paths[j]), paths[i])
                         visited_map[current_first_vertex] = {available(NOT), 0};
-						visited_map[j] = {available(NOT), 0};
                         //visited_map[visited_map[j].first] = {available(NOT), 0};
 
                         std::reverse(paths[visited_map[j].first].begin(), paths[visited_map[j].first].end());
@@ -550,6 +543,8 @@ auto TSP::find_from_incomplete_degenerated_inner(std::vector<std::vector<int>> &
                         paths[i].insert(paths[i].end(), tmp.begin(), tmp.end());
 
                         visited_map[paths[i].front()] = {i, side(LEFT)};
+
+						visited_map[j] = {available(NOT), 0};
                         paths[visited_map[j].first].clear();
                     }
                 }
