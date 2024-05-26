@@ -17,7 +17,7 @@ auto TSP::hybrid_evolution_algo()
 	population.erase(std::unique(population.begin(), population.end()),
 					 population.end());
 
-	auto avg_time = calculateAverageMSLStime();
+	//auto avg_time = calculateAverageMSLStime();
 
 	// TODO: put it in separate function:
 
@@ -86,7 +86,7 @@ TSP::findEdges(const std::vector<int> &cycle) {
 	return edges;
 }
 
-auto remove_edges(std::vector<int>& cycle, const std::unordered_set<std::pair<int, int>, pair_hash>& other_edges, std::map<int, std::pair<int, int>>& visited_map) -> std::vector<std::vector<int>> {
+auto TSP::remove_edges(std::vector<int>& cycle, const std::unordered_set<std::pair<int, int>, pair_hash>& other_edges, std::map<int, std::pair<int, int>>& visited_map) -> std::vector<std::vector<int>> {
     std::vector<std::vector<int>> paths;
     std::vector<int> current_path;
     // visited_map[vertex] = {free / not_available / path_idx, first/last}
