@@ -344,6 +344,13 @@ auto TSP::find_neighbour(int current_last_vertex, int current_first_vertex, int 
 }
 
 
+void calculate_current_size(std::vector<std::vector<int>> paths){
+    int s = 0;
+    for (auto path : paths){
+        s += path.size();
+    } std::cout << "||||Current size: " << s << "||||" << std::endl;
+}
+
 auto TSP::find_from_incomplete_degenerated_inner(std::vector<std::vector<int>> &paths, std::map<int, std::pair<int, int>> &visited_map) -> std::vector<int> {
     int solution_idx = -1;
 
@@ -372,7 +379,6 @@ auto TSP::find_from_incomplete_degenerated_inner(std::vector<std::vector<int>> &
 
 			// Iterate over all vertices to find the nearest neighbors for the last and first vertices
             for (int j = 0; j < dist_matrix.x_coord.size(); ++j) {
-                // visited_map[vertex] = {free / not_available / path_idx, first/last}
 				//If the vertex not in the current path and not visited(free)
                 if (visited_map.find(j) != visited_map.end() && visited_map[j].first != i && visited_map[j].first != available(NOT)){
 
@@ -391,12 +397,6 @@ auto TSP::find_from_incomplete_degenerated_inner(std::vector<std::vector<int>> &
                     }
                 }
             }
-
-			//Checkpoint. What we have?
-			// nearest_neighbor_last, nearest_neighbor_first - the nearest neighbors for the last and first vertices
-			// min_distance_last, min_distance_first - the distances to the nearest neighbors
-			//-----------------------------------------------------------------------------------------------------
-
 			// Choose the best vertex to add to the path
             int best_vertex, which_side;
 			// If the distance from the last vertex is smaller than the distance from the first vertex, choose the last vertex and set the side to RIGHT
@@ -408,12 +408,6 @@ auto TSP::find_from_incomplete_degenerated_inner(std::vector<std::vector<int>> &
                 best_vertex = nearest_neighbor_first;
                 which_side = side(LEFT);
             }
-
-			//Checkpoint. What we have?
-			// best_vertex - the best vertex to add to the path
-			// which_side - the side to add the vertex to
-			//-----------------------------------------------------------------------------------------------------
-			
             int j = best_vertex; // change the name for better readability
 
             // Print the best vertex
@@ -491,8 +485,9 @@ auto TSP::find_from_incomplete_degenerated_inner(std::vector<std::vector<int>> &
                         visited_map[paths[i].back()] = {i, side(RIGHT)};
 						visited_map[j] = {available(NOT), 0}; // change status of the vertex to NOT available
                         paths[visited_map[j].first].clear();
+                        //paths[visited_map[j].first] = std::vector<int>();
 
-                    } else { // left		
+                    } else { // left	// TODO: nigdy tego nie widzialem xd
 						std::cout << "i LEFT j RIGHT " << std::endl;
                         std::cout << "Neighbour path: ";
                         for (int vertex : paths[visited_map[j].first]){
@@ -505,15 +500,22 @@ auto TSP::find_from_incomplete_degenerated_inner(std::vector<std::vector<int>> &
                         //visited_map[visited_map[j].first] = {available(NOT), 0};// ???
                         
 						std::vector<int> tmp = paths[i];
+                        std::cout << "TMP size: " << tmp.size() << std::endl;
+                        std::cout << "PATHS[i] size: " << paths[i].size() << std::endl;
                         paths[i].clear();
+                        std::cout << "PATHS[i] size: " << paths[i].size() << std::endl;
+                        std::cout << "TMP size: " << tmp.size() << std::endl;
+                        //paths[i] = std::vector<int>();
                         paths[i].insert(paths[i].end(), paths[visited_map[j].first].begin(), paths[visited_map[j].first].end());
-                        paths[i].insert(paths[i].end(), tmp.begin(), tmp.end()); 
+                        paths[i].insert(paths[i].end(), tmp.begin(), tmp.end());
+                        std::cout << "PATHS[i] size: " << paths[i].size() << std::endl;
 
 
 						visited_map[paths[i].front()] = {i, side(LEFT)};
 
 						visited_map[j] = {available(NOT), 0}; // change status of the vertex to NOT available
                         paths[visited_map[j].first].clear();
+                        //paths[visited_map[j].first] = std::vector<int>();
                     }
                 } else { // merge paths to the LEFT
 
@@ -531,15 +533,14 @@ auto TSP::find_from_incomplete_degenerated_inner(std::vector<std::vector<int>> &
 
                         // j from LEFT i from RIGHT: paths[i] = merged(paths[i], paths[j])
                         visited_map[current_last_vertex] = {available(NOT), 0};
-
-                       
-                        paths[i].insert(paths[i].end(), paths[visited_map[j].first].begin(), paths[visited_map[j].first].end());						
-						std::cout << "I'm here!" << std::endl;
-
+                        std::cout << "PATHS[i] size: " << paths[i].size() << std::endl;
+                        paths[i].insert(paths[i].end(), paths[visited_map[j].first].begin(), paths[visited_map[j].first].end());
+                        std::cout << "PATHS[i] size: " << paths[i].size() << std::endl;
 						visited_map[paths[i].back()] = {i, side(RIGHT)};
-						
+
 						visited_map[j] = {available(NOT), 0};
                         paths[visited_map[j].first].clear();
+                        // paths[visited_map[j].first] = std::vector<int>();
 						
                     } else { // left
 						std::cout << "i LEFT j LEFT " << std::endl;
@@ -555,6 +556,7 @@ auto TSP::find_from_incomplete_degenerated_inner(std::vector<std::vector<int>> &
                         std::reverse(paths[visited_map[j].first].begin(), paths[visited_map[j].first].end());
                         std::vector<int> tmp = paths[i];
                         paths[i].clear();
+                        // paths[i] = std::vector<int>();
                         paths[i].insert(paths[i].begin(), paths[visited_map[j].first].begin(), paths[visited_map[j].first].end());
                         paths[i].insert(paths[i].end(), tmp.begin(), tmp.end());
 
@@ -562,16 +564,21 @@ auto TSP::find_from_incomplete_degenerated_inner(std::vector<std::vector<int>> &
 
 						visited_map[j] = {available(NOT), 0};
                         paths[visited_map[j].first].clear();
+                        //paths[visited_map[j].first] = std::vector<int>();
                     }
                 }
             }
-
 			//Print the current path
 			std::cout << "New Path: ";
 			for (int vertex : paths[i]){
 				std::cout << vertex << " ";
 			}
 			std::cout << std::endl;
+            std::cout << "Old neighbour path: ";
+            for (int vertex : paths[visited_map[j].first]){
+                std::cout << vertex << " ";
+            } std::cout<<std::endl;
+            calculate_current_size(paths);
 			std::cout << "----------------------------------------------" <<std::endl;
 
         }
