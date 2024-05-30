@@ -102,7 +102,7 @@ class TSP {
 	double get_expansion_cost(int, int, int);
 	std::pair<int, int> find_nearest_neighbor(int, int,
 											  const std::vector<bool> &);
-	std::pair<int, double> get_2regret(int, std::vector<int>, float = 0.42);
+	std::pair<int, double> get_2regret(int, std::vector<int>, float = 0.1);
 	std::tuple<std::vector<int>, std::vector<int>>
 	find_greedy_cycles_regret_from_incomplete(std::vector<int> &,
 											  std::vector<int> &);
@@ -167,6 +167,8 @@ class TSP {
 	std::unordered_set<std::pair<int, int>, pair_hash>
 	findEdges(const std::vector<int> &);
 	
-    auto remove_edges(std::vector<int>& , const std::unordered_set<std::pair<int, int>, pair_hash>&, std::map<int, std::pair<int, int>>&) -> std::vector<std::vector<int>> ;
+    auto remove_edges(std::vector<int>& , const std::unordered_set<std::pair<int, int>, pair_hash>&) -> std::vector<int>;
+	auto find_best_worst_solution(std::vector<std::tuple<std::vector<int>, std::vector<int>>>, bool) -> std::pair<int, int>;
+
 };
 #endif // TSP_H
