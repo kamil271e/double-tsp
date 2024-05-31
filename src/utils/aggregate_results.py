@@ -98,6 +98,33 @@ def get_local_ext_result_table():
     print(tabulate(data, headers=headers, tablefmt="pretty"))
 
 
+def get_local_ext_iter_table():
+    results = []
+    for algo in LOCAL_EXT_ALGOS:
+        algo_results = []
+        for instance in INSTANCES_BIG:
+            # Construct the expected file path based on the given properties
+            file_pattern = f'I_{algo}_(regret|random)_(vertex|edge)_(steepest|greedy)_{instance}.txt'
+            file_regex = re.compile(file_pattern)
+            matching_files = [file for file in os.listdir(CYCLES_DIR) if file_regex.match(file)]
+
+            if matching_files:
+                # Use the first matching file found
+                data = np.loadtxt(os.path.join(CYCLES_DIR, matching_files[0]))
+                algo_results.append((int(np.min(data)), int(np.max(data)), int(np.mean(data))))
+            else:
+                print(f"No file found for properties: {algo}, {instance}")
+
+        results.append(algo_results)
+    data = []
+    for i, algo in enumerate(LOCAL_EXT_ALGOS):
+        for j, instance in enumerate(INSTANCES_BIG):
+            min_val, max_val, mean_val = results[i][j]
+            data.append([algo, instance, min_val, max_val, mean_val])
+
+    headers = ["Algo", "Instance", "Min", "Max", "Mean"]
+    print(tabulate(data, headers=headers, tablefmt="pretty"))
+    
 # Random Walk Experiments
 ################################################################################
 
@@ -155,5 +182,6 @@ if __name__ == "__main__":
             get_random_walk_table()
         elif sys.argv[1] == "local_ext":
             get_local_ext_result_table()
+            get_local_ext_iter_table()
         else:
             print("Invalid argument. Choose between 'greedy' and 'local'")

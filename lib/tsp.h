@@ -87,8 +87,11 @@ class TSP {
 	void append_vertex(int, std::vector<int> &);
 	void insert_vertex(int, int, std::vector<int> &);
 	void log_build_process();
-	void save_time(long, struct LocalSearchParams,
-				   std::string); // TODO make more generic ;-;
+	// void save_time(long, struct LocalSearchParams,
+	// 			   std::string); // TODO make more generic ;-;
+
+	void save_data(const std::string&, long , struct LocalSearchParams, std::string);
+
 
 	// GREEDY
 	auto find_greedy_cycles_nearest()

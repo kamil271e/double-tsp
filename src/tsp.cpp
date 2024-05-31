@@ -133,19 +133,7 @@ void createFileIfNotExists(const std::string &filePath) {
 	}
 }
 
-// TODO - more generic, we will use it for all algorithms
-void TSP::save_time(long duration, struct LocalSearchParams params,
-					std::string algo) {
-	std::string steepest = (params.steepest == 1) ? "steepest" : "greedy";
-	std::string cycles_time_file =
-		"../cycles/T_" + algo + "_" + params.input_data + "_" +
-		params.movements_type + "_" + steepest + "_" +
-		params.filename.substr(0, params.filename.size() - 4) + ".txt";
-	createFileIfNotExists(cycles_time_file);
-	std::ofstream outfile(cycles_time_file, std::ios_base::app);
-	outfile << duration << std::endl;
-	outfile.close();
-}
+
 
 auto calculateAverageFromFile(std::ifstream &file) {
 	long long sum = 0.0;
@@ -224,4 +212,30 @@ int TSP::calculate_objective(const std::vector<int> &c1,
 	}
 
 	return objective_value;
+}
+
+// Temporary solution to the problem of duplicate vertices in the cycle
+// Function to delete duplicate vertices in the cycle
+auto TSP::delete_duplicates(const std::vector<int> &cycle) -> std::vector<int> {
+	std::vector<int> new_cycle;
+	for (int i = 0; i < cycle.size(); ++i) {
+		if (std::find(new_cycle.begin(), new_cycle.end(), cycle[i]) ==
+			new_cycle.end()) {
+			new_cycle.push_back(cycle[i]);
+		}
+	}
+	return new_cycle;
+}
+
+
+void TSP::save_data(const std::string& prefix, long data, struct LocalSearchParams params, std::string algo) {
+	std::string steepest = (params.steepest == 1) ? "steepest" : "greedy";
+	std::string cycles_time_file =
+		"../cycles/" + prefix + "_" + algo + "_" + params.input_data + "_" +
+		params.movements_type + "_" + steepest + "_" +
+		params.filename.substr(0, params.filename.size() - 4) + ".txt";
+	createFileIfNotExists(cycles_time_file);
+	std::ofstream outfile(cycles_time_file, std::ios_base::app);
+	outfile << data << std::endl;
+	outfile.close();
 }
