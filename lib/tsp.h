@@ -49,8 +49,8 @@ struct LocalSearchParams {
 	std::string movements_type; // vertex, edge
 	std::string filename;		// name of the file
 	int steepest;				// greedy(0), steepest(1)
+	int using_local_search;     // 0 - no, 1 - yes
 	int num_starts = 100;		// number of starts for multiple local search
-	bool using_local_search;
 };
 
 // Hash function for pairs (to use pair as key in unordered_set)
@@ -67,6 +67,9 @@ class TSP {
 	TSP(const Matrix &dist_matrix, AlgType, std::string input_data,
 		std::string movements_type, int steepest,
 		std::string filename); // local search constructor
+	TSP(const Matrix &dist_matrix, AlgType, std::string input_data,
+		std::string movements_type, int steepest, int using_local_search,
+		std::string filename); //hea constructor
 
 	auto solve() -> std::tuple<std::vector<int>, std::vector<int>>;
 	const Matrix &dist_matrix;
@@ -106,7 +109,7 @@ class TSP {
 	double get_expansion_cost(int, int, int);
 	std::pair<int, int> find_nearest_neighbor(int, int,
 											  const std::vector<bool> &);
-	std::pair<int, double> get_2regret(int, std::vector<int>, float = 0.1);
+	std::pair<int, double> get_2regret(int, std::vector<int>, float = 0.42);
 	std::tuple<std::vector<int>, std::vector<int>>
 	find_greedy_cycles_regret_from_incomplete(std::vector<int> &,
 											  std::vector<int> &);

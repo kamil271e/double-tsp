@@ -8,6 +8,12 @@ TSP::TSP(const Matrix &dist_matrix, AlgType alg_type, std::string input_data,
 	: dist_matrix(dist_matrix), alg_type(alg_type),
 	  params({input_data, movements_type, filename, steepest}) {}
 
+	
+TSP::TSP(const Matrix &dist_matrix, AlgType alg_type, std::string input_data,
+		 std::string movements_type, int steepest, int using_local_search, std::string filename)
+	: dist_matrix(dist_matrix), alg_type(alg_type),
+	  params({input_data, movements_type, filename, steepest, using_local_search}) {}  
+
 auto TSP::solve() -> std::tuple<std::vector<int>, std::vector<int>> {
 	switch (alg_type) {
 	case AlgType::nearest_neighbors:

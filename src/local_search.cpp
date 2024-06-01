@@ -200,8 +200,8 @@ auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>> {
 		std::tie(cycle1, cycle2) = generate_random_cycles(100);
 
 	} else if (params.input_data == "regret") {
-//		std::tie(cycle1, cycle2) = find_greedy_cycles_regret();
-	    std::tie(cycle1, cycle2) = find_greedy_cycles_nearest();
+		std::tie(cycle1, cycle2) = find_greedy_cycles_regret();
+	    //std::tie(cycle1, cycle2) = find_greedy_cycles_nearest();
     }
 
 	bool vertex;

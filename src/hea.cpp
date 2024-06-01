@@ -40,10 +40,10 @@ auto TSP::hybrid_evolution_algo()
         auto c1 = remove_edges(parent1_cycle1, edges); // czy przy tej logice 2 roznie visited_map potrzebne
         auto c2 = remove_edges(parent1_cycle2, edges);
 
-        auto cur_solution = find_greedy_cycles_nearest_from_incomplete(c1, c2); 
+        auto cur_solution = find_greedy_cycles_regret_from_incomplete(c1, c2); 
 
         // Optional Local Search
-         if (params.using_local_search) {
+         if (params.using_local_search == 1) {
             cur_solution = local_search(std::get<0>(cur_solution), std::get<1>(cur_solution));
          }
 

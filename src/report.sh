@@ -61,9 +61,8 @@ elif [[ "$local_search" == "0" ]]; then
     _local_search_using="nolocal"
 fi
 
-
 # N: no. of iterations
-N=1
+N=10
 if [[ "$local_search" != "" ]]; then
     cycles_len_file="../cycles/L_${algotype}_${input_data}_${movements_type}_${_steepest}_${_local_search_using}_${instance_path::-4}.txt"
     cycles_file="../cycles/${algotype}_${input_data}_${movements_type}_${_steepest}_${_local_search_using}_${instance_path::-4}.txt"

@@ -138,6 +138,28 @@ def choose_best_local_ext():
             plot_name = cycles_file[:-4]
             visualize_tsp_cycles(f'{instance}.tsp', cycles, plot_name, title)
 
+def choose_best_hea():
+    for length_file in os.listdir(CYCLES_DIR):
+        if length_file.endswith(".txt") and length_file.startswith('L'):
+            parts = length_file.split("_")
+            print(parts)
+            if len(parts) == 6: 
+                algo, start_type, movement_type, greedy_or_steepest, instance = parts[1], parts[2], parts[3], parts[4],  parts[5].split(".")[0]
+            else:
+                algo, start_type, movement_type, greedy_or_steepest, local, instance = parts[1], parts[2], parts[3], parts[4], parts[5], parts[6].split(".")[0]
+            path = os.path.join(CYCLES_DIR, length_file)
+
+            data = np.loadtxt(path)
+            idx = np.argmin(data)
+
+            cycles_file = length_file[2:] # no "L_" prefix
+            cycles = read_lines(cycles_file, 2*idx)
+            title = rf'{cycles_file[:-4]}: $\bf{{{int(np.min(data))}}}$'
+            plot_name = cycles_file[:-4]
+            visualize_tsp_cycles(f'{instance}.tsp', cycles, plot_name, title)
+
+
+
 
 # Random Walk Experiments
 ################################################################################
@@ -176,5 +198,7 @@ if __name__ == "__main__":
             choose_best_random_walk()
         elif sys.argv[1] == "local_ext":
             choose_best_local_ext()
+        elif sys.argv[1] == "hea":
+            choose_best_hea()
         else:
             print("Invalid argument. Choose between 'greedy' and 'local'")
