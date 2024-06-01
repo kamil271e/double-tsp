@@ -5,7 +5,6 @@ auto TSP::hybrid_evolution_algo()
 	// Initialization
 	// Generate an initial population of 20 solutions using local search
 	// methods.
-	bool using_local_search = true;
 	std::vector<std::tuple<std::vector<int>, std::vector<int>>> population;
 	for (int i = 0; i < 20; i++) {
 		auto [c1, c2] = local_search();
@@ -44,7 +43,7 @@ auto TSP::hybrid_evolution_algo()
         auto cur_solution = find_greedy_cycles_nearest_from_incomplete(c1, c2); 
 
         // Optional Local Search
-         if (using_local_search) {
+         if (params.using_local_search) {
             cur_solution = local_search(std::get<0>(cur_solution), std::get<1>(cur_solution));
          }
 
@@ -65,6 +64,8 @@ auto TSP::hybrid_evolution_algo()
     }
     //Find the best solution in the population
     auto [best, best_value] = find_best_worst_solution(population, true);
+    save_data("I", number_of_iteration, params, "hea");
+
 
     return population[best];
 }

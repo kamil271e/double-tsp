@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	// LOCAL
-	if (argc == 6) {
+	if (argc >= 6) {
 
 		Matrix m;
 		m.load_from_path(argv[1]);
@@ -76,6 +76,9 @@ int main(int argc, char *argv[]) {
 		params.filename = argv[1];
 
 		AlgType alg_type = choose_algo(std::string(argv[2]));
+		if (alg_type == AlgType::hea || alg_type == AlgType::ils2) {
+			params.using_local_search = std::stoi(argv[6]);
+		}
 		// Print alg_type
 		TSP tsp(m, alg_type, params.input_data, params.movements_type,
 				params.steepest, params.filename);

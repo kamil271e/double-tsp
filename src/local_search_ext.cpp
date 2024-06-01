@@ -138,7 +138,9 @@ auto TSP::iterative_local_search_one()
 		std::tie(cycle_y1, cycle_y2) = perturbation_one(cycle_y1, cycle_y2);
 
 		// y := Local search (y)
-		std::tie(cycle_y1, cycle_y2) = local_search(cycle_y1, cycle_y2);
+		if (params.using_local_search) {
+			std::tie(cycle_y1, cycle_y2) = local_search(cycle_y1, cycle_y2);
+		}
 
 		// If f(y) > f(x) then x := y
 		if (calculate_objective(cycle_y1, cycle_y2) <
@@ -152,7 +154,7 @@ auto TSP::iterative_local_search_one()
 	auto operating_time = std::chrono::duration_cast<std::chrono::milliseconds>(
 							  end_time - start_time)
 							  .count();
-	save_data("T",operating_time, params, "ils1");
+	//save_data("T",operating_time, params, "ils1");
 	save_data("I", number_of_iteration, params, "ils1");
 	// std::cout << "LEN: " << calculate_objective(cycle_x1, cycle_x2) <<
 	// std::endl;
@@ -310,7 +312,7 @@ auto TSP::iterative_local_search_two()
 	auto operating_time = std::chrono::duration_cast<std::chrono::milliseconds>(
 							  end_time - start_time)
 							  .count();
-	save_data("T", operating_time, params, "ils2");
+	//save_data("T", operating_time, params, "ils2");
 	save_data("I", number_of_iteration, params, "ils2");
 
 	return {cycle_x1, cycle_x2};

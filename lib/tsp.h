@@ -50,6 +50,7 @@ struct LocalSearchParams {
 	std::string filename;		// name of the file
 	int steepest;				// greedy(0), steepest(1)
 	int num_starts = 100;		// number of starts for multiple local search
+	bool using_local_search;
 };
 
 // Hash function for pairs (to use pair as key in unordered_set)
