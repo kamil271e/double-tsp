@@ -64,18 +64,26 @@ int main(int argc, char *argv[]) {
 	}
 
 	// LOCAL
-	if (argc == 6) {
+	if (argc >= 6) {
 
 		Matrix m;
 		m.load_from_path(argv[1]);
 		m.generate_dist_matrix();
 		LocalSearchParams params;
+		params.filename = argv[1];
 		params.input_data = std::string(argv[3]);
 		params.movements_type = std::string(argv[4]);
 		params.steepest = std::stoi(argv[5]);
-		params.filename = argv[1];
 
 		AlgType alg_type = choose_algo(std::string(argv[2]));
+		if (alg_type == AlgType::hea || alg_type == AlgType::ils2) {
+			params.using_local_search = std::stoi(argv[6]);			
+			TSP tsp(m, alg_type, params.input_data, params.movements_type,
+					params.steepest, params.using_local_search, params.filename);
+
+			generate_cycles(tsp);
+			return 0;
+		}
 		// Print alg_type
 		TSP tsp(m, alg_type, params.input_data, params.movements_type,
 				params.steepest, params.filename);
@@ -86,7 +94,7 @@ int main(int argc, char *argv[]) {
 				  << " <instance_path> <algotype> [nearest, expansion, regret, "
 					 "local, msls, ils1, ils2, hea ]"
 				  << " <input_data> [random, regret] <movements_type> [inner, "
-					 "inter] <greedy/steepest> [0, 1]"
+					 "inter] <greedy/steepest> [0, 1] "
 				  << std::endl;
 		return 1;
 	}

@@ -201,7 +201,8 @@ auto TSP::local_search() -> std::tuple<std::vector<int>, std::vector<int>> {
 
 	} else if (params.input_data == "regret") {
 		std::tie(cycle1, cycle2) = find_greedy_cycles_regret();
-	}
+	    //std::tie(cycle1, cycle2) = find_greedy_cycles_nearest();
+    }
 
 	bool vertex;
 	if (params.movements_type == "edge") {

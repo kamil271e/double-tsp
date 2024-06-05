@@ -33,11 +33,23 @@ enum class AlgType {
 	hea
 };
 
+enum available {
+    NOT=-2,
+    FREE=-1,
+    // other number is current path idx
+};
+
+enum side {
+    LEFT=-1,
+    RIGHT=1
+};
+
 struct LocalSearchParams {
 	std::string input_data;		// random, regret
 	std::string movements_type; // vertex, edge
 	std::string filename;		// name of the file
 	int steepest;				// greedy(0), steepest(1)
+	int using_local_search;     // 0 - no, 1 - yes
 	int num_starts = 100;		// number of starts for multiple local search
 };
 
@@ -55,6 +67,9 @@ class TSP {
 	TSP(const Matrix &dist_matrix, AlgType, std::string input_data,
 		std::string movements_type, int steepest,
 		std::string filename); // local search constructor
+	TSP(const Matrix &dist_matrix, AlgType, std::string input_data,
+		std::string movements_type, int steepest, int using_local_search,
+		std::string filename); //hea constructor
 
 	auto solve() -> std::tuple<std::vector<int>, std::vector<int>>;
 	const Matrix &dist_matrix;
@@ -76,8 +91,11 @@ class TSP {
 	void append_vertex(int, std::vector<int> &);
 	void insert_vertex(int, int, std::vector<int> &);
 	void log_build_process();
-	void save_time(long, struct LocalSearchParams,
-				   std::string); // TODO make more generic ;-;
+	// void save_time(long, struct LocalSearchParams,
+	// 			   std::string); // TODO make more generic ;-;
+
+	void save_data(const std::string&, long , struct LocalSearchParams, std::string);
+
 
 	// GREEDY
 	auto find_greedy_cycles_nearest()
@@ -95,6 +113,11 @@ class TSP {
 	std::tuple<std::vector<int>, std::vector<int>>
 	find_greedy_cycles_regret_from_incomplete(std::vector<int> &,
 											  std::vector<int> &);
+    std::tuple<std::vector<int>, std::vector<int>> find_greedy_cycles_from_incomplete(std::vector<int> &, std::vector<int> &);
+    std::tuple<std::vector<int>, std::vector<int>> find_greedy_cycles_nearest_from_incomplete(std::vector<int> &, std::vector<int> &);
+    std::vector<int> find_from_incomplete_degenerated_inner(std::vector<std::vector<int>> &, std::map<int, std::pair<int, int>>&);
+    std::tuple<std::vector<int>, std::vector<int>> find_from_incomplete_degenerated(std::vector<std::vector<int>> &, std::vector<std::vector<int>> &, std::map<int, std::pair<int, int>>&, std::map<int, std::pair<int, int>>&);
+    std::pair<int,int> find_neighbour(int, int, int);
 
 	// LOCAL SEARCH
 	auto local_search() -> std::tuple<std::vector<int>, std::vector<int>>;
@@ -128,7 +151,6 @@ class TSP {
 		-> std::tuple<std::vector<int>, std::vector<int>>;
 	int calculate_objective(const std::vector<int> &, const std::vector<int> &);
 	// Temporary solution to the problem of duplicate vertices in the cycle
-	auto delete_duplicates(const std::vector<int> &) -> std::vector<int>;
 	auto iterative_local_search_one()
 		-> std::tuple<std::vector<int>, std::vector<int>>;
 	auto iterative_local_search_two()
@@ -148,14 +170,12 @@ class TSP {
 	auto select_two_parents(
 		const std::vector<std::tuple<std::vector<int>, std::vector<int>>>)
 		-> std::pair<int, int>;
-	auto recombine(const std::vector<int> &, const std::vector<int> &,
-				   std::vector<int> &) -> std::vector<int>;
+
 	std::unordered_set<std::pair<int, int>, pair_hash>
 	findEdges(const std::vector<int> &);
-	void
-	remove_edges(std::vector<int> &,
-				 const std::unordered_set<std::pair<int, int>, pair_hash> &);
-	void remove_isolated_vertices(std::vector<int> &,
-								  const std::unordered_set<int> &);
+	
+    auto remove_edges(std::vector<int>& , const std::unordered_set<std::pair<int, int>, pair_hash>&) -> std::vector<int>;
+	auto find_best_worst_solution(std::vector<std::tuple<std::vector<int>, std::vector<int>>>, bool) -> std::pair<int, int>;
+
 };
 #endif // TSP_H

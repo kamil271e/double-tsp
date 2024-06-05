@@ -71,7 +71,8 @@ auto TSP::multiple_local_search()
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
 						end_time - start_time)
 						.count();
-	save_time(duration, params, "msls");
+	save_data("T",duration, params, "msls");
+	save_data("I", params.num_starts, params, "msls");
 
 	// has_duplicates(best_cycle1, best_cycle2);
 	// std::cout << "LEN: " << calculate_objective(best_cycle1, best_cycle2) <<
@@ -113,7 +114,8 @@ auto TSP::iterative_local_search_one()
 		std::tie(cycle_x1, cycle_x2) = generate_random_cycles(200);
 
 	} else if (params.input_data == "regret") {
-		std::tie(cycle_x1, cycle_x2) = find_greedy_cycles_regret();
+//		std::tie(cycle_x1, cycle_x2) = find_greedy_cycles_regret();
+        std::tie(cycle_x1, cycle_x2) = find_greedy_cycles_nearest();
 	}
 
 	// Find average value of MSLS time
@@ -124,7 +126,10 @@ auto TSP::iterative_local_search_one()
 	// x := Local search (x)
 	std::tie(cycle_x1, cycle_x2) = local_search(cycle_x1, cycle_x2);
 	// Create loop, where avg_time is the stop condition
+
+	long number_of_iteration = 0;
 	while (std::chrono::steady_clock::now() < avg_time) {
+		++number_of_iteration;
 		// y := x
 		cycle_y1 = cycle_x1;
 		cycle_y2 = cycle_x2;
@@ -133,7 +138,9 @@ auto TSP::iterative_local_search_one()
 		std::tie(cycle_y1, cycle_y2) = perturbation_one(cycle_y1, cycle_y2);
 
 		// y := Local search (y)
+	
 		std::tie(cycle_y1, cycle_y2) = local_search(cycle_y1, cycle_y2);
+	
 
 		// If f(y) > f(x) then x := y
 		if (calculate_objective(cycle_y1, cycle_y2) <
@@ -147,7 +154,8 @@ auto TSP::iterative_local_search_one()
 	auto operating_time = std::chrono::duration_cast<std::chrono::milliseconds>(
 							  end_time - start_time)
 							  .count();
-	save_time(operating_time, params, "ils1");
+	//save_data("T",operating_time, params, "ils1");
+	save_data("I", number_of_iteration, params, "ils1");
 	// std::cout << "LEN: " << calculate_objective(cycle_x1, cycle_x2) <<
 	// std::endl;
 	return {cycle_x1, cycle_x2};
@@ -263,6 +271,7 @@ auto TSP::iterative_local_search_two()
 
 	} else if (params.input_data == "regret") {
 		std::tie(cycle_x1, cycle_x2) = find_greedy_cycles_regret();
+        //std::tie(cycle_x1, cycle_x2) = find_greedy_cycles_nearest();
 	}
 
 	// Find avarage value of MSLS time
@@ -272,10 +281,14 @@ auto TSP::iterative_local_search_two()
 
 	//?????? x := Local search (x) (option) ?????
 	// I'm not sure about this line, as I don't understand what the option means
-	std::tie(cycle_x1, cycle_x2) = local_search(cycle_x1, cycle_x2);
+	if (params.using_local_search == 1) {
+		std::tie(cycle_x1, cycle_x2) = local_search(cycle_x1, cycle_x2);
+	}
 	// Create loop, where avg_time is the stop condition
-
+	long number_of_iteration = 0;
 	while (std::chrono::steady_clock::now() < avg_time) {
+		++number_of_iteration;
+
 		// y := x
 		cycle_y1 = cycle_x1;
 		cycle_y2 = cycle_x2;
@@ -286,7 +299,11 @@ auto TSP::iterative_local_search_two()
 		// y := Local search (y)  (option)
 		// I'm not sure about this line, as I don't understand what the option
 		// means
-		std::tie(cycle_y1, cycle_y2) = local_search(cycle_y1, cycle_y2);
+		
+		
+		if (params.using_local_search == 1) {
+			std::tie(cycle_y1, cycle_y2) = local_search(cycle_y1, cycle_y2);
+		}
 
 		// If f(y) < f(x) then x := y
 		if (calculate_objective(cycle_y1, cycle_y2) <
@@ -300,7 +317,8 @@ auto TSP::iterative_local_search_two()
 	auto operating_time = std::chrono::duration_cast<std::chrono::milliseconds>(
 							  end_time - start_time)
 							  .count();
-	save_time(operating_time, params, "ils2");
+	//save_data("T", operating_time, params, "ils2");
+	save_data("I", number_of_iteration, params, "ils2");
 
 	return {cycle_x1, cycle_x2};
 }
@@ -355,6 +373,8 @@ auto TSP::destroy_perturbation(std::vector<int> &c1, std::vector<int> &c2)
 
 auto TSP::repair_perturbation(std::vector<int> &c1, std::vector<int> &c2)
 	-> std::tuple<std::vector<int>, std::vector<int>> {
-	find_greedy_cycles_regret_from_incomplete(c1, c2);
-	return {c1, c2};
+    find_greedy_cycles_regret_from_incomplete(c1, c2);  // REGRET
+    // find_greedy_cycles_from_incomplete(c1, c2); // GREEDY CYCLES
+    //find_greedy_cycles_nearest_from_incomplete(c1, c2); // NEAREST
+    return {c1, c2};
 }
